@@ -12,7 +12,7 @@ const About = () => {
 
           <div className="glass-card rounded-2xl p-6 md:p-10">
             <p className="text-lg leading-relaxed text-foreground/90 mb-6">
-              I build AI systems that solve real-world problems—not just classroom ones.
+              I build AI systems that solve real world problems not just classroom ones.
               From healthcare automation to speech and language intelligence, I enjoy taking
               ideas from research papers to working products.
             </p>
