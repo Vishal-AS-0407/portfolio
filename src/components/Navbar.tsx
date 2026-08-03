@@ -1,29 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Github, Linkedin, Mail } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useScrollProgress, useActiveSection } from '@/hooks/use-scroll-progress';
 
 const navItems = [
   { label: 'About', href: '#about' },
-  { label: 'Education', href: '#education' },
   { label: 'Skills', href: '#skills' },
   { label: 'Experience', href: '#experience' },
   { label: 'Projects', href: '#projects' },
   { label: 'Research', href: '#research' },
-  { label: 'Achievements', href: '#achievements' },
+  { label: 'Awards', href: '#achievements' },
   { label: 'Contact', href: '#contact' },
 ];
 
-const Navbar = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+const sectionIds = navItems.map((n) => n.href.slice(1));
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const progress = useScrollProgress();
+  const active = useActiveSection(sectionIds);
 
   const scrollToSection = (href: string) => {
     setIsOpen(false);
@@ -34,119 +29,122 @@ const Navbar = () => {
   };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-card/95 backdrop-blur-md shadow-lg border-b border-border/50'
-          : 'bg-transparent'
-      }`}
-    >
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          <a
-            href="#"
-            className="font-serif text-xl md:text-2xl font-semibold text-primary hover:opacity-80 transition-opacity"
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          >
-            Vishal A S
-          </a>
-
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navItems.map((item) => (
+    <>
+      <motion.nav
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        className="fixed top-0 left-0 right-0 z-50"
+      >
+        <div className="glass-strong border-b border-border/40">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-16 md:h-20">
+              {/* Logo */}
               <button
-                key={item.label}
-                onClick={() => scrollToSection(item.href)}
-                className="px-3 py-2 text-sm font-medium text-foreground/80 hover:text-primary transition-colors rounded-lg hover:bg-accent/50"
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="font-display text-xl md:text-2xl font-bold tracking-tight group"
               >
-                {item.label}
+                <span className="gradient-text">Vishal</span>
+                <span className="text-foreground/80 ml-1.5">A S</span>
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary ml-1 animate-pulse-glow" />
               </button>
-            ))}
+
+              {/* Desktop Nav */}
+              <div className="hidden lg:flex items-center gap-1">
+                {navItems.map((item) => (
+                  <button
+                    key={item.label}
+                    onClick={() => scrollToSection(item.href)}
+                    className={`relative px-3 py-2 text-sm font-medium transition-colors rounded-lg ${
+                      active === item.href.slice(1)
+                        ? 'text-primary'
+                        : 'text-foreground/60 hover:text-foreground'
+                    }`}
+                  >
+                    {item.label}
+                    {active === item.href.slice(1) && (
+                      <motion.div
+                        layoutId="nav-active"
+                        className="absolute inset-0 rounded-lg bg-primary/10 border border-primary/20"
+                        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Social Links */}
+              <div className="hidden lg:flex items-center gap-1">
+                {[
+                  { icon: Github, href: 'https://github.com/Vishal-AS-0407' },
+                  { icon: Linkedin, href: 'https://www.linkedin.com/in/vishal-a-s04/' },
+                  { icon: Mail, href: 'mailto:vishal.as04@outlook.com' },
+                ].map((link, i) => (
+                  <a
+                    key={i}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 text-foreground/50 hover:text-primary transition-colors rounded-lg hover:bg-primary/5"
+                  >
+                    <link.icon size={18} />
+                  </a>
+                ))}
+              </div>
+
+              {/* Mobile Toggle */}
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="lg:hidden p-2 text-foreground/70 hover:text-primary transition-colors"
+              >
+                {isOpen ? <X size={22} /> : <Menu size={22} />}
+              </button>
+            </div>
           </div>
 
-          {/* Social Links - Desktop */}
-          <div className="hidden lg:flex items-center gap-2">
-            <a
-              href="https://github.com/Vishal-AS-0407"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-foreground/70 hover:text-primary transition-colors rounded-full hover:bg-accent/50"
-            >
-              <Github size={20} />
-            </a>
-            <a
-              href="https://www.linkedin.com/in/vishal-a-s04/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-foreground/70 hover:text-primary transition-colors rounded-full hover:bg-accent/50"
-            >
-              <Linkedin size={20} />
-            </a>
-            <a
-              href="mailto:vishal.as04@outlook.com"
-              className="p-2 text-foreground/70 hover:text-primary transition-colors rounded-full hover:bg-accent/50"
-            >
-              <Mail size={20} />
-            </a>
+          {/* Scroll progress bar */}
+          <div className="h-px bg-border/30 overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-primary via-primary to-accent transition-all duration-150"
+              style={{ width: `${progress}%` }}
+            />
           </div>
-
-          {/* Mobile Menu Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </Button>
         </div>
+      </motion.nav>
 
-        {/* Mobile Navigation */}
+      {/* Mobile Menu */}
+      <AnimatePresence>
         {isOpen && (
-          <div className="lg:hidden py-4 border-t border-border/50 bg-card/95 backdrop-blur-md">
-            <div className="flex flex-col gap-1">
-              {navItems.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => scrollToSection(item.href)}
-                  className="px-4 py-3 text-sm font-medium text-foreground/80 hover:text-primary hover:bg-accent/50 transition-colors text-left rounded-lg"
-                >
-                  {item.label}
-                </button>
-              ))}
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-16 left-0 right-0 z-40 lg:hidden glass-strong border-b border-border/40"
+          >
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex flex-col gap-1">
+                {navItems.map((item, i) => (
+                  <motion.button
+                    key={item.label}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.05 }}
+                    onClick={() => scrollToSection(item.href)}
+                    className={`px-4 py-3 text-left text-sm font-medium rounded-lg transition-colors ${
+                      active === item.href.slice(1)
+                        ? 'text-primary bg-primary/10'
+                        : 'text-foreground/70 hover:text-foreground hover:bg-foreground/5'
+                    }`}
+                  >
+                    {item.label}
+                  </motion.button>
+                ))}
+              </div>
             </div>
-            <div className="flex items-center gap-4 mt-4 pt-4 border-t border-border/30 px-4">
-              <a
-                href="https://github.com/Vishal-AS-0407"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-foreground/70 hover:text-primary transition-colors"
-              >
-                <Github size={22} />
-              </a>
-              <a
-                href="https://www.linkedin.com/in/vishal-a-s04/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-foreground/70 hover:text-primary transition-colors"
-              >
-                <Linkedin size={22} />
-              </a>
-              <a
-                href="mailto:vishal.as04@outlook.com"
-                className="text-foreground/70 hover:text-primary transition-colors"
-              >
-                <Mail size={22} />
-              </a>
-            </div>
-          </div>
+          </motion.div>
         )}
-      </div>
-    </nav>
+      </AnimatePresence>
+    </>
   );
-};
-
-export default Navbar;
+}

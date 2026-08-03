@@ -1,11 +1,6 @@
-import { 
-  Brain, 
-  Code, 
-  Database, 
-  Cloud, 
-  Cpu, 
-  Layers 
-} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Brain, Code, Database, Cloud, Layers, Cpu } from 'lucide-react';
+import { SectionHeader, Reveal } from './motion/Reveal';
 
 const skillCategories = [
   {
@@ -42,42 +37,49 @@ const skillCategories = [
 
 const Skills = () => {
   return (
-    <section id="skills" className="py-20 md:py-32 bg-card/50">
+    <section id="skills" className="relative py-24 md:py-36">
       <div className="container mx-auto px-4">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Technical <span className="sakura-text-gradient">Skills</span>
-          </h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Technologies and tools I work with
-          </p>
+        <SectionHeader
+          label="03 — Skills"
+          title="Technical"
+          highlight="Skills"
+          subtitle="Technologies and tools I work with"
+        />
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {skillCategories.map((category, index) => (
-              <div
-                key={category.title}
-                className="sakura-card rounded-2xl p-6 hover:scale-[1.02] transition-transform duration-300"
-              >
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2.5 rounded-xl bg-accent">
-                    <category.icon className="w-5 h-5 text-accent-foreground" />
-                  </div>
-                  <h3 className="font-semibold text-lg">{category.title}</h3>
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {skillCategories.map((category, index) => (
+            <motion.div
+              key={category.title}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: '-50px' }}
+              transition={{ duration: 0.5, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] }}
+              whileHover={{ y: -6 }}
+              className="glass-card glow-border p-6 group hover:border-primary/30 transition-colors"
+            >
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-3 rounded-2xl glass-strong border border-primary/20 group-hover:border-primary/40 transition-colors">
+                  <category.icon className="w-5 h-5 text-primary group-hover:scale-110 transition-transform" />
                 </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {category.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-3 py-1.5 text-sm rounded-lg bg-secondary/50 text-secondary-foreground hover:bg-primary/10 hover:text-primary transition-colors"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
+                <h3 className="font-semibold text-lg">{category.title}</h3>
               </div>
-            ))}
-          </div>
+
+              <div className="flex flex-wrap gap-2">
+                {category.skills.map((skill, i) => (
+                  <motion.span
+                    key={skill}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: index * 0.08 + i * 0.03 }}
+                    className="px-3 py-1.5 text-sm rounded-full glass border border-border/40 hover:border-primary/40 hover:text-primary hover:bg-primary/5 transition-all cursor-default"
+                  >
+                    {skill}
+                  </motion.span>
+                ))}
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>

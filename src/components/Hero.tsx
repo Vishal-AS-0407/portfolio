@@ -1,113 +1,143 @@
-import { ChevronDown, MapPin, Sparkles } from 'lucide-react';
-import profilePhoto from '@/assets/profile-photo.jpg';
-import sakuraHeroBg from '@/assets/sakura-hero-bg.png';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
+import { ArrowDown, Sparkles, MapPin } from 'lucide-react';
+import NeuralField from './NeuralField';
 
 const Hero = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start start', 'end start'],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.9]);
+
   const scrollToAbout = () => {
     document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 sakura-gradient" />
+    <section
+      ref={ref}
+      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+    >
+      {/* Particle field background */}
+      <div className="absolute inset-0 z-0">
+        <NeuralField density={1.2} />
+      </div>
+
+      {/* Radial gradient overlay */}
       <div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 z-[1] pointer-events-none"
         style={{
-          backgroundImage: `url(${sakuraHeroBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          background: 'radial-gradient(ellipse at center, transparent 0%, hsl(200 25% 4% / 0.5) 70%, hsl(200 25% 4%) 100%)',
         }}
       />
 
       {/* Content */}
-      <div className="relative z-10 container mx-auto px-4 py-20 md:py-32">
-        <div className="flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-16">
-          {/* Profile Image */}
-          <div className="relative animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="w-48 h-48 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-primary/30 shadow-xl">
-              <img
-                src={profilePhoto}
-                alt="Vishal A S"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="absolute -bottom-2 -right-2 bg-card rounded-full p-3 shadow-lg border border-border/50">
-              <Sparkles className="w-6 h-6 text-primary" />
-            </div>
-          </div>
+      <motion.div
+        style={{ y, opacity, scale }}
+        className="relative z-10 container mx-auto px-4 pt-20"
+      >
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Status badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass border border-primary/20 text-sm mb-8"
+          >
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary" />
+            </span>
+            <span className="text-foreground/80">Available for opportunities</span>
+            <span className="text-muted-foreground/50">|</span>
+            <span className="text-muted-foreground flex items-center gap-1">
+              <MapPin size={12} />
+              Coimbatore, India
+            </span>
+          </motion.div>
 
-          {/* Text Content */}
-          <div className="text-center lg:text-left max-w-2xl">
-            <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-card/80 backdrop-blur-sm border border-border/50 text-sm text-muted-foreground mb-6 animate-fade-in"
-              style={{ animationDelay: '0.3s' }}
-            >
-              <MapPin size={14} className="text-primary" />
-              Coimbatore, Tamil Nadu, India
-            </div>
+          {/* Main heading */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 leading-[1.05] text-balance"
+          >
+            <span className="block text-foreground/90">Hi, I'm</span>
+            <span className="block gradient-text text-shadow-glow mt-2">Vishal A S</span>
+          </motion.h1>
 
-            <h1
-              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 animate-fade-in"
-              style={{ animationDelay: '0.4s' }}
-            >
-              Hi, I'm{' '}
-              <span className="sakura-text-gradient">Vishal A S</span>
-            </h1>
-
-            <p
-              className="text-xl md:text-2xl text-foreground/80 mb-6 animate-fade-in"
-              style={{ animationDelay: '0.5s' }}
-            >
+          {/* Role */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="flex items-center justify-center gap-2 mb-6"
+          >
+            <Sparkles size={18} className="text-primary" />
+            <span className="text-xl md:text-2xl font-display font-medium text-foreground/80">
               AI Developer & ML Engineer
-            </p>
+            </span>
+          </motion.div>
 
-            <p
-              className="text-base md:text-lg text-muted-foreground mb-8 leading-relaxed animate-fade-in"
-              style={{ animationDelay: '0.6s' }}
-            >
-              Transforming ideas into intelligent solutions. B.Tech in Computer Science
-              (AI) at Amrita Vishwa Vidyapeetham. Passionate about Deep Learning, LLMs,
-              Computer Vision, and building AI-powered applications that make a difference.
-            </p>
+          {/* Description */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="text-base md:text-lg text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed text-balance"
+          >
+            Transforming ideas into intelligent solutions. B.Tech in Computer Science
+            (AI) at Amrita Vishwa Vidyapeetham. Passionate about Deep Learning, LLMs,
+            Computer Vision, and building AI-powered applications that make a difference.
+          </motion.p>
 
-            <div
-              className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start animate-fade-in"
-              style={{ animationDelay: '0.7s' }}
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.7 }}
+            className="flex flex-col sm:flex-row gap-4 justify-center"
+          >
+            <button
+              onClick={() => document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' })}
+              className="group relative px-8 py-3.5 rounded-full bg-primary text-primary-foreground font-medium overflow-hidden transition-transform hover:scale-105 active:scale-95"
             >
-              <a
-                href="#projects"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity shadow-lg"
-              >
+              <span className="relative z-10 flex items-center gap-2">
                 View My Projects
-              </a>
-              <a
-                href="#contact"
-                onClick={(e) => {
-                  e.preventDefault();
-                  document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="inline-flex items-center justify-center px-6 py-3 rounded-full bg-card border border-border text-foreground font-medium hover:bg-accent transition-colors"
-              >
-                Get In Touch
-              </a>
-            </div>
-          </div>
+                <ArrowDown size={16} className="group-hover:translate-y-0.5 transition-transform" />
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-r from-primary to-accent opacity-0 group-hover:opacity-100 transition-opacity" />
+            </button>
+            <button
+              onClick={() => document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' })}
+              className="px-8 py-3.5 rounded-full glass border border-border/60 text-foreground font-medium hover:border-primary/40 hover:bg-primary/5 transition-all"
+            >
+              Get In Touch
+            </button>
+          </motion.div>
         </div>
+      </motion.div>
 
-        {/* Scroll Indicator */}
-        <button
-          onClick={scrollToAbout}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors animate-bounce"
+      {/* Scroll indicator */}
+      <motion.button
+        onClick={scrollToAbout}
+        style={{ opacity }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 text-muted-foreground hover:text-primary transition-colors group"
+      >
+        <span className="font-mono text-xs uppercase tracking-widest">Scroll</span>
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
         >
-          <span className="text-sm">Scroll</span>
-          <ChevronDown size={20} />
-        </button>
-      </div>
+          <ArrowDown size={20} />
+        </motion.div>
+      </motion.button>
     </section>
   );
 };

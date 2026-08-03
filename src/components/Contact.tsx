@@ -1,110 +1,93 @@
-import { Mail, Linkedin, Github, MapPin, Send, GraduationCap, FlaskConical } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Linkedin, Github, MapPin, Send, GraduationCap, FlaskConical, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
+import { SectionHeader, Reveal } from './motion/Reveal';
+
+const contactLinks = [
+  { icon: Mail, label: 'Email', value: 'vishal.as04@outlook.com', href: 'mailto:vishal.as04@outlook.com' },
+  { icon: Linkedin, label: 'LinkedIn', value: 'in/vishal-a-s04', href: 'https://www.linkedin.com/in/vishal-a-s04/' },
+  { icon: Github, label: 'GitHub', value: 'Vishal-AS-0407', href: 'https://github.com/Vishal-AS-0407' },
+  { icon: GraduationCap, label: 'Google Scholar', value: 'View Publications', href: 'https://scholar.google.com/citations?user=fPK6EDAAAAAJ&hl=en' },
+  { icon: FlaskConical, label: 'ResearchGate', value: 'Research Profile', href: 'https://www.researchgate.net/profile/Vishal-A-S-3' },
+];
+
+type Status = 'idle' | 'sending' | 'success' | 'error';
 
 const Contact = () => {
+  const [status, setStatus] = useState<Status>('idle');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!subject.trim() || !message.trim()) return;
+
+    setStatus('sending');
+    try {
+      const { error } = await supabase.from('contact_messages').insert({
+        name: name.trim() || null,
+        email: email.trim() || null,
+        subject: subject.trim(),
+        message: message.trim(),
+      });
+
+      if (error) throw error;
+
+      setStatus('success');
+      setName('');
+      setEmail('');
+      setSubject('');
+      setMessage('');
+      setTimeout(() => setStatus('idle'), 5000);
+    } catch (err) {
+      console.error('Contact form error:', err);
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 5000);
+    }
+  };
+
   return (
-    <section id="contact" className="py-20 md:py-32">
+    <section id="contact" className="relative py-24 md:py-36">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Get In <span className="sakura-text-gradient">Touch</span>
-          </h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            I'm always open to discussing new projects, opportunities, or collaborations
-          </p>
+        <SectionHeader
+          label="12 — Contact"
+          title="Get In"
+          highlight="Touch"
+          subtitle="I'm always open to discussing new projects, opportunities, or collaborations"
+        />
 
-          <div className="grid md:grid-cols-2 gap-8">
-            {/* Contact Info */}
-            <div className="sakura-card rounded-2xl p-6 md:p-8">
+        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
+          {/* Contact Info */}
+          <Reveal>
+            <div className="glass-card glow-border p-6 md:p-8">
               <h3 className="text-xl font-bold mb-6">Let's Connect</h3>
-
-              <div className="space-y-6">
-                <a
-                  href="mailto:vishal.as04@outlook.com"
-                  className="flex items-center gap-4 group"
-                >
-                  <div className="p-3 rounded-xl bg-accent group-hover:bg-primary/10 transition-colors">
-                    <Mail className="w-5 h-5 text-accent-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium group-hover:text-primary transition-colors">
-                      vishal.as04@outlook.com
-                    </p>
-                  </div>
-                </a>
-
-                <a
-                  href="https://www.linkedin.com/in/vishal-a-s04/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 group"
-                >
-                  <div className="p-3 rounded-xl bg-accent group-hover:bg-primary/10 transition-colors">
-                    <Linkedin className="w-5 h-5 text-accent-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">LinkedIn</p>
-                    <p className="font-medium group-hover:text-primary transition-colors">
-                      in/vishal-a-s04
-                    </p>
-                  </div>
-                </a>
-
-                <a
-                  href="https://github.com/Vishal-AS-0407"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 group"
-                >
-                  <div className="p-3 rounded-xl bg-accent group-hover:bg-primary/10 transition-colors">
-                    <Github className="w-5 h-5 text-accent-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">GitHub</p>
-                    <p className="font-medium group-hover:text-primary transition-colors">
-                      Vishal-AS-0407
-                    </p>
-                  </div>
-                </a>
-
-                <a
-                  href="https://scholar.google.com/citations?user=fPK6EDAAAAAJ&hl=en"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 group"
-                >
-                  <div className="p-3 rounded-xl bg-accent group-hover:bg-primary/10 transition-colors">
-                    <GraduationCap className="w-5 h-5 text-accent-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Google Scholar</p>
-                    <p className="font-medium group-hover:text-primary transition-colors">
-                      View Publications
-                    </p>
-                  </div>
-                </a>
-
-                <a
-                  href="https://www.researchgate.net/profile/Vishal-A-S-3"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-4 group"
-                >
-                  <div className="p-3 rounded-xl bg-accent group-hover:bg-primary/10 transition-colors">
-                    <FlaskConical className="w-5 h-5 text-accent-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">ResearchGate</p>
-                    <p className="font-medium group-hover:text-primary transition-colors">
-                      Research Profile
-                    </p>
-                  </div>
-                </a>
+              <div className="space-y-4">
+                {contactLinks.map((link) => (
+                  <a
+                    key={link.label}
+                    href={link.href}
+                    target={link.href.startsWith('mailto:') ? undefined : '_blank'}
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 group"
+                  >
+                    <div className="p-3 rounded-xl glass border border-border/40 group-hover:border-primary/40 group-hover:bg-primary/5 transition-colors">
+                      <link.icon className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">{link.label}</p>
+                      <p className="font-medium group-hover:text-primary transition-colors">
+                        {link.value}
+                      </p>
+                    </div>
+                  </a>
+                ))}
 
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-accent">
-                    <MapPin className="w-5 h-5 text-accent-foreground" />
+                  <div className="p-3 rounded-xl glass border border-border/40">
+                    <MapPin className="w-5 h-5 text-muted-foreground" />
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Location</p>
@@ -113,46 +96,102 @@ const Contact = () => {
                 </div>
               </div>
             </div>
+          </Reveal>
 
-            {/* Quick Message */}
-            <div className="sakura-card rounded-2xl p-6 md:p-8">
+          {/* Contact Form */}
+          <Reveal delay={0.1}>
+            <div className="glass-card glow-border p-6 md:p-8">
               <h3 className="text-xl font-bold mb-6">Send a Message</h3>
-
-              <form
-                action="mailto:vishal.as04@outlook.com"
-                method="get"
-                className="space-y-4"
-              >
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2">Subject</label>
+                  <label className="block text-sm font-medium mb-2 text-muted-foreground">
+                    Name <span className="text-muted-foreground/50">(optional)</span>
+                  </label>
                   <input
                     type="text"
-                    name="subject"
-                    placeholder="Project Collaboration"
-                    className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name"
+                    className="w-full px-4 py-3 rounded-xl glass border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none text-foreground placeholder:text-muted-foreground/50"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-2">Message</label>
-                  <textarea
-                    name="body"
-                    rows={4}
-                    placeholder="Hi Vishal, I'd like to discuss..."
-                    className="w-full px-4 py-3 rounded-xl bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none resize-none"
+                  <label className="block text-sm font-medium mb-2 text-muted-foreground">
+                    Email <span className="text-muted-foreground/50">(optional)</span>
+                  </label>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="w-full px-4 py-3 rounded-xl glass border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none text-foreground placeholder:text-muted-foreground/50"
                   />
                 </div>
 
-                <Button
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-muted-foreground">
+                    Subject <span className="text-primary">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={subject}
+                    onChange={(e) => setSubject(e.target.value)}
+                    placeholder="Project Collaboration"
+                    className="w-full px-4 py-3 rounded-xl glass border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none text-foreground placeholder:text-muted-foreground/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-muted-foreground">
+                    Message <span className="text-primary">*</span>
+                  </label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Hi Vishal, I'd like to discuss..."
+                    className="w-full px-4 py-3 rounded-xl glass border border-border/50 focus:border-primary focus:ring-1 focus:ring-primary transition-colors outline-none text-foreground placeholder:text-muted-foreground/50 resize-none"
+                  />
+                </div>
+
+                <button
                   type="submit"
-                  className="w-full rounded-xl bg-primary text-primary-foreground hover:opacity-90"
+                  disabled={status === 'sending' || status === 'success'}
+                  className="w-full rounded-xl bg-primary text-primary-foreground font-medium py-3 flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  <Send className="w-4 h-4 mr-2" />
-                  Send Message
-                </Button>
+                  <AnimatePresence mode="wait">
+                    {status === 'idle' && (
+                      <motion.span key="idle" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                        <Send className="w-4 h-4" />
+                        Send Message
+                      </motion.span>
+                    )}
+                    {status === 'sending' && (
+                      <motion.span key="sending" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Sending...
+                      </motion.span>
+                    )}
+                    {status === 'success' && (
+                      <motion.span key="success" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4" />
+                        Message Sent!
+                      </motion.span>
+                    )}
+                    {status === 'error' && (
+                      <motion.span key="error" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4" />
+                        Failed to Send
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </button>
               </form>
             </div>
-          </div>
+          </Reveal>
         </div>
       </div>
     </section>

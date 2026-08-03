@@ -1,5 +1,6 @@
+import { motion } from 'framer-motion';
 import { BookOpen, FileText, Award, ExternalLink } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+import { SectionHeader, Reveal } from './motion/Reveal';
 
 const publications = [
   {
@@ -7,7 +8,6 @@ const publications = [
     subtitle: 'Leveraging Feature Fusion of IndicBERTv2 and Lexical Representations',
     conference: 'ACL (A* Conference)',
     event: 'Synapse@DravidianLangTech 2025',
-    type: 'paper',
     achievement: 'Rank 1 Winner',
     link: '#',
   },
@@ -15,7 +15,6 @@ const publications = [
     title: 'Single-Modality Emotion Detection',
     subtitle: 'EEG-Based Feature Engineering and Interpretability',
     conference: 'ICBSII',
-    type: 'paper',
     achievement: 'Best Paper Award',
     link: '#',
   },
@@ -23,7 +22,6 @@ const publications = [
     title: 'From Vision to Reasoning',
     subtitle: 'A Bilingual Fine-Tuning Approach for Vision-Language Models on Mathematical Reasoning Tasks',
     conference: 'ICICC',
-    type: 'paper',
     status: 'Under Review',
   },
 ];
@@ -43,52 +41,59 @@ const patents = [
 
 const Research = () => {
   return (
-    <section id="research" className="py-20 md:py-32">
+    <section id="research" className="relative py-24 md:py-36">
       <div className="container mx-auto px-4">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="text-3xl md:text-4xl font-bold text-center mb-4">
-            Research & <span className="sakura-text-gradient">Publications</span>
-          </h2>
-          <p className="text-muted-foreground text-center mb-12 max-w-2xl mx-auto">
-            Academic contributions and intellectual property
-          </p>
+        <SectionHeader
+          label="06 — Research"
+          title="Research &"
+          highlight="Publications"
+          subtitle="Academic contributions and intellectual property"
+        />
 
+        <div className="max-w-5xl mx-auto">
           {/* Publications */}
           <div className="mb-16">
-            <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-primary" />
-              Publications
-            </h3>
+            <Reveal>
+              <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-primary" />
+                Publications
+              </h3>
+            </Reveal>
 
             <div className="space-y-4">
               {publications.map((pub, index) => (
-                <div
+                <motion.div
                   key={pub.title}
-                  className="sakura-card rounded-xl p-6 hover:scale-[1.01] transition-transform"
+                  initial={{ opacity: 0, x: -20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true, margin: '-50px' }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  whileHover={{ x: 4 }}
+                  className="glass-card glow-border p-6 hover:border-primary/30 transition-colors"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <Badge variant="outline" className="text-xs">
+                        <span className="px-2.5 py-1 text-xs rounded-full glass border border-border/50 text-muted-foreground">
                           {pub.conference}
-                        </Badge>
+                        </span>
                         {pub.achievement && (
-                          <Badge className="text-xs bg-primary/10 text-primary border-primary/20">
-                            <Award size={12} className="mr-1" />
+                          <span className="px-2.5 py-1 text-xs rounded-full bg-primary/10 text-primary border border-primary/20 flex items-center gap-1">
+                            <Award size={12} />
                             {pub.achievement}
-                          </Badge>
+                          </span>
                         )}
                         {pub.status && (
-                          <Badge variant="secondary" className="text-xs">
+                          <span className="px-2.5 py-1 text-xs rounded-full bg-accent/10 text-accent border border-accent/20">
                             {pub.status}
-                          </Badge>
+                          </span>
                         )}
                       </div>
 
                       <h4 className="font-semibold text-lg mb-1">{pub.title}</h4>
                       <p className="text-muted-foreground text-sm mb-2">{pub.subtitle}</p>
                       {pub.event && (
-                        <p className="text-xs text-muted-foreground">{pub.event}</p>
+                        <p className="text-xs text-muted-foreground/70 font-mono">{pub.event}</p>
                       )}
                     </div>
 
@@ -104,32 +109,37 @@ const Research = () => {
                       </a>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
 
           {/* Patents */}
-          <div>
+          <Reveal>
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
               <FileText className="w-5 h-5 text-primary" />
               Patents
             </h3>
+          </Reveal>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              {patents.map((patent) => (
-                <div
-                  key={patent.title}
-                  className="sakura-card rounded-xl p-6"
-                >
-                  <Badge variant="outline" className="text-xs mb-3">
-                    Application No: {patent.applicationNo}
-                  </Badge>
-                  <h4 className="font-semibold text-lg mb-2">{patent.title}</h4>
-                  <p className="text-sm text-muted-foreground">{patent.description}</p>
-                </div>
-              ))}
-            </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {patents.map((patent, index) => (
+              <motion.div
+                key={patent.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{ y: -4 }}
+                className="glass-card glow-border p-6 hover:border-primary/30 transition-colors"
+              >
+                <span className="inline-block px-2.5 py-1 text-xs rounded-full glass border border-border/50 text-muted-foreground mb-3 font-mono">
+                  App: {patent.applicationNo}
+                </span>
+                <h4 className="font-semibold text-lg mb-2">{patent.title}</h4>
+                <p className="text-sm text-muted-foreground">{patent.description}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
