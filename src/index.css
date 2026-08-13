@@ -1,0 +1,259 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Neural Canvas Theme — Dark Cinematic AI Aesthetic */
+
+@layer base {
+  :root {
+    --background: 200 25% 4%;
+    --foreground: 190 15% 92%;
+
+    --card: 200 20% 7%;
+    --card-foreground: 190 15% 92%;
+
+    --popover: 200 20% 6%;
+    --popover-foreground: 190 15% 92%;
+
+    --primary: 172 80% 55%;
+    --primary-foreground: 200 25% 4%;
+
+    --secondary: 200 15% 12%;
+    --secondary-foreground: 190 15% 92%;
+
+    --muted: 200 15% 10%;
+    --muted-foreground: 190 10% 55%;
+
+    --accent: 30 85% 62%;
+    --accent-foreground: 200 25% 4%;
+
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 85% 97%;
+
+    --border: 200 15% 15%;
+    --input: 200 15% 14%;
+    --ring: 172 80% 55%;
+
+    --radius: 1rem;
+
+    --success: 142 60% 50%;
+    --warning: 38 90% 55%;
+    --error: 0 72% 55%;
+
+    --glow-primary: 0 0 20px hsl(172 80% 55% / 0.4);
+    --glow-accent: 0 0 20px hsl(30 85% 62% / 0.4);
+
+    --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Syne', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: hsl(172 80% 55% / 0.3);
+    color: hsl(190 15% 95%);
+  }
+}
+
+@layer components {
+  .glass {
+    background: hsl(200 20% 7% / 0.6);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid hsl(200 30% 20% / 0.5);
+  }
+
+  .glass-strong {
+    background: hsl(200 20% 6% / 0.85);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid hsl(200 30% 22% / 0.6);
+  }
+
+  .glass-card {
+    background: hsl(200 20% 8% / 0.5);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border: 1px solid hsl(200 25% 18% / 0.4);
+    border-radius: 1.25rem;
+  }
+
+  .glow-border {
+    position: relative;
+  }
+
+  .glow-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(135deg, hsl(172 80% 55% / 0.5), transparent 50%, hsl(30 85% 62% / 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(172 80% 60%) 0%, hsl(190 70% 65%) 50%, hsl(30 85% 67%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .gradient-text-accent {
+    background: linear-gradient(135deg, hsl(30 85% 62%) 0%, hsl(15 75% 55%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .section-label {
+    @apply font-mono text-xs uppercase tracking-[0.3em] text-primary/70;
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(hsl(200 30% 20% / 0.15) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(200 30% 20% / 0.15) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  .noise-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 99;
+    background: radial-gradient(ellipse at center, transparent 40%, hsl(200 25% 4% / 0.4) 100%);
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-fade-up {
+    animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .animate-pulse-glow {
+    animation: pulseGlow 3s ease-in-out infinite;
+  }
+
+  .animate-gradient-shift {
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin 20s linear infinite;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .text-shadow-glow {
+    text-shadow: 0 0 30px hsl(172 80% 55% / 0.3);
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 20px hsl(172 80% 55% / 0.2);
+  }
+  50% {
+    box-shadow: 0 0 40px hsl(172 80% 55% / 0.5);
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(200 25% 4%);
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(172 80% 55% / 0.3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(172 80% 55% / 0.5);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

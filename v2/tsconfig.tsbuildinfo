@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/components/motif.tsx","./src/components/section.tsx","./src/components/chrome/chrome.tsx","./src/components/chrome/stage.tsx","./src/data/casestudies.ts","./src/data/content.ts","./src/lib/eggs.ts","./src/lib/field.ts","./src/lib/scroll.ts","./src/routes/home.tsx","./src/routes/projectpage.tsx"],"version":"5.9.3"}

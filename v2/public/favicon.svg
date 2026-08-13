@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="m" x1="0" y1="0" x2="1" y2="0.35">
+      <stop offset="0" stop-color="#3B0F70"/>
+      <stop offset="0.42" stop-color="#8C2981"/>
+      <stop offset="0.72" stop-color="#DE4968"/>
+      <stop offset="1" stop-color="#FE9F6D"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="13" fill="#0C0D0B"/>
+  <!-- a V that is also a loss curve that bottomed out -->
+  <path d="M14 16 L32 47 L50 16"
+        fill="none" stroke="url(#m)" stroke-width="8.5"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
