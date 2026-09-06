@@ -97,28 +97,14 @@ export type Project = {
   repo?: string;
   demo?: string;
   tier: 'A' | 'B' | 'C';
-  /* Each case study gets its own world, derived from its domain: a second accent
-     for the one thing that matters most on that page, a bespoke signature
-     instrument, a layout archetype, and its own headline scale so the pages are
-     distinguishable even in greyscale. */
+  /* What the work index shows of the page a row opens into. Nothing more: the
+     project pages own their palette, type and motion outright and read none of
+     this. `accent` is that page's signature colour, tinted only where the page
+     is light-grounded and its own hue would fall under 4.5:1 on this dark
+     index. `name` is the page's actual title. Concepts: docs/design/. */
   theme: {
-    bg: string;
-    ink: string;
     accent: string;
-    accent2: string;
-    plate: string;
-    motif: string;
-    /* Legacy presentation hints. The landing page reads only `accent` and
-       `name` (the work index previews each project's world on hover). The
-       rebuilt project pages ignore this whole object — each one owns its
-       palette, type and motion outright. See docs/design/. */
-    sig: string;
-    arch: 'waterfall' | 'recorder' | 'typeset' | 'nodes' | 'depth' | 'strata' | 'graph' | 'grid';
-    name: string;      // the theme's own name, shown as the page's opening label
-    scale: number;     // headline size multiplier
-    track: number;     // headline tracking, em
-    sigA: number;      // signature opacity
-    texture?: string;  // optional oversized parallax word behind the copy
+    name: string;
   };
 };
 
@@ -138,7 +124,7 @@ export const projects: Project[] = [
     repo: 'https://github.com/Vishal-AS-0407/Why-is-my-Baby-Crying',
     demo: 'https://babycrytesting.streamlit.app/',
     tier: 'A',
-    theme: { bg: '#0E0A12', ink: '#F2E9F5', accent: '#DE4968', accent2: '#FFA45B', plate: 'spectrogram', motif: 'spectrogram', sig: 'waterfall', arch: 'waterfall', name: 'Night Ward', scale: 1.0, track: -0.05, sigA: 0.85 },
+    theme: { accent: '#FFC15E', name: 'Night Shift' },
   },
   {
     slug: 'eeg-emotion',
@@ -155,7 +141,7 @@ export const projects: Project[] = [
     ],
     repo: 'https://github.com/Vishal-AS-0407/Patient-Mental-Health-Monitoring-Using-EEG',
     tier: 'A',
-    theme: { bg: '#07100F', ink: '#E4F2EF', accent: '#4FD6C1', accent2: '#7B8CFF', plate: 'eeg', motif: 'oscilloscope', sig: 'recorder', arch: 'recorder', name: 'Trace', scale: 0.92, track: -0.03, sigA: 0.6 },
+    theme: { accent: '#E39A93', name: 'Paper' },
   },
   {
     slug: 'dravidian-sentiment',
@@ -172,7 +158,7 @@ export const projects: Project[] = [
     repo: 'https://github.com/Vishal-AS-0407/NAACL_DravidianLangTech_2025',
     demo: 'https://aclanthology.org/2025.dravidianlangtech-1.122/',
     tier: 'A',
-    theme: { bg: '#12100A', ink: '#F5EFE0', accent: '#D8A93F', accent2: '#C4553B', plate: 'attention', motif: 'attention', sig: 'attention', arch: 'typeset', name: 'Attention', scale: 1.18, track: -0.062, sigA: 0.7, texture: 'tamil' },
+    theme: { accent: '#E9B23C', name: 'Muzhakkam' },
   },
   {
     slug: 'fraud-detection',
@@ -188,7 +174,7 @@ export const projects: Project[] = [
     ],
     repo: 'https://github.com/Vishal-AS-0407/Fraud-Detection-and-VQA-Based-Multilingual-Customer-Care-Chatbot-with-Speech-Support',
     tier: 'A',
-    theme: { bg: '#0A0C14', ink: '#E6EAF5', accent: '#6E8BFF', accent2: '#9BFFD9', plate: 'embedding', motif: 'ledger', sig: 'federation', arch: 'nodes', name: 'Sealed', scale: 0.88, track: -0.02, sigA: 0.9 },
+    theme: { accent: '#3D9AE8', name: 'Sealed' },
   },
   {
     slug: 'wisp',
@@ -203,7 +189,7 @@ export const projects: Project[] = [
     ],
     repo: 'https://github.com/Vishal-AS-0407/WISP',
     tier: 'B',
-    theme: { bg: '#0B100A', ink: '#E9F2E4', accent: '#8FBF5A', accent2: '#E8C86A', plate: 'loss-surface', motif: 'topography', sig: 'depth', arch: 'depth', name: 'Camera Trap', scale: 1.06, track: -0.045, sigA: 0.8 },
+    theme: { accent: '#B4FF3B', name: 'After Dark' },
   },
   {
     slug: 'memora',
@@ -219,7 +205,7 @@ export const projects: Project[] = [
     ],
     repo: 'https://github.com/Vishal-AS-0407/Memora',
     tier: 'B',
-    theme: { bg: '#0D0B10', ink: '#EDE8F2', accent: '#A97FE0', accent2: '#5FD3C4', plate: 'attention', motif: 'memory', sig: 'strata', arch: 'strata', name: 'Recall', scale: 0.96, track: -0.038, sigA: 0.8 },
+    theme: { accent: '#D98E2B', name: 'The Catalogue' },
   },
   {
     slug: 'semantic-modeling',
@@ -235,7 +221,7 @@ export const projects: Project[] = [
     ],
     repo: 'https://github.com/Vishal-AS-0407/sematic_model_unstructured_data',
     tier: 'A',
-    theme: { bg: '#0A0D12', ink: '#E4ECF5', accent: '#5FA8D3', accent2: '#F2A65A', plate: 'embedding', motif: 'graph', sig: 'graph', arch: 'graph', name: 'Communities', scale: 1.0, track: -0.042, sigA: 0.9 },
+    theme: { accent: '#BBD6F2', name: 'The Plate' },
   },
   {
     slug: 'qubit-green-finance',
@@ -247,7 +233,7 @@ export const projects: Project[] = [
     metrics: [{ v: '15×3', k: 'SDG matrix' }, { v: '15', k: 'UN SDGs covered' }],
     repo: 'https://github.com/Vishal-AS-0407/Qubit-GreenFinance',
     tier: 'C',
-    theme: { bg: '#0A100E', ink: '#E4F2EE', accent: '#3FB58F', accent2: '#E4B363', plate: 'attention', motif: 'matrix', sig: 'matrix', arch: 'grid', name: 'Matrix 15x3', scale: 0.9, track: -0.025, sigA: 0.85 },
+    theme: { accent: '#E8C547', name: 'Allocation' },
   },
 ];
 

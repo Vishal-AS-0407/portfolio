@@ -150,6 +150,11 @@ export default function Muzhakkam() {
 
   const exitRef = useRef<null | (() => number)>(null);
   const leaving = useRef(false);
+  /* The exit gesture runs for `wait` ms before the route actually changes. If
+     the visitor hits browser Back inside that window the component unmounts and
+     the timer would still fire, throwing them forward again to a page they had
+     just left. Held here so the effect's clean-up can cancel it. */
+  const exitTimer = useRef(0);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -432,6 +437,7 @@ export default function Muzhakkam() {
       stop();
       ro.disconnect();
       for (const t of timers) window.clearTimeout(t);
+      if (exitTimer.current) window.clearTimeout(exitTimer.current);
       exitRef.current = null;
     };
   }, [reduced, coarse]);
@@ -448,7 +454,7 @@ export default function Muzhakkam() {
     e.preventDefault();
     leaving.current = true;
     const wait = go();
-    window.setTimeout(() => nav(href), wait);
+    exitTimer.current = window.setTimeout(() => nav(href), wait);
   };
 
   const marquee = (

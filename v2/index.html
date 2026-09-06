@@ -21,8 +21,26 @@
     <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    <link rel="preload" href="/fonts/archivo.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/martian-mono.woff2" as="font" type="font/woff2" crossorigin />
+    <!-- Archivo and Martian Mono belong to the landing page and to nothing
+         else: each project page ships its own two faces. Preloaded
+         unconditionally they were 128 kB fetched at highest priority on
+         /work/*, racing that page's real fonts for bandwidth it needed. So the
+         hint is issued only on the routes that use them. Runs before the
+         bundle, so the landing loses nothing. -->
+    <script>
+      (function () {
+        if (/^\/work\//.test(location.pathname)) return;
+        ['archivo', 'martian-mono'].forEach(function (f) {
+          var l = document.createElement('link');
+          l.rel = 'preload';
+          l.href = '/fonts/' + f + '.woff2';
+          l.as = 'font';
+          l.type = 'font/woff2';
+          l.crossOrigin = 'anonymous';
+          document.head.appendChild(l);
+        });
+      })();
+    </script>
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Vishal A S" />

@@ -1,44 +1,19 @@
 import { Suspense, lazy, useEffect, type ComponentType } from 'react';
 import { BrowserRouter, Routes, Route, useLocation, useParams } from 'react-router-dom';
-import Stage from '@/components/chrome/Stage';
-import { Hud, Cursor, EscapeHatch, Preloader } from '@/components/chrome/Chrome';
-import Home from '@/routes/Home';
-import NotFound from '@/routes/NotFound';
-import { initScroll } from '@/lib/scroll';
-import { registerEggs } from '@/lib/eggs';
 
-/* ── The landing page and its chrome ────────────────────────────────────────
-   Everything the index needs to feel like itself — the particle stage, the HUD,
-   the cursor, the preloader, the Lenis scroll spine — lives here and *only*
-   here. A project route mounts none of it, which is the first reason those
-   pages read as a different site rather than a reskin of this one. */
-function HomeShell() {
-  useEffect(() => {
-    const stop = initScroll();
-    registerEggs();
-    return stop;
-  }, []);
-  return (
-    <>
-      <Preloader />
-      <Stage />
-      <Hud />
-      <Cursor />
-      <EscapeHatch />
-      <main className="relative z-[5]">
-        <Home />
-      </main>
-    </>
-  );
-}
+/* ── Routes ─────────────────────────────────────────────────────────────────
+   Nothing here is imported statically. The entry chunk is React, the router
+   and the base stylesheet — and then each route brings its own world.
 
-/* ── Project routes ─────────────────────────────────────────────────────────
-   One lazily-loaded module per project. Each owns its own stylesheet, its own
-   fonts, its own scroll driver and its own namespace; nothing is imported
-   across them and nothing is imported from the landing page. Lazy loading is
-   what keeps eight independent design systems off the index's critical path —
-   a page's CSS chunk and its @font-face files are fetched only when you open
-   it. Concepts: docs/design/<slug>.md. */
+   The landing page is lazy for the same reason the project pages are: it owns
+   the particle stage, and the particle stage owns three.js. Held in the entry
+   graph that put 462 kB of WebGL renderer plus the whole index bundle in front
+   of every project page, none of which use a line of it. A project route now
+   fetches its own module, its own stylesheet and its own @font-face files, and
+   nothing else. Concepts: docs/design/<slug>.md. */
+const HomeShell = lazy(() => import('@/routes/HomeShell'));
+const NotFoundShell = lazy(() => import('@/routes/NotFoundShell'));
+
 const PAGES: Record<string, ComponentType> = {
   'baby-cry': lazy(() => import('@/projects/baby-cry')),
   'eeg-emotion': lazy(() => import('@/projects/eeg-emotion')),
@@ -54,24 +29,7 @@ function ProjectRoute() {
   const { slug } = useParams();
   const Page = slug ? PAGES[slug] : undefined;
   if (!Page) return <NotFoundShell />;
-  /* No spinner: every page opens on its own entry gesture, and a fallback of
-     its own devising would be the ninth design in a set of eight. */
-  return (
-    <Suspense fallback={<div style={{ minHeight: '100vh' }} aria-busy="true" />}>
-      <Page />
-    </Suspense>
-  );
-}
-
-function NotFoundShell() {
-  return (
-    <>
-      <Stage />
-      <main className="relative z-[5]">
-        <NotFound />
-      </main>
-    </>
-  );
+  return <Page />;
 }
 
 function ScrollReset() {
@@ -84,11 +42,17 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollReset />
-      <Routes>
-        <Route path="/" element={<HomeShell />} />
-        <Route path="/work/:slug" element={<ProjectRoute />} />
-        <Route path="*" element={<NotFoundShell />} />
-      </Routes>
+      {/* One boundary for the whole tree. No spinner: the body already carries
+          the ground colour, and every page opens on its own entry gesture — a
+          fallback of my own devising would be the ninth design in a set of
+          eight. */}
+      <Suspense fallback={<div style={{ minHeight: '100vh' }} aria-busy="true" />}>
+        <Routes>
+          <Route path="/" element={<HomeShell />} />
+          <Route path="/work/:slug" element={<ProjectRoute />} />
+          <Route path="*" element={<NotFoundShell />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }
