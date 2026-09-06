@@ -1,0 +1,488 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   baby-cry — "Night Shift"
+   Concept: docs/design/baby-cry.md   Blocklist: docs/design/00-do-not-reuse.md
+
+   A dark nursery with one machine awake in it. Everything is scoped to `.nw`
+   and to `body.pj-night`; nothing here is imported by, or exported to, any
+   other page. There is not a single rule, hairline, grid or uppercase word on
+   this page — hierarchy comes from the clock and from vertical silence.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('/fonts/p/fraunces.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'InterNW';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url('/fonts/p/inter.woff2') format('woff2-variations');
+}
+
+body.pj-night {
+  font-family: 'InterNW', system-ui, sans-serif;
+  overscroll-behavior-y: none;
+}
+
+.nw {
+  --ground: #0e1524;
+  --surface: #161f33;
+  --deep: #080d18;
+  --ink: #e9f0ff;
+  --dim: #8ca0c4;
+  --faint: #4f6183;
+  --amber: #ffc15e;
+  --cool: #45d0c8;
+  --breathe: cubic-bezier(0.62, 0.05, 0.2, 1);
+
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: 'InterNW', system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.72;
+  font-weight: 380;
+  -webkit-font-smoothing: antialiased;
+}
+
+.nw ::selection { background: var(--amber); color: var(--deep); }
+.nw a { color: inherit; text-decoration: none; }
+.nw :focus-visible { outline: 2px solid var(--amber); outline-offset: 5px; border-radius: 2px; }
+
+/* ── the ground layer ───────────────────────────────────────────────────── */
+.nw-gl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  z-index: 0;
+  /* the shader renders at half scale; letting the browser upscale it is the
+     softness a spectrogram wants */
+  image-rendering: auto;
+}
+/* the designed no-WebGL fallback, painted underneath the canvas */
+.nw-bed {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(120% 70% at 50% 108%, rgba(255, 193, 94, 0.16), transparent 62%),
+    linear-gradient(180deg, #080d18 0%, #0e1524 46%, #131c30 100%);
+}
+/* a vertical scrim, not a radial vignette: the column must stay readable
+   without the edges of the sound being crushed */
+.nw-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(14, 21, 36, 0.1) 0%,
+    rgba(14, 21, 36, 0.72) 26%,
+    rgba(14, 21, 36, 0.86) 50%,
+    rgba(14, 21, 36, 0.72) 74%,
+    rgba(14, 21, 36, 0.1) 100%
+  );
+}
+
+/* ── the clock ──────────────────────────────────────────────────────────── */
+.nw-clock {
+  position: fixed;
+  left: clamp(14px, 3.4vw, 56px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 4;
+  pointer-events: none;
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
+  font-weight: 300;
+  font-size: clamp(30px, 6.4vw, 92px);
+  line-height: 0.94;
+  letter-spacing: 0.004em;
+  color: var(--amber);
+  opacity: 0.5;
+  font-variant-numeric: tabular-nums;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+.nw-clock i {
+  display: block;
+  font-family: 'InterNW', system-ui, sans-serif;
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--faint);
+  margin-top: 18px;
+  opacity: 0.9;
+}
+
+/* ── the column ─────────────────────────────────────────────────────────── */
+.nw-flow {
+  position: relative;
+  z-index: 3;
+  width: min(620px, 86vw);
+  margin: 0 auto;
+  padding-bottom: 22vh;
+}
+.nw-ch { padding: 18vh 0; }
+.nw-ch--tight { padding: 10vh 0; }
+
+.nw h1,
+.nw h2,
+.nw h3 {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 120, 'SOFT' 100, 'WONK' 1;
+  font-weight: 330;
+  letter-spacing: 0.003em;
+  text-transform: none;
+}
+.nw h1 {
+  font-size: clamp(38px, 7.4vw, 74px);
+  line-height: 1.06;
+  margin-bottom: 0.7em;
+}
+.nw h2 {
+  font-size: clamp(28px, 4.6vw, 46px);
+  line-height: 1.12;
+  margin-bottom: 0.62em;
+}
+.nw p { max-width: 34em; margin-bottom: 1.15em; color: var(--ink); }
+.nw p.nw-quiet { color: var(--dim); }
+.nw strong { font-weight: 620; color: var(--amber); }
+
+/* the timestamp that opens each chapter — a time, never a category label */
+.nw-time {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 48, 'SOFT' 100, 'WONK' 1;
+  font-weight: 400;
+  font-size: 20px;
+  color: var(--cool);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 1.4rem;
+  display: block;
+}
+.nw-time span { color: var(--faint); margin-left: 0.7em; font-size: 15px; }
+
+/* ── the bloom: the only arrival gesture on this page ───────────────────── */
+.nw-bloom { opacity: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .nw-bloom { opacity: 1 !important; filter: none !important; transform: none !important; }
+}
+
+/* ── full-bleed moments ─────────────────────────────────────────────────── */
+.nw-bleed {
+  position: relative;
+  z-index: 3;
+  width: 100%;
+  padding: 0 clamp(16px, 4vw, 48px);
+}
+.nw-silence { height: 78vh; }
+
+/* the pinned bandpass gate */
+.nw-gate { height: 300vh; position: relative; }
+.nw-gate__stick {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+.nw-shutter {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--deep);
+  will-change: transform;
+  transform-origin: center;
+}
+.nw-shutter--t { top: 0; height: 50vh; transform: translate3d(0, -50vh, 0); }
+.nw-shutter--b { bottom: 0; height: 50vh; transform: translate3d(0, 50vh, 0); }
+.nw-hz {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
+  font-weight: 300;
+  font-size: clamp(30px, 6.2vw, 76px);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.nw-hz em {
+  display: block;
+  font-style: normal;
+  font-family: 'InterNW', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.015em;
+  color: var(--dim);
+  margin-top: 1.6rem;
+  max-width: 34ch;
+  margin-inline: auto;
+  line-height: 1.7;
+}
+
+/* the canvases */
+.nw-canvas { display: block; width: 100%; height: 100%; }
+.nw-plate {
+  position: relative;
+  width: min(1080px, 92vw);
+  margin: 0 auto;
+  height: min(58vh, 460px);
+}
+.nw-plate__cap {
+  margin: 1.6rem auto 0;
+  width: min(620px, 86vw);
+  color: var(--dim);
+  font-size: 16px;
+}
+
+/* families listed under the field */
+.nw-fam {
+  width: min(1080px, 92vw);
+  margin: 1.8rem auto 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em 1.6em;
+  font-size: 14.5px;
+  color: var(--faint);
+}
+.nw-fam b { color: var(--cool); font-weight: 500; font-variant-numeric: tabular-nums; }
+
+/* ── the verdict ────────────────────────────────────────────────────────── */
+.nw-verdict {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 12vh clamp(16px, 4vw, 48px);
+}
+.nw-verdict__word {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
+  font-weight: 300;
+  font-size: clamp(58px, 15vw, 210px);
+  line-height: 0.98;
+  color: var(--amber);
+  letter-spacing: 0.002em;
+}
+.nw-lime {
+  width: min(560px, 88vw);
+  margin: 3.4rem auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+.nw-lime__row {
+  display: grid;
+  grid-template-columns: 1fr 3.2fr auto;
+  align-items: center;
+  gap: 1rem;
+  font-size: 14px;
+  color: var(--dim);
+  text-align: left;
+}
+.nw-lime__track { height: 3px; background: rgba(140, 160, 196, 0.2); position: relative; }
+.nw-lime__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 0;
+  background: var(--cool);
+  transform-origin: left;
+  will-change: width;
+  transition: width 1.9s var(--breathe);
+}
+/* the bars grow once, when the verdict is reached */
+.nw-lime.on .nw-lime__fill { width: var(--w); }
+.nw-lime.on .nw-lime__row:nth-child(2) .nw-lime__fill { transition-delay: 0.14s; }
+.nw-lime.on .nw-lime__row:nth-child(3) .nw-lime__fill { transition-delay: 0.28s; }
+.nw-lime.on .nw-lime__row:nth-child(4) .nw-lime__fill { transition-delay: 0.42s; }
+.nw-lime.on .nw-lime__row:nth-child(5) .nw-lime__fill { transition-delay: 0.56s; }
+@media (prefers-reduced-motion: reduce) {
+  .nw-lime__fill { width: var(--w); transition: none; }
+}
+.nw-lime__val { color: var(--ink); font-variant-numeric: tabular-nums; }
+
+/* ── results, as a line of numbers with no boxes ────────────────────────── */
+.nw-nums {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2.6rem 3.2rem;
+  margin: 2.6rem 0 0;
+}
+.nw-nums div { max-width: 12em; }
+.nw-nums b {
+  display: block;
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 96, 'SOFT' 100, 'WONK' 1;
+  font-weight: 350;
+  font-size: clamp(30px, 4.2vw, 46px);
+  line-height: 1.02;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.nw-nums span { display: block; color: var(--faint); font-size: 14px; margin-top: 0.5rem; line-height: 1.5; }
+
+/* ── the whisper: the page goes quiet to say the uncomfortable thing ────── */
+.nw-whisper {
+  position: relative;
+  z-index: 3;
+  background: var(--deep);
+  padding: 22vh clamp(16px, 4vw, 48px);
+}
+.nw-whisper > div { width: min(620px, 86vw); margin: 0 auto; }
+.nw-whisper p {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 24, 'SOFT' 100, 'WONK' 1;
+  font-weight: 300;
+  font-size: 21px;
+  line-height: 1.66;
+  color: var(--dim);
+}
+
+/* ── notes pinned to the night ──────────────────────────────────────────── */
+.nw-note {
+  margin: 2.4rem 0;
+  padding-left: 1.6rem;
+  border-left: 1px solid rgba(69, 208, 200, 0.35);
+  color: var(--dim);
+  font-size: 16.5px;
+  line-height: 1.72;
+}
+.nw-note b {
+  display: block;
+  color: var(--cool);
+  font-weight: 500;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 0.35rem;
+}
+
+/* ── colophon ───────────────────────────────────────────────────────────── */
+.nw-out { padding-top: 8vh; color: var(--dim); }
+.nw-out h2 { color: var(--ink); }
+.nw-links { display: flex; flex-wrap: wrap; gap: 1.6rem; margin: 1.8rem 0 3.2rem; }
+.nw-links a {
+  color: var(--amber);
+  font-size: 17px;
+  padding-bottom: 3px;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 0.9s var(--breathe);
+}
+.nw-links a:hover { background-size: 100% 1px; }
+.nw-stack { color: var(--faint); font-size: 15px; line-height: 2; max-width: 34em; }
+.nw-else { margin-top: 4rem; display: flex; flex-direction: column; gap: 1rem; }
+.nw-else a {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 48, 'SOFT' 100, 'WONK' 1;
+  font-weight: 320;
+  font-size: clamp(22px, 3.4vw, 32px);
+  color: var(--dim);
+  transition: color 0.9s var(--breathe), opacity 0.9s var(--breathe);
+}
+.nw-else a:hover { color: var(--amber); }
+
+/* ── the back-link, as a nursery-monitor label ──────────────────────────── */
+.nw .pj-back {
+  position: fixed;
+  z-index: 6;
+  top: clamp(16px, 3vw, 34px);
+  right: clamp(16px, 3vw, 40px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.62em;
+  padding: 0.62em 1.1em;
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: var(--dim);
+  background: rgba(8, 13, 24, 0.62);
+  backdrop-filter: blur(9px);
+  border-radius: 999px;
+  transition: color 0.8s var(--breathe), background 0.8s var(--breathe);
+}
+.nw .pj-back:hover { color: var(--amber); background: rgba(8, 13, 24, 0.88); }
+.nw .pj-back__arrow { width: 20px; height: 10px; }
+
+/* ── entry: a held tone opening ─────────────────────────────────────────── */
+.nw-open {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+  background: #05070d;
+  clip-path: inset(0 0 0 0);
+  animation: nw-open 1.16s var(--breathe) 0.26s forwards;
+}
+.nw-open::after {
+  content: '';
+  position: absolute;
+  left: 8vw;
+  right: 8vw;
+  top: 50%;
+  height: 2px;
+  margin-top: -1px;
+  background: var(--amber);
+  animation: nw-line 1.42s var(--breathe) forwards;
+}
+@keyframes nw-open {
+  from { clip-path: inset(0 0 0 0); }
+  to { clip-path: inset(50% 0 50% 0); }
+}
+@keyframes nw-line {
+  0% { opacity: 0; transform: scaleX(0.1); }
+  22% { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nw-open { display: none; }
+}
+
+/* ── the designed small-screen night ────────────────────────────────────── */
+@media (max-width: 860px) {
+  /* the clock leaves the margin and becomes the page's first line */
+  .nw-clock {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: auto;
+    transform: none;
+    writing-mode: horizontal-tb;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem clamp(14px, 4vw, 22px);
+    font-size: 30px;
+    background: linear-gradient(180deg, rgba(8, 13, 24, 0.92), rgba(8, 13, 24, 0));
+    opacity: 0.72;
+  }
+  .nw-clock i { margin: 0; }
+  .nw-flow { width: min(620px, 90vw); }
+  .nw-ch { padding: 13vh 0; }
+  .nw-flow > :first-child { padding-top: 20vh; }
+  .nw-gate { height: 220vh; }
+  .nw-plate { height: 42vh; }
+  .nw-silence { height: 48vh; }
+  .nw .pj-back { top: auto; bottom: clamp(14px, 4vw, 22px); right: clamp(14px, 4vw, 22px); }
+  .nw-scrim { background: linear-gradient(180deg, rgba(14, 21, 36, 0.62), rgba(14, 21, 36, 0.86) 40%, rgba(14, 21, 36, 0.62)); }
+}

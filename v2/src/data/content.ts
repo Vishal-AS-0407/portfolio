@@ -108,7 +108,11 @@ export type Project = {
     accent2: string;
     plate: string;
     motif: string;
-    sig: import('@/components/Signature').SignatureKind;
+    /* Legacy presentation hints. The landing page reads only `accent` and
+       `name` (the work index previews each project's world on hover). The
+       rebuilt project pages ignore this whole object — each one owns its
+       palette, type and motion outright. See docs/design/. */
+    sig: string;
     arch: 'waterfall' | 'recorder' | 'typeset' | 'nodes' | 'depth' | 'strata' | 'graph' | 'grid';
     name: string;      // the theme's own name, shown as the page's opening label
     scale: number;     // headline size multiplier

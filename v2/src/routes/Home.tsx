@@ -281,12 +281,14 @@ function Certifications() {
     <Section id="certifications" label="certifications" min="auto">
       <div className="grid md:grid-cols-2 gap-x-12 gap-y-px">
         {certifications.map((c) => (
+          /* stays stacked until lg: the grid is already two columns from md, and
+             the issuer string alone is ~290px — side by side it overflowed */
           <div key={c.name}
-            className="fade flex flex-col gap-1 border-b py-4 sm:flex-row sm:items-baseline
-                       sm:justify-between sm:gap-4"
+            className="fade flex flex-col gap-1 border-b py-4 lg:flex-row lg:items-baseline
+                       lg:justify-between lg:gap-6"
             style={{ borderColor: 'rgb(var(--hair))' }}>
-            <span className="text-[15px] font-light">{c.name}</span>
-            <span className="mono uppercase sm:shrink-0">{c.issuer} · {c.date}</span>
+            <span className="text-[15px] font-light min-w-0">{c.name}</span>
+            <span className="mono uppercase min-w-0 lg:text-right">{c.issuer} · {c.date}</span>
           </div>
         ))}
       </div>
