@@ -127,6 +127,14 @@ function structure(spec: FrameSpec, w: number, h: number): Field {
 }
 
 function sampleField(f: Field, u: number, v: number) {
+  /* Callers sample this at scaled coordinates (u * 1.7, v * 1.7) to get a
+     second, finer read of the same field. Past u or v of 1/1.7 that ran off
+     the end of the array, and an undefined lookup poisoned the interpolation
+     with NaN. Assigning NaN into a Uint8ClampedArray yields 0, so every pixel
+     below v = 0.588 of an animal came out pure black with a hard horizontal
+     edge across it. Clamp here rather than at each call site. */
+  u = u < 0 ? 0 : u > 1 ? 1 : u;
+  v = v < 0 ? 0 : v > 1 ? 1 : v;
   const x = u * (f.w - 1);
   const y = v * (f.h - 1);
   const xi = x | 0;

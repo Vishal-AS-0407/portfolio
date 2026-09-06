@@ -91,20 +91,15 @@ body.pj-sealed {
   outline: 2px solid var(--ca);
   outline-offset: 2px;
 }
-.sd h1,
-.sd h2,
-.sd h3,
-.sd p,
-.sd ul,
-.sd ol,
-.sd dl,
-.sd dd,
-.sd figure {
+/* Wrapped in :where() so this normalise contributes ZERO specificity. As a
+   plain descendant selector (`.sd h1`, 0-1-1) it outranked every layout class
+   that follows (`.sd-h1`, 0-1-0), which silently deleted the page's entire
+   left gutter: the h1, the lede and every `p` sat flush against x=0. */
+:where(.sd) :where(h1, h2, h3, p, ul, ol, dl, dd, figure) {
   margin: 0;
   padding: 0;
 }
-.sd ul,
-.sd ol {
+:where(.sd) :where(ul, ol) {
   list-style: none;
 }
 

@@ -44,6 +44,9 @@ const PAGES: Record<string, ComponentType> = {
   'eeg-emotion': lazy(() => import('@/projects/eeg-emotion')),
   memora: lazy(() => import('@/projects/memora')),
   'semantic-modeling': lazy(() => import('@/projects/semantic-modeling')),
+  'dravidian-sentiment': lazy(() => import('@/projects/dravidian-sentiment')),
+  'fraud-detection': lazy(() => import('@/projects/fraud-detection')),
+  wisp: lazy(() => import('@/projects/wisp')),
 };
 
 function ProjectRoute() {

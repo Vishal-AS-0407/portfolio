@@ -65,6 +65,14 @@ body.pj-muzhakkam {
   color: var(--bone);
   font-family: var(--bd);
   -webkit-font-smoothing: antialiased;
+
+  /* The sheets bleed 2.2vw past each edge and are rotated on top of that,
+     which made the document 150px wider than the viewport. `clip` is the
+     right tool: unlike `hidden` or `auto` it does NOT become a scroll
+     container, so every pinned scrub section below still sticks. */
+  overflow-x: clip;
+  /* clears the fixed ticker, so the last line of the page is never under it */
+  padding-bottom: clamp(52px, 6vh, 74px);
 }
 .mz *,
 .mz *::before,
@@ -443,10 +451,14 @@ body.pj-muzhakkam {
 
 /* ── the marquee band ───────────────────────────────────────────────────── */
 .mz-band {
+  /* Was `top: 62vh` — a fixed band across the middle of the page, which read
+     well over the poster sheets and made every paragraph underneath it
+     unreadable. Moved to the bottom edge, where a ticker actually lives: still
+     fixed, still velocity-coupled, still loud, no longer eating the copy. */
   position: fixed;
   left: -2vw;
   right: -2vw;
-  top: 62vh;
+  bottom: -5px;
   z-index: 40;
   pointer-events: none;
   background: var(--maroon);
