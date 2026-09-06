@@ -41,6 +41,9 @@ function HomeShell() {
    it. Concepts: docs/design/<slug>.md. */
 const PAGES: Record<string, ComponentType> = {
   'baby-cry': lazy(() => import('@/projects/baby-cry')),
+  'eeg-emotion': lazy(() => import('@/projects/eeg-emotion')),
+  memora: lazy(() => import('@/projects/memora')),
+  'semantic-modeling': lazy(() => import('@/projects/semantic-modeling')),
 };
 
 function ProjectRoute() {

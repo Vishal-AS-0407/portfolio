@@ -1,0 +1,541 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   memora — "The Catalogue"
+   Concept: docs/design/memora.md   Blocklist: docs/design/00-do-not-reuse.md
+
+   A slate room, an oak drawer, ruled index cards, a brass rod, a rubber stamp.
+   The only page on the site with perspective, Z-motion and cast shadows:
+   separation here is done with overlap and shadow, never with a rule.
+   Scoped to `.mm` / `body.pj-catalogue`.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'CourierPrimeMM';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/p/courier-prime.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'CourierPrimeMM';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/p/courier-prime-b.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'CourierPrimeMM';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/p/courier-prime-i.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'ManropeMM';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url('/fonts/p/manrope.woff2') format('woff2-variations');
+}
+
+body.pj-catalogue {
+  font-family: 'ManropeMM', system-ui, sans-serif;
+  background: #2e3338;
+  color: #e6e9ec;
+}
+
+.mm {
+  --room: #2e3338;
+  --room-dk: #1d2125;
+  --oak: #4a3b2a;
+  --oak-lt: #61503a;
+  --card: #f2efe9;
+  --card-rule: #9fb8d0;
+  --card-red: #c4483e;
+  --card-ink: #20242a;
+  --brass: #d98e2b;
+  --stamp: #3b5ba5;
+  --dim: #9aa3ab;
+  --paper-set: cubic-bezier(0.4, 0.8, 0.2, 1);
+
+  position: relative;
+  background: var(--room);
+  color: #e6e9ec;
+  font-family: 'ManropeMM', system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.68;
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+}
+.mm ::selection { background: var(--brass); color: var(--room-dk); }
+.mm a { color: inherit; text-decoration: none; }
+.mm :focus-visible { outline: 2px solid var(--brass); outline-offset: 4px; }
+
+/* ── the room ───────────────────────────────────────────────────────────── */
+.mm-room {
+  position: relative;
+  z-index: 2;
+  width: min(660px, 84vw);
+  margin: 0 auto;
+  padding: 12vh 0;
+}
+.mm h1,
+.mm h2 {
+  font-family: 'ManropeMM', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.008em;
+  line-height: 1.1;
+  color: #f2f4f6;
+  text-transform: none;
+  margin-bottom: 0.6em;
+}
+.mm h1 { font-size: clamp(34px, 6vw, 68px); }
+.mm h2 { font-size: clamp(26px, 3.6vw, 44px); }
+.mm p { margin-bottom: 1.05em; max-width: 40em; color: #cfd5da; }
+.mm p.mm-quiet { color: var(--dim); font-size: 16px; }
+.mm strong { color: var(--brass); font-weight: 700; }
+
+/* the engraved brass label — not a tracked mono kicker */
+.mm-brass {
+  display: inline-block;
+  margin-bottom: 1.6rem;
+  padding: 0.42em 1.1em 0.38em;
+  background: linear-gradient(180deg, var(--brass), #b4711f);
+  color: #241703;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.75), inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 2px 5px rgba(0, 0, 0, 0.45);
+}
+
+/* ── the drawer ─────────────────────────────────────────────────────────── */
+.mm-open {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-top: 13vh;
+  perspective: 1500px;
+  perspective-origin: 50% 30%;
+  overflow: clip;
+}
+/* the drawer front, seen from above and slightly in front of the reader */
+.mm-drawer {
+  position: absolute;
+  left: 50%;
+  bottom: -13vh;
+  width: min(1180px, 96vw);
+  height: 46vh;
+  margin-left: min(-590px, -48vw);
+  background:
+    repeating-linear-gradient(93deg, rgba(255, 226, 176, 0.05) 0 2px, transparent 2px 13px),
+    linear-gradient(178deg, var(--oak-lt), var(--oak) 38%, #2b2118);
+  border-radius: 7px 7px 2px 2px;
+  box-shadow: 0 -26px 70px rgba(0, 0, 0, 0.55), inset 0 2px 0 rgba(255, 220, 170, 0.18),
+    inset 0 -30px 60px rgba(0, 0, 0, 0.4);
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.mm-drawer::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  width: 168px;
+  height: 30px;
+  margin-left: -84px;
+  background: linear-gradient(180deg, var(--brass), #a2650f);
+  border-radius: 3px;
+  box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.6), 0 4px 10px rgba(0, 0, 0, 0.55);
+}
+/* seven cards standing in the drawer, rising as it opens */
+.mm-fan {
+  position: absolute;
+  left: 50%;
+  bottom: 26vh;
+  width: 0;
+  height: 0;
+  perspective: 1200px;
+  z-index: 2;
+  pointer-events: none;
+}
+.mm-fan i {
+  position: absolute;
+  display: block;
+  width: 168px;
+  height: 104px;
+  margin-left: -84px;
+  background: var(--card);
+  border-radius: 2px;
+  background-image: repeating-linear-gradient(0deg, transparent 0 13px, var(--card-rule) 13px 14px);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.5);
+  will-change: transform;
+}
+
+/* ── cards ──────────────────────────────────────────────────────────────── */
+.mm-stage {
+  position: relative;
+  height: 100dvh;
+  perspective: 1400px;
+  perspective-origin: 50% 44%;
+  overflow: clip;
+}
+.mm-deck {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+.mm-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 340px;
+  height: 210px;
+  margin: -105px 0 0 -170px;
+  background: var(--card);
+  color: var(--card-ink);
+  border-radius: 2px;
+  padding: 26px 20px 16px;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.45);
+  /* the blue rules of an index card, and the red line at the top */
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 25px, var(--card-rule) 25px 26px),
+    linear-gradient(0deg, var(--card) 0 100%);
+  background-position: 0 22px, 0 0;
+  background-size: 100% 100%, 100% 100%;
+}
+.mm-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 22px;
+  height: 1.5px;
+  background: var(--card-red);
+}
+/* the punch hole the brass rod runs through */
+.mm-card::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 7px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--room-dk);
+  opacity: 0.28;
+}
+.mm-card__t {
+  font-family: 'CourierPrimeMM', ui-monospace, monospace;
+  font-size: 11.5px;
+  color: #5c6672;
+  position: absolute;
+  top: 5px;
+  left: 20px;
+}
+.mm-card__q {
+  font-family: 'CourierPrimeMM', ui-monospace, monospace;
+  font-size: 14px;
+  line-height: 26px;
+  margin-top: 6px;
+}
+.mm-card__a {
+  font-family: 'CourierPrimeMM', ui-monospace, monospace;
+  font-style: italic;
+  font-size: 13px;
+  line-height: 26px;
+  color: #414b57;
+}
+.mm-card__cos {
+  position: absolute;
+  right: 16px;
+  bottom: 8px;
+  font-family: 'CourierPrimeMM', ui-monospace, monospace;
+  font-size: 12px;
+  color: var(--stamp);
+  opacity: 0;
+}
+.mm-card--big { width: 460px; height: 288px; margin: -144px 0 0 -230px; }
+.mm-card--query {
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 25px, rgba(216, 142, 43, 0.45) 25px 26px),
+    linear-gradient(0deg, #fbf3e4 0 100%);
+}
+
+/* the rubber stamp */
+.mm-stamp {
+  position: absolute;
+  right: 14px;
+  top: 34px;
+  border: 2.5px solid var(--stamp);
+  color: var(--stamp);
+  font-family: 'ManropeMM', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  padding: 0.3em 0.6em;
+  border-radius: 2px;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transform: rotate(-3.4deg);
+}
+.mm-stamp--red { border-color: var(--card-red); color: var(--card-red); }
+
+/* the brass rod the Redis index threads through */
+.mm-rod {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 720px;
+  height: 7px;
+  margin: 92px 0 0 -360px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, #f0c169, var(--brass) 40%, #8a5a10);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+}
+
+/* ── pinned sections ────────────────────────────────────────────────────── */
+.mm-pin { position: relative; }
+.mm-cap {
+  position: absolute;
+  left: 50%;
+  bottom: 3.4vh;
+  transform: translateX(-50%);
+  width: min(620px, 86vw);
+  text-align: center;
+  z-index: 4;
+  color: var(--dim);
+  font-size: 16px;
+  line-height: 1.6;
+  pointer-events: none;
+}
+.mm-cap b { color: #f2f4f6; font-weight: 700; display: block; font-size: 19px; margin-bottom: 0.35rem; }
+.mm-count {
+  position: absolute;
+  left: 50%;
+  top: 8vh;
+  transform: translateX(-50%);
+  z-index: 4;
+  font-family: 'CourierPrimeMM', ui-monospace, monospace;
+  font-weight: 700;
+  font-size: clamp(38px, 6vw, 76px);
+  color: var(--brass);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+
+/* ── the two piles ──────────────────────────────────────────────────────── */
+.mm-piles {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 6vw, 90px);
+  width: min(1080px, 90vw);
+  margin: 0 auto;
+  padding: 10vh 0;
+  perspective: 1200px;
+}
+.mm-pile { position: relative; height: 430px; transform-style: preserve-3d; }
+.mm-pile h3 {
+  font-family: 'ManropeMM', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 20px;
+  margin-bottom: 0.4rem;
+  color: #f2f4f6;
+}
+.mm-pile p { font-size: 15px; color: var(--dim); max-width: 30em; }
+.mm-slip {
+  position: absolute;
+  left: 0;
+  top: 118px;
+  width: 260px;
+  height: 62px;
+  background: var(--card);
+  border-radius: 2px;
+  box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  padding-left: 14px;
+  font-family: 'CourierPrimeMM', ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--card-ink);
+}
+.mm-slip i {
+  font-style: normal;
+  border: 2px solid var(--stamp);
+  color: var(--stamp);
+  padding: 0.15em 0.45em;
+  font-size: 11.5px;
+  border-radius: 2px;
+  mix-blend-mode: multiply;
+}
+
+/* ── cost: stack thickness is token cost ────────────────────────────────── */
+.mm-cost {
+  position: relative;
+  z-index: 2;
+  width: min(1000px, 90vw);
+  margin: 0 auto;
+  padding: 12vh 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 6vw, 80px);
+  align-items: end;
+}
+.mm-thick { position: relative; height: 260px; }
+.mm-thick i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--card);
+  border-radius: 1px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+.mm-thick b {
+  position: absolute;
+  left: 0;
+  bottom: -2.4rem;
+  font-family: 'CourierPrimeMM', ui-monospace, monospace;
+  font-weight: 700;
+  font-size: clamp(24px, 3vw, 38px);
+  color: var(--brass);
+  font-variant-numeric: tabular-nums;
+}
+.mm-thick span { position: absolute; left: 0; bottom: -4.2rem; font-size: 14px; color: var(--dim); }
+
+/* ── figures ────────────────────────────────────────────────────────────── */
+.mm-figs { display: flex; flex-wrap: wrap; gap: 2rem 3.4rem; margin: 2rem 0 0; }
+.mm-figs div { min-width: 150px; }
+.mm-figs b {
+  display: block;
+  font-family: 'CourierPrimeMM', ui-monospace, monospace;
+  font-weight: 700;
+  font-size: clamp(26px, 3.2vw, 40px);
+  color: #f2f4f6;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+.mm-figs span { display: block; font-size: 14px; color: var(--dim); margin-top: 0.45rem; }
+
+/* ── the card at the back ───────────────────────────────────────────────── */
+.mm-back {
+  position: relative;
+  z-index: 2;
+  padding: 14vh 0;
+  display: flex;
+  justify-content: center;
+  perspective: 1100px;
+}
+.mm-back__card {
+  position: relative;
+  width: min(560px, 88vw);
+  background: var(--card);
+  color: var(--card-ink);
+  border-radius: 2px;
+  padding: 40px 30px 30px;
+  box-shadow: 0 26px 54px rgba(0, 0, 0, 0.55);
+  background-image:
+    repeating-linear-gradient(0deg, transparent 0 25px, var(--card-rule) 25px 26px),
+    linear-gradient(0deg, var(--card) 0 100%);
+  background-position: 0 34px, 0 0;
+  transform: rotate(-1.1deg);
+}
+.mm-back__card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 34px;
+  height: 1.5px;
+  background: var(--card-red);
+}
+.mm-back__card p {
+  font-family: 'CourierPrimeMM', ui-monospace, monospace;
+  font-size: 14px;
+  line-height: 26px;
+  color: var(--card-ink);
+  max-width: none;
+  margin: 0;
+}
+.mm-back__stamp {
+  position: absolute;
+  right: 22px;
+  top: -14px;
+  border: 3px solid var(--card-red);
+  color: var(--card-red);
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  padding: 0.35em 0.7em;
+  transform: rotate(6deg);
+  mix-blend-mode: multiply;
+  background: rgba(242, 239, 233, 0.5);
+}
+
+/* ── closing ────────────────────────────────────────────────────────────── */
+.mm-links { display: flex; flex-wrap: wrap; gap: 1.2rem 2.2rem; margin: 2rem 0 0; }
+.mm-links a {
+  color: var(--brass);
+  font-weight: 600;
+  font-size: 16px;
+  border-bottom: 2px solid transparent;
+  padding-bottom: 2px;
+  transition: border-color 0.7s var(--paper-set), color 0.7s var(--paper-set);
+}
+.mm-links a:hover { border-color: var(--brass); }
+.mm-stackline { font-size: 15px; line-height: 2; color: var(--dim); max-width: 44em; }
+
+/* ── back-link, as a drawer tab ─────────────────────────────────────────── */
+.mm .pj-back {
+  position: fixed;
+  z-index: 30;
+  top: clamp(14px, 3vw, 28px);
+  left: clamp(14px, 3vw, 28px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  padding: 0.5em 1em 0.46em;
+  background: linear-gradient(180deg, var(--brass), #b4711f);
+  color: #241703;
+  font-weight: 700;
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 240, 200, 0.7), 0 3px 9px rgba(0, 0, 0, 0.5);
+  transition: transform 0.62s var(--paper-set);
+}
+.mm .pj-back:hover { transform: translateY(-2px); }
+.mm .pj-back__arrow { width: 18px; height: 9px; }
+
+/* ── reduced motion: the drawer is simply open ──────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .mm-card,
+  .mm-slip,
+  .mm-rod,
+  .mm-drawer { transition: none !important; }
+  .mm-stamp { opacity: 0.9; }
+  .mm-rod { opacity: 1; }
+}
+
+/* ── the designed small-screen drawer ───────────────────────────────────── */
+@media (max-width: 880px) {
+  /* fewer cards, shallower perspective, shorter pins — the type never shrinks */
+  .mm-stage { perspective: 900px; }
+  .mm-card { width: 260px; height: 168px; margin: -84px 0 0 -130px; padding: 22px 15px 12px; }
+  .mm-card--big { width: 290px; height: 196px; margin: -98px 0 0 -145px; }
+  .mm-card__q { font-size: 12.5px; line-height: 24px; }
+  .mm-card__a { font-size: 11.5px; line-height: 24px; }
+  .mm-rod { width: 420px; margin-left: -210px; }
+  .mm-piles { grid-template-columns: 1fr; }
+  .mm-cost { grid-template-columns: 1fr; gap: 5rem; }
+  .mm-drawer { height: min(320px, 44vh); margin-top: -22vh; }
+  .mm-cap { bottom: 4vh; font-size: 15px; }
+}

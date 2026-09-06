@@ -1,0 +1,415 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   eeg-emotion — "Paper"
+   Concept: docs/design/eeg-emotion.md   Blocklist: docs/design/00-do-not-reuse.md
+
+   A chart recorder. The page scrolls sideways because that is the direction
+   paper comes out of a machine. Everything here is printed on the paper, drawn
+   by a pen, or written in the margin. Scoped to `.pp` / `body.pj-paper`.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'SpaceGroteskPP';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/p/space-grotesk.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'SplineMonoPP';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/p/spline-mono.woff2') format('woff2-variations');
+}
+
+body.pj-paper {
+  font-family: 'SpaceGroteskPP', system-ui, sans-serif;
+  background: #f6ede6;
+  color: #151a2e;
+}
+
+.pp {
+  --paper: #f6ede6;
+  --paper2: #efe2d8;
+  --gridf: #f2c6be;
+  --gridb: #e39a93;
+  --pen1: #22357a;
+  --pen2: #0f7c6b;
+  --pencil: #c6362f;
+  --ink: #151a2e;
+  --muted: #8a7e79;
+  --snap: cubic-bezier(0.9, 0, 0.1, 1);
+
+  position: relative;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'SpaceGroteskPP', system-ui, sans-serif;
+  font-weight: 300;
+  /* NB: no `overflow` here. An overflow other than `visible` on an ancestor
+     makes it the scroll container for `position: sticky`, and the transport
+     would stick to this element instead of to the viewport — the whole page
+     goes blank a third of the way down. The clipping belongs on .pp-stick. */
+}
+.pp ::selection { background: var(--pencil); color: var(--paper); }
+.pp a { color: inherit; text-decoration: none; }
+.pp :focus-visible { outline: 2px solid var(--pen1); outline-offset: 3px; }
+
+/* ── the transport ──────────────────────────────────────────────────────── */
+.pp-strip { position: relative; height: 700vh; }
+.pp-stick {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--paper);
+}
+.pp-paper {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 740vw;
+  height: 100%;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* the millimetre grid: 1 mm = 6 px, 5 mm = 30 px. It prints itself once. */
+.pp-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(90deg, var(--gridf) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(0deg, var(--gridf) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(90deg, var(--gridb) 0 1px, transparent 1px 30px),
+    repeating-linear-gradient(0deg, var(--gridb) 0 1px, transparent 1px 30px);
+  clip-path: inset(0 100% 0 0);
+  animation: pp-print 0.82s steps(24) 0.18s forwards;
+}
+@keyframes pp-print { to { clip-path: inset(0 0 0 0); } }
+
+/* the second rig is a physically different sheet: darker stock, 200 Hz pitch */
+.pp-sheetb {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(64px + 30vh + 16px);
+  height: 23vh;
+  background: var(--paper2);
+  background-image:
+    repeating-linear-gradient(90deg, rgba(227, 154, 147, 0.55) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(0deg, rgba(227, 154, 147, 0.55) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, var(--gridb) 0 1px, transparent 1px 20px);
+  border-top: 1.5px solid var(--gridb);
+  border-bottom: 1.5px solid var(--gridb);
+}
+
+/* ── lanes ──────────────────────────────────────────────────────────────── */
+.pp-lane { position: absolute; left: 0; right: 0; }
+.pp-lane--rail { top: 0; height: 64px; }
+.pp-lane--a { top: 64px; height: 30vh; }
+.pp-lane--b { top: calc(64px + 30vh + 16px); height: 23vh; }
+.pp-lane svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.pp-lane path { fill: none; vector-effect: non-scaling-stroke; }
+.pp-lane--a path { stroke: var(--pen1); stroke-width: 1.05; opacity: 0.88; }
+.pp-lane--b path { stroke: var(--pen2); stroke-width: 0.85; opacity: 0.8; }
+
+/* the header rail: what the machine is, printed once along the top */
+.pp-rail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+  padding: 0 26px;
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted);
+  border-bottom: 1.5px solid var(--gridb);
+  background: rgba(246, 237, 230, 0.72);
+}
+.pp-rail b { color: var(--pen1); font-weight: 500; }
+
+/* ── stations ───────────────────────────────────────────────────────────── */
+.pp-st {
+  position: absolute;
+  top: calc(64px + 30vh + 23vh + 46px);
+  width: min(78vw, 640px);
+}
+.pp-st h1,
+.pp-st h2 {
+  font-family: 'SpaceGroteskPP', system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.14;
+  color: var(--ink);
+  margin-bottom: 0.55em;
+  text-transform: none;
+}
+.pp-st h1 { font-size: clamp(30px, 4.2vw, 56px); }
+.pp-st h2 { font-size: clamp(22px, 2.6vw, 34px); }
+.pp-st p {
+  font-size: 16px;
+  line-height: 1.62;
+  font-weight: 300;
+  max-width: 58ch;
+  margin-bottom: 0.9em;
+}
+.pp-st p.pp-sub { color: var(--muted); }
+
+/* readouts: large, lowercase, untracked — the inverse of a micro-label */
+.pp-read {
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--pen1);
+  font-variant-numeric: tabular-nums;
+}
+.pp-read--g { color: var(--pen2); }
+
+/* channel names travelling at the leading edge of each trace */
+.pp-chan {
+  position: absolute;
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: 10.5px;
+  color: var(--pen1);
+  opacity: 0.75;
+  letter-spacing: 0;
+}
+
+/* ── the pen ────────────────────────────────────────────────────────────── */
+.pp-pen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(34, 53, 122, 0.28);
+  z-index: 6;
+  pointer-events: none;
+  will-change: transform;
+}
+.pp-pen::before {
+  content: '';
+  position: absolute;
+  top: calc(64px + 30vh - 34px);
+  left: -7px;
+  width: 16px;
+  height: 34px;
+  background: var(--pen1);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+.pp-pen::after {
+  content: '';
+  position: absolute;
+  top: calc(64px + 30vh + 16px);
+  left: -6px;
+  width: 14px;
+  height: 30px;
+  background: var(--pen2);
+  clip-path: polygon(50% 100%, 0 0, 100% 0);
+}
+.pp-arm {
+  position: absolute;
+  top: 0;
+  left: -3px;
+  width: 8px;
+  height: calc(64px + 30vh - 34px);
+  background: linear-gradient(90deg, rgba(21, 26, 46, 0.1), rgba(21, 26, 46, 0.55), rgba(21, 26, 46, 0.1));
+  z-index: 6;
+}
+
+/* ── needles (VAD) ──────────────────────────────────────────────────────── */
+.pp-gauges { display: flex; gap: clamp(18px, 3vw, 46px); margin-top: 1.2rem; }
+.pp-gauge { width: clamp(108px, 13vw, 168px); }
+.pp-gauge svg { width: 100%; height: auto; display: block; overflow: visible; }
+.pp-gauge__arc { fill: none; stroke: var(--gridb); stroke-width: 2; }
+.pp-gauge__needle { stroke: var(--pen1); stroke-width: 2.2; transform-origin: 50% 100%; }
+.pp-gauge__v {
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: 19px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  margin-top: 0.5rem;
+  display: block;
+}
+.pp-gauge__k { font-size: 12.5px; color: var(--muted); display: block; }
+
+/* ── calipers ───────────────────────────────────────────────────────────── */
+.pp-cal { position: relative; height: 118px; margin-top: 1rem; }
+.pp-cal i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--pen1);
+  will-change: transform;
+}
+.pp-cal i::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 18px;
+  height: 2px;
+  background: var(--pen1);
+}
+.pp-cal b {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--pen1);
+  background: var(--paper);
+  padding: 0 8px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* ── margin annotations, in ink and in red pencil ───────────────────────── */
+.pp-margin {
+  position: absolute;
+  width: min(46vw, 380px);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--pen1);
+}
+.pp-margin--pencil {
+  color: var(--pencil);
+  transform: rotate(-2.4deg);
+  font-size: 15px;
+}
+.pp-margin--pencil s { text-decoration-color: var(--pencil); text-decoration-thickness: 1.5px; }
+.pp-margin b {
+  display: block;
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 0.3rem;
+}
+.pp-leader { position: absolute; overflow: visible; pointer-events: none; }
+.pp-leader line { stroke: currentColor; stroke-width: 1; opacity: 0.55; }
+.pp-leader circle { fill: currentColor; }
+
+/* ── the report sheet — the only vertical move on the page ──────────────── */
+.pp-report {
+  position: relative;
+  z-index: 3;
+  background: #ffffff;
+  color: var(--ink);
+  padding: clamp(56px, 9vh, 110px) clamp(20px, 6vw, 90px) clamp(80px, 12vh, 150px);
+  margin-top: -22px;
+}
+.pp-report__in { max-width: 940px; margin: 0 auto; }
+.pp-report h2 {
+  font-family: 'SpaceGroteskPP', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(26px, 3.6vw, 44px);
+  line-height: 1.12;
+  margin-bottom: 1rem;
+}
+.pp-report h3 {
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pen2);
+  margin: 2.6rem 0 0.8rem;
+}
+.pp-report p { font-size: 16.5px; line-height: 1.68; max-width: 66ch; margin-bottom: 1em; }
+.pp-report li { font-size: 16px; line-height: 1.62; margin-bottom: 0.7em; max-width: 70ch; }
+.pp-report ul { list-style: none; }
+.pp-report li::before { content: '—'; color: var(--pen2); margin-right: 0.7em; }
+.pp-figs { display: flex; flex-wrap: wrap; gap: 1.6rem 3rem; margin: 1.6rem 0 0.6rem; }
+.pp-figs div { min-width: 130px; }
+.pp-figs b {
+  display: block;
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: clamp(22px, 2.6vw, 32px);
+  font-weight: 500;
+  color: var(--pen1);
+  font-variant-numeric: tabular-nums;
+}
+.pp-figs span { display: block; font-size: 13.5px; color: var(--muted); margin-top: 0.3rem; }
+
+.pp-stamp {
+  position: absolute;
+  top: clamp(30px, 5vh, 64px);
+  right: clamp(20px, 6vw, 90px);
+  border: 3px solid var(--pencil);
+  color: var(--pencil);
+  padding: 0.5rem 1rem;
+  font-family: 'SpaceGroteskPP', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: clamp(15px, 1.7vw, 22px);
+  line-height: 1.15;
+  text-align: center;
+  mix-blend-mode: multiply;
+  opacity: 0;
+  transform: rotate(-7deg) scale(1.6);
+}
+.pp-stamp.hit { animation: pp-stamp 0.17s var(--snap) forwards; }
+.pp-stamp small { display: block; font-size: 11.5px; font-weight: 400; letter-spacing: 0.02em; }
+@keyframes pp-stamp {
+  0% { opacity: 0; transform: rotate(-7deg) scale(1.6); }
+  100% { opacity: 0.92; transform: rotate(-7deg) scale(1); }
+}
+
+.pp-links { display: flex; flex-wrap: wrap; gap: 1.4rem 2.4rem; margin-top: 2.4rem; }
+.pp-links a {
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: 15px;
+  color: var(--pen1);
+  border-bottom: 1.5px solid var(--pen1);
+  padding-bottom: 2px;
+  transition: color 0.2s var(--snap), border-color 0.2s var(--snap);
+}
+.pp-links a:hover { color: var(--pencil); border-color: var(--pencil); }
+.pp-stackline { font-size: 15px; color: var(--muted); line-height: 1.9; max-width: 70ch; }
+
+/* ── back-link, as a machine label plate ────────────────────────────────── */
+.pp .pj-back {
+  position: fixed;
+  z-index: 20;
+  left: clamp(14px, 3vw, 26px);
+  bottom: clamp(14px, 3vw, 26px);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.5em 0.9em;
+  background: var(--pen1);
+  color: var(--paper);
+  font-family: 'SplineMonoPP', ui-monospace, monospace;
+  font-size: 12.5px;
+  font-weight: 400;
+  transition: background 0.2s var(--snap);
+}
+.pp .pj-back:hover { background: var(--pencil); }
+.pp .pj-back__arrow { width: 18px; height: 9px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-grid { animation: none; clip-path: none; }
+  .pp-stamp { opacity: 0.92; transform: rotate(-7deg) scale(1); animation: none; }
+}
+
+/* ── the designed small-screen machine ──────────────────────────────────── */
+@media (max-width: 900px) {
+  /* fewer lanes, taller type, a shorter roll — still a machine, still sideways */
+  .pp-paper { width: 430vw; }
+  .pp-strip { height: 480vh; }
+  .pp-lane--a { height: 24vh; }
+  .pp-lane--b, .pp-sheetb { top: calc(64px + 24vh + 12px); height: 16vh; }
+  .pp-st { top: calc(64px + 24vh + 16vh + 34px); width: 82vw; }
+  .pp-st p { font-size: 15px; }
+  .pp-rail { gap: 1.2rem; font-size: 11.5px; padding: 0 14px; }
+  .pp-rail span:nth-child(n + 4) { display: none; }
+  .pp-margin { width: 72vw; }
+  .pp-pen::before { top: calc(64px + 24vh - 28px); }
+  .pp-pen::after { top: calc(64px + 24vh + 12px); }
+  .pp-arm { height: calc(64px + 24vh - 28px); }
+}

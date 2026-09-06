@@ -71,7 +71,7 @@ body.pj-night {
 .nw-bed {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   background:
     radial-gradient(120% 70% at 50% 108%, rgba(255, 193, 94, 0.16), transparent 62%),
     linear-gradient(180deg, #080d18 0%, #0e1524 46%, #131c30 100%);
@@ -85,11 +85,11 @@ body.pj-night {
   pointer-events: none;
   background: linear-gradient(
     90deg,
-    rgba(14, 21, 36, 0.1) 0%,
-    rgba(14, 21, 36, 0.72) 26%,
-    rgba(14, 21, 36, 0.86) 50%,
-    rgba(14, 21, 36, 0.72) 74%,
-    rgba(14, 21, 36, 0.1) 100%
+    rgba(14, 21, 36, 0.08) 0%,
+    rgba(14, 21, 36, 0.74) 24%,
+    rgba(14, 21, 36, 0.84) 50%,
+    rgba(14, 21, 36, 0.74) 76%,
+    rgba(14, 21, 36, 0.08) 100%
   );
 }
 
@@ -187,8 +187,10 @@ body.pj-night {
 }
 .nw-silence { height: 78vh; }
 
-/* the pinned bandpass gate */
-.nw-gate { height: 300vh; position: relative; }
+/* the pinned bandpass gate. z-index 3 puts it over .nw-scrim — at the gate the
+   spectrum IS the content, so the scrim that protects body copy must not also
+   crush the one section built to be looked at. */
+.nw-gate { height: 300vh; position: relative; z-index: 3; }
 .nw-gate__stick {
   position: sticky;
   top: 0;
@@ -220,6 +222,10 @@ body.pj-night {
   line-height: 1.1;
   font-variant-numeric: tabular-nums;
   color: var(--ink);
+  /* the readout sits over the brightest part of the spectrum: a halo keeps it
+     legible without putting it in a box, which this page does not have */
+  text-shadow: 0 0 26px rgba(8, 13, 24, 0.98), 0 0 62px rgba(8, 13, 24, 0.92),
+    0 0 110px rgba(8, 13, 24, 0.8);
 }
 .nw-hz em {
   display: block;
@@ -233,6 +239,7 @@ body.pj-night {
   max-width: 34ch;
   margin-inline: auto;
   line-height: 1.7;
+  text-shadow: 0 0 20px rgba(8, 13, 24, 0.98), 0 0 46px rgba(8, 13, 24, 0.9);
 }
 
 /* the canvases */
@@ -264,6 +271,8 @@ body.pj-night {
 
 /* ── the verdict ────────────────────────────────────────────────────────── */
 .nw-verdict {
+  position: relative;
+  z-index: 3;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -444,8 +453,9 @@ body.pj-night {
   animation: nw-line 1.42s var(--breathe) forwards;
 }
 @keyframes nw-open {
-  from { clip-path: inset(0 0 0 0); }
-  to { clip-path: inset(50% 0 50% 0); }
+  from { clip-path: inset(0 0 0 0); opacity: 1; }
+  99% { clip-path: inset(50% 0 50% 0); opacity: 1; }
+  to { clip-path: inset(50% 0 50% 0); opacity: 0; visibility: hidden; }
 }
 @keyframes nw-line {
   0% { opacity: 0; transform: scaleX(0.1); }

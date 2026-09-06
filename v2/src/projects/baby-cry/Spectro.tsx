@@ -61,7 +61,7 @@ vec3 ramp(float t) {
   vec3 c1 = vec3(0.122, 0.373, 0.545);
   vec3 c2 = vec3(0.271, 0.816, 0.784);
   vec3 c3 = vec3(1.000, 0.757, 0.369);
-  vec3 c4 = vec3(1.000, 0.953, 0.839);
+  vec3 c4 = vec3(1.000, 0.855, 0.627);
   if (t < 0.25) return mix(c0, c1, t / 0.25);
   if (t < 0.50) return mix(c1, c2, (t - 0.25) / 0.25);
   if (t < 0.78) return mix(c2, c3, (t - 0.50) / 0.28);
@@ -97,7 +97,7 @@ void main() {
   /* the Butterworth band closes over everything outside 142.91-6620.12 Hz */
   float pass = smoothstep(uLo - 0.030, uLo + 0.030, f)
              * (1.0 - smoothstep(uHi - 0.030, uHi + 0.030, f));
-  v *= mix(1.0, pass * 1.22, uGate);
+  v *= mix(1.0, pass * 1.12, uGate);
 
   /* and at 06:12 it drains, from the top down */
   v *= 1.0 - smoothstep((1.0 - uDrain) - 0.10, (1.0 - uDrain) + 0.10, f);
@@ -105,8 +105,10 @@ void main() {
   /* spectrogram columns */
   v *= 0.94 + 0.06 * sin(x * uRes.x * 0.55);
 
-  v = clamp(v, 0.0, 1.0);
-  vec3 col = mix(vec3(0.055, 0.082, 0.141), ramp(v), clamp(v * 1.25, 0.0, 1.0));
+  /* held well below full scale: this is one machine awake in a dark room, and
+     a floodlit spectrogram would take the page off whoever is reading it */
+  v = clamp(v, 0.0, 1.0) * 0.66;
+  vec3 col = mix(vec3(0.055, 0.082, 0.141), ramp(v), clamp(v * 1.15, 0.0, 1.0));
 
   /* one amber baseline, the last thing left when the sound has gone */
   float base = exp(-f * 190.0) * (0.35 + 0.65 * uDrain);
