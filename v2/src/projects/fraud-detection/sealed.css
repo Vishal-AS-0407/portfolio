@@ -1,0 +1,1088 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   fraud-detection — "Sealed"
+   Concept: docs/design/fraud-detection.md   Blocklist: docs/design/00-do-not-reuse.md
+
+   A cipher desk on cold institutional white. Condensed institutional type,
+   monospace in volume, hard 1px rules, a 50/50 split with a divider at exactly
+   the centre. Every surface is a flat fill with a hard edge: there is not one
+   gradient, one radius or one curve in this file, and nothing scales, blurs or
+   fades up. Things open by clip-path along a straight line, in 220–380 ms on
+   cubic-bezier(.85,0,.15,1) — fast, slow, fast, like a tumbler falling.
+
+   Scoped to `.sd` / `body.pj-sealed`.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'PlexCondSD';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/p/plexcond-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'PlexCondSD';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url('/fonts/p/plexcond-300.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'PlexMonoSD';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/p/plexmono-400.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'PlexMonoSD';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/p/plexmono-500.woff2') format('woff2');
+}
+
+body.pj-sealed {
+  font-family: 'PlexCondSD', 'IBM Plex Sans Condensed', system-ui, sans-serif;
+  background: #e8eaed;
+  color: #0b0d10;
+}
+
+/* ── tokens ──────────────────────────────────────────────────────────────── */
+.sd {
+  --gnd: #e8eaed; /* cold paper */
+  --pan: #dadde2; /* sealed surface */
+  --deep: #0b0d10; /* the gate */
+  --ink: #0b0d10;
+  --dim: #5a626c;
+  --rule: #b4bac2;
+  --noise: #a4abb5; /* ciphertext, before it means anything */
+  --ca: #0075c4; /* channel a */
+  --cb: #5b3df5; /* channel b */
+  --ch: var(--dim); /* the channel of whichever half you are in */
+
+  --e: cubic-bezier(0.85, 0, 0.15, 1);
+  --gut: clamp(18px, 4vw, 72px);
+  --inset: clamp(24px, 3.4vw, 56px); /* the shoulder each half keeps off the divider */
+
+  position: relative;
+  background: var(--gnd);
+  color: var(--ink);
+  font-family: 'PlexCondSD', 'IBM Plex Sans Condensed', system-ui, sans-serif;
+  font-weight: 300;
+  /* NB: no `overflow` here — an overflow other than `visible` on an ancestor
+     becomes the scroll container for `position: sticky`, and the gate and the
+     masking rig would both stop pinning. Clipping lives on the sticky element. */
+}
+
+.sd *,
+.sd *::before,
+.sd *::after {
+  box-sizing: border-box;
+}
+.sd ::selection {
+  background: var(--ink);
+  color: var(--gnd);
+}
+.sd a {
+  color: inherit;
+  text-decoration: none;
+}
+.sd :focus-visible {
+  outline: 2px solid var(--ca);
+  outline-offset: 2px;
+}
+.sd h1,
+.sd h2,
+.sd h3,
+.sd p,
+.sd ul,
+.sd ol,
+.sd dl,
+.sd dd,
+.sd figure {
+  margin: 0;
+  padding: 0;
+}
+.sd ul,
+.sd ol {
+  list-style: none;
+}
+
+/* every band sits above the entry shutter's stacking context */
+.sd > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── the scramble cell ───────────────────────────────────────────────────────
+   `i` is the plaintext glyph at visibility:hidden. It is the only thing that
+   sets the cell's width, so a cell is the size of its finished character from
+   the first frame and the page cannot reflow while it decrypts. `b` is the
+   glyph you actually see, taken out of flow and centred inside that box. */
+.sd-vh {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.sd-glyphs {
+  user-select: none;
+}
+.sd-w {
+  display: inline-block;
+  white-space: nowrap;
+}
+.sd-c {
+  position: relative;
+  display: inline-block;
+}
+.sd-c > i {
+  visibility: hidden;
+  font-style: normal;
+}
+.sd-c > b {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  font-weight: inherit;
+  font-style: normal;
+  white-space: pre;
+  color: var(--noise);
+}
+/* a character that has resolved takes the ink of whatever it sits in */
+.sd-c > b[data-p='1'] {
+  color: inherit;
+}
+.sd-wh {
+  color: var(--dim);
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+}
+
+/* ── type ────────────────────────────────────────────────────────────────── */
+.sd-h1 {
+  font-weight: 600;
+  font-size: clamp(34px, 7.2vw, 92px);
+  line-height: 1.06;
+  letter-spacing: 0;
+  max-width: 17ch;
+}
+.sd-h2 {
+  font-weight: 600;
+  font-size: clamp(26px, 3.2vw, 44px);
+  line-height: 1.08;
+  letter-spacing: 0;
+  margin-bottom: clamp(16px, 2.2vh, 28px);
+}
+.sd-h3 {
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  color: var(--ink);
+  margin-bottom: 16px;
+}
+.sd-lede {
+  font-weight: 300;
+  font-size: clamp(17px, 1.7vw, 22px);
+  line-height: 1.5;
+  letter-spacing: 0;
+  max-width: 48ch;
+}
+.sd-body-t {
+  font-weight: 300;
+  font-size: 17px;
+  line-height: 1.62;
+  max-width: 56ch;
+}
+.sd-body-t + .sd-body-t {
+  margin-top: 1.1em;
+}
+.sd-body-t--sm {
+  font-size: 15px;
+  color: var(--dim);
+}
+.sd-mono,
+.sd-tag,
+.sd-manifest,
+.sd-list,
+.sd-tbl,
+.sd-defs,
+.sd-stack,
+.sd-note,
+.sd-synth,
+.sd-ctr__r,
+.sd-ms__read {
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.62;
+  letter-spacing: 0;
+  text-transform: lowercase;
+  font-variant-numeric: tabular-nums;
+}
+.sd-dim {
+  color: var(--dim);
+}
+.sd-tag {
+  font-weight: 500;
+  color: var(--dim);
+  margin-bottom: 10px;
+}
+.sd-tag--inv {
+  color: #8b939e;
+}
+
+/* ── entry: twelve slats, alternating directions, 24 ms apart ────────────── */
+.sd-shutter {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+}
+.sd-shutter i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(100% / 12 + 1px);
+  background: var(--deep);
+  animation: sd-slat-d 1000ms var(--e) both;
+}
+.sd-shutter i:nth-child(even) {
+  animation-name: sd-slat-u;
+}
+@keyframes sd-slat-d {
+  0% { clip-path: inset(0 0 100% 0); }
+  30% { clip-path: inset(0 0 0 0); }
+  42% { clip-path: inset(0 0 0 0); }
+  72%, 100% { clip-path: inset(100% 0 0 0); }
+}
+@keyframes sd-slat-u {
+  0% { clip-path: inset(100% 0 0 0); }
+  30% { clip-path: inset(0 0 0 0); }
+  42% { clip-path: inset(0 0 0 0); }
+  72%, 100% { clip-path: inset(0 0 100% 0); }
+}
+
+/* ── masthead ────────────────────────────────────────────────────────────── */
+.sd-head {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: clamp(36px, 6vh, 84px);
+}
+.sd-head__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 24px;
+  padding: clamp(20px, 3vh, 34px) var(--gut) 0;
+}
+.sd-h1 {
+  padding: clamp(56px, 11vh, 150px) var(--gut) 0;
+}
+.sd-lede {
+  padding: clamp(20px, 3vh, 38px) var(--gut) 0;
+}
+.sd-head__foot {
+  margin-top: auto;
+  padding: clamp(40px, 6vh, 80px) var(--gut) 0;
+  display: grid;
+  grid-template-columns: 1fr 1.25fr;
+  gap: clamp(18px, 3vw, 56px);
+  align-items: end;
+}
+.sd-head__note {
+  max-width: 34ch;
+}
+.sd-manifest {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 2px clamp(14px, 2vw, 32px);
+}
+.sd-manifest li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+.sd-manifest__n {
+  color: var(--dim);
+}
+
+/* the decrypt sweep: a hard-edged band at 1400 px/s */
+.sd-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 78px;
+  background: rgb(11 13 16 / 0.055);
+  border-bottom: 1px solid var(--ink);
+  z-index: 3;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* ── the institution split ───────────────────────────────────────────────── */
+.sd-body {
+  position: relative;
+}
+/* 1px at exactly 50%, drawn top to bottom, broken only by the gate */
+.sd-div {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 380ms var(--e);
+  z-index: 0;
+}
+.sd-div[data-on='1'] {
+  clip-path: inset(0 0 0 0);
+}
+
+.sd-row {
+  position: relative;
+  z-index: 1;
+  padding-block: clamp(72px, 11vh, 152px);
+}
+.sd-row__head,
+.sd-foot {
+  width: 50%;
+  padding-left: var(--gut);
+  padding-right: var(--inset);
+}
+.sd-foot {
+  margin-top: clamp(24px, 4vh, 48px);
+  max-width: 62ch;
+}
+.sd-row--left,
+.sd-row--right {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+.sd-row--left > .sd-col {
+  padding-left: var(--gut);
+  padding-right: var(--inset);
+}
+.sd-row--left > .sd-aside {
+  padding-left: var(--inset);
+  padding-right: var(--gut);
+}
+.sd-row--right > .sd-col {
+  grid-column: 2;
+  padding-left: var(--inset);
+  padding-right: var(--gut);
+}
+
+.sd-halves {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: clamp(28px, 5vh, 64px);
+}
+.sd-half {
+  padding-block: clamp(16px, 2.6vh, 30px);
+  transition: color 220ms var(--e);
+}
+.sd-half[data-side='a'] {
+  --ch: var(--ca);
+  padding-left: var(--gut);
+  padding-right: var(--inset);
+}
+.sd-half[data-side='b'] {
+  --ch: var(--cb);
+  padding-left: var(--inset);
+  padding-right: var(--gut);
+}
+/* the half you are not attending to loses its channel and its ink */
+.sd-half[data-attn='0'] {
+  --ch: var(--rule);
+  color: var(--dim);
+}
+.sd-half:focus-visible {
+  outline: 2px solid var(--ca);
+  outline-offset: -2px;
+}
+.sd-hint {
+  margin-top: 14px;
+}
+
+/* ── a sealed panel: ciphertext until the seal is broken ─────────────────── */
+.sd-panel {
+  display: grid;
+  border-left: 1px solid var(--rule);
+  margin-top: clamp(14px, 2vh, 24px);
+}
+.sd-panel > * {
+  grid-area: 1 / 1;
+}
+.sd-panel__body {
+  padding: 2px 0 2px clamp(14px, 1.4vw, 22px);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 300ms var(--e);
+  transition-delay: var(--sd-d, 0ms);
+}
+.sd-panel[data-open='1'] .sd-panel__body {
+  clip-path: inset(0 0 0 0);
+}
+.sd-panel__fill {
+  padding: 2px 0 2px clamp(14px, 1.4vw, 22px);
+  background: var(--pan);
+  color: var(--noise);
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.62;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  pointer-events: none;
+  clip-path: inset(0 0 0 0);
+  transition: clip-path 300ms var(--e);
+  transition-delay: var(--sd-d, 0ms);
+}
+.sd-panel[data-open='1'] .sd-panel__fill {
+  clip-path: inset(100% 0 0 0);
+}
+.sd-panel__fill i {
+  display: block;
+  font-style: normal;
+}
+
+/* the half of the document you are not standing in */
+.sd-aside {
+  align-self: start;
+}
+.sd-wall {
+  margin-top: 12px;
+  background: var(--pan);
+  border-left: 1px solid var(--rule);
+  padding: 12px clamp(14px, 1.4vw, 22px);
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.62;
+  color: var(--noise);
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+.sd-wall i {
+  display: block;
+  font-style: normal;
+}
+
+/* ── ledgers, schemas, definitions ───────────────────────────────────────── */
+.sd-list li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 5px 0;
+}
+.sd-rulefill {
+  flex: 1 1 auto;
+  height: 1px;
+  min-width: 16px;
+  background: var(--rule);
+  align-self: center;
+}
+.sd-defs dt {
+  color: var(--ink);
+  font-weight: 500;
+}
+.sd-defs dd {
+  margin: 0 0 12px;
+  color: var(--dim);
+  max-width: 44ch;
+}
+.sd-tbl {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+  text-align: left;
+}
+.sd-tbl caption {
+  text-align: left;
+  color: var(--dim);
+  padding-bottom: 6px;
+}
+.sd-tbl th {
+  font-weight: 400;
+  color: var(--dim);
+  padding: 4px 16px 4px 0;
+  white-space: nowrap;
+}
+.sd-tbl td {
+  padding: 4px 0;
+}
+
+/* ── seal 03: local imbalance and local SMOTE ────────────────────────────── */
+.sd-smote {
+  margin-bottom: 16px;
+}
+.sd-bar {
+  display: grid;
+  grid-template-columns: 84px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+}
+.sd-bar__t {
+  position: relative;
+  height: 12px;
+  border: 1px solid var(--rule);
+}
+.sd-bar__base,
+.sd-bar__f {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+.sd-bar__base {
+  background: var(--ink);
+}
+.sd-bar__f {
+  background: var(--ch);
+  clip-path: inset(0 92% 0 0);
+  transition: background-color 220ms var(--e);
+}
+.sd-synth {
+  margin-top: 14px;
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ch);
+  word-break: break-all;
+}
+.sd-synth i {
+  display: block;
+  font-style: normal;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 220ms var(--e);
+}
+.sd-synth i[data-on='1'] {
+  clip-path: inset(0 0 0 0);
+}
+
+/* ── seal 04: the two model families ─────────────────────────────────────── */
+.sd-arch {
+  margin-bottom: 20px;
+}
+.sd-arch li {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  border-left: 1px solid var(--rule);
+  padding: 7px 0 7px 16px;
+}
+.sd-arch__n {
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 1;
+  min-width: 2.6ch;
+  font-variant-numeric: tabular-nums;
+}
+.sd-arch__k {
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--dim);
+}
+.sd-forest {
+  display: grid;
+  grid-template-columns: repeat(20, 1fr);
+  gap: 3px;
+  margin: 4px 0 22px;
+}
+.sd-forest i {
+  display: block;
+  height: 24px;
+  background: var(--ch);
+  transition: background-color 220ms var(--e);
+}
+
+/* ── seal 05: the gate ───────────────────────────────────────────────────── */
+.sd-gate {
+  position: relative;
+  height: 240vh;
+}
+.sd-gate__stick {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+}
+.sd-gate__band {
+  position: absolute;
+  inset: 0;
+  background: var(--deep);
+  color: var(--gnd);
+  clip-path: inset(0 0 100% 0);
+}
+.sd-gate__hd {
+  position: absolute;
+  left: var(--gut);
+  top: clamp(22px, 5vh, 56px);
+  max-width: 40ch;
+  z-index: 2;
+}
+.sd-h2--inv {
+  color: var(--gnd);
+}
+.sd-gate__line {
+  font-weight: 300;
+  font-size: clamp(16px, 1.5vw, 20px);
+  line-height: 1.5;
+  color: #c3c9d1;
+  max-width: 42ch;
+}
+.sd-gate__mx {
+  position: absolute;
+  inset: 0;
+}
+.sd-gate__edge {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #2b313a;
+}
+.sd-gm {
+  position: absolute;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  gap: 3px clamp(12px, 1.4vw, 22px);
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 12.5px;
+  line-height: 1.42;
+  font-variant-numeric: tabular-nums;
+  will-change: transform;
+}
+.sd-gm--a {
+  top: 40%;
+}
+.sd-gm--b {
+  top: 60%;
+}
+.sd-gm__k {
+  position: absolute;
+  left: 0;
+  top: -22px;
+  white-space: nowrap;
+  color: var(--ch);
+}
+.sd-gc {
+  color: #dfe3e8;
+}
+.sd-gc[data-enc='1'] {
+  color: var(--ch);
+}
+.sd-gate__out {
+  position: absolute;
+  left: var(--gut);
+  right: var(--gut);
+  top: 82%;
+  clip-path: inset(0 100% 0 0);
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  font-variant-numeric: tabular-nums;
+}
+.sd-gate__outk {
+  display: block;
+  color: #8b939e;
+  font-size: 13px;
+}
+.sd-gate__outv {
+  display: block;
+  font-weight: 500;
+  color: var(--gnd);
+  word-break: break-all;
+}
+.sd-gate__ill {
+  position: absolute;
+  left: var(--gut);
+  bottom: clamp(10px, 2vh, 22px);
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+  color: #6d7682;
+}
+.sd-after {
+  padding: clamp(64px, 10vh, 130px) var(--gut);
+}
+.sd-after__p {
+  max-width: 62ch;
+}
+
+/* ── seal 06: the vote ───────────────────────────────────────────────────── */
+.sd-ctr {
+  margin: 8px 0 4px;
+}
+.sd-ctr__track {
+  position: relative;
+  height: 36px;
+  border-bottom: 1px solid var(--rule);
+}
+.sd-ctr__track i {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 8px;
+  background: var(--rule);
+}
+.sd-ctr__track i[data-t='1'] {
+  height: 17px;
+  background: var(--dim);
+}
+.sd-ctr__mark {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  height: 36px;
+  background: var(--ch);
+  transition:
+    left 220ms var(--e),
+    background-color 220ms var(--e);
+}
+.sd-ctr__r {
+  margin-top: 10px;
+}
+.sd-ctr__v {
+  font-weight: 500;
+  font-size: 15px;
+}
+.sd-verdictwrap {
+  width: 50%;
+  padding-left: var(--gut);
+  padding-right: var(--inset);
+  margin-top: clamp(32px, 5vh, 64px);
+}
+.sd-verdict {
+  display: grid;
+  font-weight: 600;
+  font-size: clamp(36px, 5vw, 72px);
+  line-height: 1.04;
+}
+.sd-verdict > span {
+  grid-area: 1 / 1;
+  clip-path: inset(0 0 100% 0);
+}
+.sd-verdict[data-v='legit'] .sd-verdict__l,
+.sd-verdict[data-v='fraud'] .sd-verdict__f {
+  clip-path: inset(0 0 0 0);
+}
+.sd-fig {
+  margin-top: 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+}
+.sd-fig b {
+  font-weight: 600;
+  font-size: clamp(30px, 3.4vw, 48px);
+  font-variant-numeric: tabular-nums;
+}
+.sd-fig span {
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--dim);
+}
+
+/* ── seal 07: three milliseconds ─────────────────────────────────────────── */
+.sd-ms__rig {
+  margin: clamp(18px, 3vh, 32px) 0;
+  max-width: 46ch;
+}
+.sd-ms__bar {
+  position: relative;
+  height: 24px;
+  border: 1px solid var(--ink);
+}
+.sd-ms__f {
+  position: absolute;
+  inset: 0;
+  display: block;
+  background: var(--ink);
+}
+.sd-ms__read {
+  margin-top: 10px;
+}
+.sd-ms__v {
+  font-weight: 500;
+  font-size: 16px;
+}
+
+/* ── seal 08: masking, live ──────────────────────────────────────────────── */
+.sd-row--left > .sd-mask {
+  grid-column: 1 / -1;
+}
+.sd-mask {
+  position: relative;
+  height: 200vh;
+  margin-top: clamp(32px, 6vh, 80px);
+}
+.sd-mask__stick {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  overflow: hidden;
+}
+.sd-mask__rule {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--ink);
+}
+.sd-mask__rule span {
+  position: absolute;
+  top: 30%;
+  left: 10px;
+  white-space: nowrap;
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--dim);
+}
+.sd-mask__row {
+  position: absolute;
+  left: 0;
+  top: 46%;
+  white-space: nowrap;
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-weight: 500;
+  font-size: clamp(24px, 3.6vw, 46px);
+  font-variant-numeric: tabular-nums;
+  will-change: transform;
+}
+.sd-mask__c {
+  display: inline-block;
+}
+.sd-mask__c[data-x='1'] {
+  color: var(--ca);
+}
+.sd-mask__out {
+  position: absolute;
+  left: var(--gut);
+  top: 62%;
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: clamp(15px, 1.5vw, 19px);
+  color: var(--ca);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 300ms var(--e);
+}
+.sd-mask__out[data-on='1'] {
+  clip-path: inset(0 0 0 0);
+}
+.sd-mask__cap {
+  position: absolute;
+  left: var(--gut);
+  bottom: clamp(24px, 5vh, 56px);
+  max-width: 42ch;
+}
+
+/* ── zero: the only element that never had a sealed state ────────────────── */
+.sd-zero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(24px, 5vw, 88px);
+  padding: clamp(80px, 15vh, 200px) var(--gut);
+}
+.sd-zero__n {
+  font-weight: 600;
+  font-size: clamp(160px, 40vw, 520px);
+  line-height: 0.76;
+  letter-spacing: 0;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.sd-zero__t .sd-h2 {
+  max-width: 16ch;
+}
+
+/* ── seal 09: the note. No panel, no scramble, no performance. ───────────── */
+.sd-note {
+  padding: clamp(48px, 8vh, 110px) var(--gut) clamp(64px, 10vh, 140px);
+  max-width: 78ch;
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13.5px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+.sd-note h2 {
+  font: inherit;
+  color: var(--dim);
+  margin-bottom: 14px;
+}
+
+/* ── colophon ────────────────────────────────────────────────────────────── */
+.sd-colophon {
+  padding: 0 var(--gut) clamp(72px, 12vh, 150px);
+}
+.sd-colophon__g {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(24px, 4vw, 72px);
+  align-items: start;
+}
+.sd-stack li {
+  padding: 3px 0;
+  color: var(--dim);
+}
+.sd-stack b {
+  font-family: 'PlexCondSD', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.sd-links {
+  margin-top: clamp(40px, 7vh, 90px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(18px, 3vw, 48px);
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 14px;
+}
+.sd-links a {
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--rule);
+  transition: border-color 220ms var(--e);
+}
+.sd-links a:hover,
+.sd-links a:focus-visible {
+  border-color: var(--ink);
+}
+
+/* the shared back link, styled as a drawer tab on this page */
+.sd .pj-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'PlexMonoSD', ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--dim);
+  transition: color 220ms var(--e);
+}
+.sd .pj-back:hover {
+  color: var(--ink);
+}
+.sd .pj-back__arrow {
+  width: 22px;
+  height: 11px;
+}
+
+/* ── motion off ──────────────────────────────────────────────────────────────
+   Not a `transition: none` patch: the page is already readable. Every seal is
+   open, both institutions are unsealed at once, and no loop is started. */
+.sd--still .sd-panel__fill,
+.sd--still .sd-wall,
+.sd--still .sd-sweep {
+  display: none;
+}
+.sd--still .sd-panel__body,
+.sd--still .sd-synth i,
+.sd--still .sd-verdict > span,
+.sd--still .sd-gate__out,
+.sd--still .sd-mask__out,
+.sd--still .sd-div {
+  clip-path: none;
+}
+.sd--still .sd-verdict > span.sd-verdict__l {
+  display: none;
+}
+.sd--still * {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ── the designed narrow experience ──────────────────────────────────────────
+   Two stacked half-height chambers with a horizontal divider between them.
+   Only one is unsealed at a time; scroll hands off between them. */
+@media (max-width: 880px) {
+  .sd {
+    --inset: var(--gut);
+  }
+  .sd-div {
+    display: none;
+  }
+  .sd-head__foot {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .sd-manifest {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sd-row__head,
+  .sd-foot,
+  .sd-verdictwrap {
+    width: auto;
+    padding-inline: var(--gut);
+  }
+  .sd-row--left,
+  .sd-row--right {
+    grid-template-columns: 1fr;
+  }
+  .sd-row--right > .sd-col {
+    grid-column: 1;
+  }
+  .sd-row--left > .sd-aside {
+    display: none;
+  }
+  .sd-halves {
+    grid-template-columns: 1fr;
+  }
+  .sd-half {
+    min-height: 46vh;
+    padding-inline: var(--gut);
+    padding-block: clamp(22px, 4vh, 38px);
+  }
+  .sd-half[data-side='a'] {
+    border-bottom: 1px solid var(--rule);
+  }
+  .sd-forest {
+    grid-template-columns: repeat(10, 1fr);
+  }
+  /* the gate stays, at reduced matrix density */
+  .sd-gm {
+    grid-template-columns: repeat(4, auto);
+    font-size: 12px;
+  }
+  .sd-gc:nth-child(n + 18) {
+    display: none;
+  }
+  .sd-gm--a {
+    top: 38%;
+  }
+  .sd-gm--b {
+    top: 58%;
+  }
+  .sd-gate__out {
+    top: 78%;
+  }
+  .sd-zero {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .sd-colophon__g {
+    grid-template-columns: 1fr;
+    gap: 34px;
+  }
+  .sd-mask {
+    height: 170vh;
+  }
+  .sd-bar {
+    grid-template-columns: 72px 1fr auto;
+  }
+}

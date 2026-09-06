@@ -1,0 +1,1203 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   dravidian-sentiment — "Muzhakkam" (முழக்கம்)
+   Concept: docs/design/dravidian-sentiment.md
+   Blocklist: docs/design/00-do-not-reuse.md
+
+   A pasted-up Tamil political poster wall. Two spot inks — vermilion and gold —
+   on newsprint stock and deep maroon, swapping from sheet to sheet, so the page
+   never resolves to a single background. Every sheet is torn (a generated
+   clip-path), halftoned, and rotated; display type carries a 2px mis-registered
+   duplicate in the opposing ink, the way a two-colour press gets it wrong.
+
+   Everything is scoped to `.mz` / `body.pj-muzhakkam`. There is deliberately no
+   `overflow` on `.mz` — an overflow other than `visible` on the scope root would
+   make it the scroll container for every `position: sticky` scrub inside it.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@font-face {
+  font-family: 'NotoTamilMZ';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/p/noto-tamil.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'WorkSansMZ';
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url('/fonts/p/work-sans.woff2') format('woff2-variations');
+}
+@font-face {
+  font-family: 'AntonMZ';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/p/anton.woff2') format('woff2');
+}
+
+body.pj-muzhakkam {
+  font-family: 'WorkSansMZ', system-ui, sans-serif;
+  background: #120a08;
+  color: #f4e7ce;
+}
+
+/* ── the wall ───────────────────────────────────────────────────────────── */
+.mz {
+  --verm: #c0261c;
+  --bone: #f4e7ce;
+  --ink: #120a08;
+  --gold: #e9b23c;
+  --maroon: #3a0c08;
+
+  --ta: 'NotoTamilMZ', 'WorkSansMZ', system-ui, sans-serif;
+  --bd: 'WorkSansMZ', system-ui, sans-serif;
+  --nm: 'AntonMZ', 'WorkSansMZ', system-ui, sans-serif;
+
+  /* defaults, overridden per sheet by a colourway */
+  --stock: var(--ink);
+  --fg: var(--gold);
+  --op: var(--verm);
+  --hal: 0.3;
+
+  position: relative;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--bd);
+  -webkit-font-smoothing: antialiased;
+}
+.mz *,
+.mz *::before,
+.mz *::after {
+  box-sizing: border-box;
+}
+.mz ::selection {
+  background: var(--verm);
+  color: var(--bone);
+}
+.mz a {
+  color: inherit;
+}
+.mz :focus-visible {
+  outline: 3px solid var(--fg);
+  outline-offset: 3px;
+}
+
+/* ── the four sheet combinations ────────────────────────────────────────── */
+.mz-s--vb {
+  --stock: var(--bone);
+  --fg: var(--verm);
+  --op: var(--gold);
+  --hal: 0.36;
+} /* vermilion on bone */
+.mz-s--bv {
+  --stock: var(--verm);
+  --fg: var(--bone);
+  --op: var(--gold);
+  --hal: 0.3;
+} /* bone on vermilion */
+.mz-s--bg {
+  --stock: var(--gold);
+  --fg: var(--ink);
+  --op: var(--verm);
+  --hal: 0.32;
+} /* black on gold */
+.mz-s--gm {
+  --stock: var(--maroon);
+  --fg: var(--gold);
+  --op: var(--verm);
+  --hal: 0.24;
+} /* gold on maroon */
+
+/* ── paper: stock, tear, halftone, paste shadow ─────────────────────────── */
+.mz-sheet__stock,
+.mz-poster__stock,
+.mz-corr__stock {
+  position: absolute;
+  inset: -2.4vh -2.2vw;
+  z-index: 0;
+  display: block;
+  background: var(--stock);
+  transform: rotate(var(--rot, 0deg));
+  filter: drop-shadow(-7px 13px 0 rgb(58 12 8 / 0.44));
+  pointer-events: none;
+}
+.mz-sheet__stock::after,
+.mz-poster__stock::after,
+.mz-corr__stock::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 50% 50%, rgb(18 10 8 / 0.58) 0.85px, transparent 1.05px);
+  background-size: 5px 5px;
+  opacity: var(--hal);
+}
+.mz-poster__stock,
+.mz-corr__stock {
+  inset: 0;
+}
+
+.mz-wall {
+  position: relative;
+  z-index: 2;
+  display: block;
+}
+.mz-wall > * + * {
+  margin-top: -7vh;
+}
+/* later sheets are pasted over earlier ones */
+.mz-wall > *:nth-child(1) { z-index: 2; }
+.mz-wall > *:nth-child(2) { z-index: 3; }
+.mz-wall > *:nth-child(3) { z-index: 4; }
+.mz-wall > *:nth-child(4) { z-index: 5; }
+.mz-wall > *:nth-child(5) { z-index: 6; }
+.mz-wall > *:nth-child(6) { z-index: 7; }
+.mz-wall > *:nth-child(7) { z-index: 8; }
+.mz-wall > *:nth-child(8) { z-index: 9; }
+.mz-wall > *:nth-child(9) { z-index: 10; }
+
+.mz-sheet,
+.mz-scrub,
+.mz-strip {
+  position: relative;
+  color: var(--fg);
+}
+.mz-sheet {
+  min-height: 84vh;
+}
+.mz-strip {
+  min-height: 40vh;
+}
+.mz-sheet__in {
+  position: relative;
+  z-index: 1;
+  transform: rotate(var(--rot, 0deg));
+  padding: 10vh clamp(18px, 7.5vw, 128px) 11vh;
+}
+
+/* ── scrubbed sheets: pinned, but the paper is still crooked ────────────── */
+.mz-scrub {
+  height: 260vh;
+}
+.mz-scrub--tall {
+  height: 300vh;
+}
+.mz-scrub__stick {
+  position: sticky;
+  top: 0;
+  height: 100dvh;
+  display: flex;
+  align-items: center;
+}
+.mz-scrub__stick > .mz-sheet__in {
+  width: 100%;
+  padding-block: 0;
+  max-height: 100dvh;
+}
+
+/* nothing is visible until it has been slammed onto the wall */
+.mz--armed .mz-slam,
+.mz--armed .mz-paste__p {
+  opacity: 0;
+}
+
+/* ── type ───────────────────────────────────────────────────────────────── */
+.mz-mis {
+  position: relative;
+  display: block;
+}
+.mz-mis__g {
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  right: -2px;
+  color: var(--op);
+  pointer-events: none;
+  user-select: none;
+}
+.mz-mis__t {
+  position: relative;
+  display: block;
+}
+
+.mz-h1 {
+  margin: 0;
+  font-weight: 700;
+}
+.mz-h1__ta,
+.mz-h1__ta .mz-mis__g,
+.mz-h1__ta .mz-mis__t {
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(40px, 10.4vw, 150px);
+  line-height: 1.24;
+  letter-spacing: 0;
+}
+.mz-h1__en {
+  display: block;
+  margin-top: 0.5em;
+  font-family: var(--bd);
+  font-weight: 500;
+  font-size: clamp(15px, 3.4vw, 49px);
+  line-height: 1.22;
+  letter-spacing: 0;
+  color: var(--fg);
+}
+.mz-h1__meta {
+  margin: 2.6vh 0 0;
+  font-family: var(--bd);
+  font-weight: 400;
+  font-size: clamp(13px, 1.25vw, 17px);
+  line-height: 1.5;
+  max-width: 46ch;
+  color: var(--fg);
+  opacity: 0.82;
+}
+
+.mz-h2 {
+  margin: 0 0 1.4vh;
+  font-weight: 700;
+}
+.mz-h2 .mz-mis__g,
+.mz-h2 .mz-mis__t {
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(30px, 6vw, 84px);
+  line-height: 1.24;
+  letter-spacing: 0;
+}
+.mz-h2__en {
+  display: block;
+  margin-top: 0.42em;
+  font-family: var(--bd);
+  font-weight: 500;
+  font-size: clamp(14px, 2vw, 28px);
+  line-height: 1.24;
+  color: var(--fg);
+}
+
+.mz-label {
+  margin: 0 0 2.4vh;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.055em;
+  line-height: 1.4;
+  color: var(--fg);
+  opacity: 0.85;
+}
+.mz-label::before {
+  content: '';
+  flex: none;
+  width: 11px;
+  height: 11px;
+  background: var(--op);
+}
+
+.mz-p {
+  margin: 2.6vh 0 0;
+  font-family: var(--bd);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.58;
+  max-width: 52ch;
+  color: var(--fg);
+}
+.mz-note {
+  margin: 3vh 0 0;
+  padding: 13px 16px 14px 18px;
+  border-left: 6px solid var(--op);
+  background: rgb(18 10 8 / 0.07);
+  font-family: var(--bd);
+  font-weight: 400;
+  font-size: 14.5px;
+  line-height: 1.54;
+  max-width: 50ch;
+  color: var(--fg);
+}
+.mz-s--gm .mz-note,
+.mz-s--bv .mz-note {
+  background: rgb(244 231 206 / 0.09);
+}
+.mz-note b {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+/* ── 1. the paste-up ────────────────────────────────────────────────────── */
+.mz-paste {
+  position: relative;
+  height: 106vh;
+}
+.mz-shake {
+  position: absolute;
+  inset: 0;
+}
+.mz-poster {
+  position: absolute;
+  color: var(--fg);
+}
+.mz-poster__in {
+  position: relative;
+  z-index: 1;
+  display: block;
+  padding-inline: clamp(14px, 2.2vw, 40px);
+}
+.mz-poster__word {
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(24px, 4.4vw, 62px);
+  line-height: 1.24;
+  padding-top: clamp(14px, 2vw, 34px);
+}
+.mz-poster__num {
+  font-family: var(--nm);
+  letter-spacing: 0.02em;
+  font-size: clamp(30px, 5.6vw, 82px);
+  line-height: 1;
+  padding-top: clamp(14px, 2vw, 30px);
+}
+.mz-poster__sub {
+  font-family: var(--bd);
+  font-weight: 500;
+  font-size: clamp(11px, 1vw, 14px);
+  letter-spacing: 0.04em;
+  padding-bottom: clamp(12px, 1.8vw, 26px);
+  opacity: 0.8;
+}
+.mz-poster__frag {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(22px, 4vw, 56px);
+  line-height: 1.24;
+  padding-block: clamp(14px, 2vw, 30px);
+}
+.mz-poster__frag i {
+  font-style: normal;
+  font-family: var(--bd);
+  font-weight: 700;
+  font-size: 0.44em;
+  color: var(--op);
+}
+.mz-title {
+  padding: clamp(20px, 3vw, 46px) clamp(18px, 3vw, 52px) clamp(22px, 3.2vw, 50px);
+  max-width: 74%;
+}
+
+.mz-pp1 { left: 63%; top: 1%;  width: 33%; min-height: 17%; z-index: 1; }
+.mz-pp2 { left: 78%; top: 20%; width: 21%; min-height: 13%; z-index: 2; }
+.mz-pp3 { left: 2%;  top: 82%; width: 30%; min-height: 15%; z-index: 3; }
+.mz-pp4 { left: 35%; top: 86%; width: 28%; min-height: 12%; z-index: 4; }
+.mz-pp5 { left: 79%; top: 38%; width: 19%; min-height: 12%; z-index: 5; }
+.mz-pp6 { left: 2%;  top: 4%;  width: 84%; min-height: 74%; z-index: 6; }
+
+/* ── 2. the seven ───────────────────────────────────────────────────────── */
+.mz-seven {
+  list-style: none;
+  margin: 4vh 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 3px;
+}
+.mz-seven li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: baseline;
+  padding: 12px 14px 13px;
+  background: rgb(244 231 206 / 0.07);
+}
+.mz-seven__n {
+  grid-row: 1 / span 2;
+  font-family: var(--nm);
+  letter-spacing: 0.02em;
+  font-size: clamp(22px, 2.4vw, 34px);
+  line-height: 1;
+  color: var(--op);
+}
+.mz-seven__ta {
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(18px, 1.9vw, 27px);
+  line-height: 1.24;
+}
+.mz-seven__en {
+  font-family: var(--bd);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 1.4;
+  opacity: 0.78;
+}
+
+/* ── the marquee band ───────────────────────────────────────────────────── */
+.mz-band {
+  position: fixed;
+  left: -2vw;
+  right: -2vw;
+  top: 62vh;
+  z-index: 40;
+  pointer-events: none;
+  background: var(--maroon);
+  color: var(--gold);
+  border-block: 3px solid var(--verm);
+  transform: rotate(-0.7deg);
+  opacity: 0;
+  transition: opacity 120ms steps(1);
+}
+.mz-band__row {
+  height: clamp(26px, 3.1vh, 40px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+.mz-band__row + .mz-band__row {
+  border-top: 2px solid rgb(192 38 28 / 0.55);
+}
+.mz-band__track {
+  display: flex;
+  flex: none;
+  white-space: nowrap;
+  will-change: transform;
+}
+.mz-band__seq {
+  display: inline-flex;
+  flex: none;
+  align-items: baseline;
+}
+.mz-band__unit {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4em;
+  padding-inline: 0.5em;
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(12px, 1.85vh, 21px);
+  line-height: 1;
+}
+.mz-band__unit i {
+  font-style: normal;
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: 0.68em;
+  opacity: 0.82;
+}
+.mz-band__unit em {
+  font-style: normal;
+  color: var(--verm);
+  padding-left: 0.25em;
+}
+.mz-band[data-rows='1'] .mz-band__row:nth-child(n + 2) {
+  display: none;
+}
+
+/* ── margin stacks, in Anton, positively tracked ────────────────────────── */
+.mz-margin {
+  position: fixed;
+  top: 50%;
+  z-index: 35;
+  margin: 0;
+  pointer-events: none;
+  writing-mode: vertical-rl;
+  font-family: var(--nm);
+  letter-spacing: 0.02em;
+  font-size: clamp(11px, 1vw, 15px);
+  color: rgb(233 178 60 / 0.55);
+}
+.mz-margin--l {
+  left: 9px;
+  transform: translateY(-50%);
+}
+.mz-margin--r {
+  right: 9px;
+  transform: translateY(-50%) rotate(180deg);
+}
+
+/* ── 3. the shredder ────────────────────────────────────────────────────── */
+.mz-frags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 6px;
+  margin: 4vh 0 5vh;
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(32px, 7.6vw, 108px);
+  line-height: 1.24;
+}
+.mz-frag {
+  display: inline-flex;
+  align-items: baseline;
+  will-change: transform;
+}
+.mz-frag b {
+  font-weight: 700;
+}
+.mz-frag__h {
+  font-style: normal;
+  font-family: var(--bd);
+  font-weight: 700;
+  font-size: 0.4em;
+  color: var(--op);
+  transition: opacity 90ms steps(1);
+}
+.mz--armed .mz-shredzone .mz-frag__h {
+  opacity: 0;
+}
+
+/* the phone's shredder: three taps, not a scrub */
+.mz-frags--tap .mz-frag {
+  transition: transform 140ms cubic-bezier(0.2, 0.9, 0.1, 1);
+}
+.mz-frags--tap[data-step='1'] .mz-frag {
+  transform: translate3d(var(--gp, 0px), 0, 0);
+}
+.mz-frags--tap[data-step='2'] .mz-frag {
+  transform: translate3d(calc(var(--gp, 0px) + var(--tx, 0px)), var(--ty, 0px), 0) rotate(var(--fr, 0deg));
+}
+.mz--armed .mz-frags--tap[data-step='1'] .mz-frag__h,
+.mz--armed .mz-frags--tap[data-step='2'] .mz-frag__h {
+  opacity: 1;
+}
+.mz-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 1vh 0 2vh;
+}
+.mz-steps button {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 7px;
+  padding: 10px 14px;
+  border: 3px solid var(--fg);
+  background: transparent;
+  color: var(--fg);
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 90ms steps(1), color 90ms steps(1);
+}
+.mz-steps button[aria-pressed='true'] {
+  background: var(--fg);
+  color: var(--stock);
+}
+.mz-steps__n {
+  font-family: var(--nm);
+  letter-spacing: 0.02em;
+  font-size: 15px;
+}
+.mz-steps button i {
+  font-style: normal;
+  opacity: 0.72;
+}
+
+/* ── 4. the agentic rewrite ─────────────────────────────────────────────── */
+.mz-rw__stage {
+  position: relative;
+  min-height: clamp(140px, 24vh, 250px);
+  margin: 3.5vh 0 1vh;
+}
+.mz-rw__wrong,
+.mz-rw__right {
+  position: absolute;
+  inset: 0;
+  transition: opacity 90ms steps(1);
+}
+.mz-rw__wrong {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 12px;
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(28px, 5.8vw, 84px);
+  line-height: 1.24;
+  opacity: 1;
+}
+.mz-rw__right {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  opacity: 1;
+}
+.mz--armed .mz-rw__right {
+  opacity: 0;
+}
+.mz-rw__out {
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(26px, 5.1vw, 74px);
+  line-height: 1.24;
+}
+.mz-rw__gloss {
+  font-family: var(--bd);
+  font-weight: 500;
+  font-size: clamp(14px, 1.8vw, 26px);
+  line-height: 1.3;
+  color: var(--op);
+}
+
+/* ── 5. dense × sparse, overprinted ─────────────────────────────────────── */
+.mz-dx {
+  position: relative;
+  isolation: isolate;
+  height: clamp(170px, 32vh, 330px);
+  margin: 4vh 0 1vh;
+  background: var(--stock);
+}
+.mz-dx__band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 46%;
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+.mz-dx__band i {
+  display: block;
+  flex: 1 1 0;
+  min-height: 0;
+}
+.mz-dx__dense {
+  left: 2%;
+}
+.mz-dx__dense i {
+  background: var(--verm);
+}
+.mz-dx__sparse {
+  right: 2%;
+  mix-blend-mode: multiply;
+}
+.mz-dx__sparse i {
+  background: var(--gold);
+}
+.mz-dx__tag {
+  position: absolute;
+  left: 0;
+  bottom: -26px;
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+  color: var(--fg);
+}
+.mz-dx__sparse .mz-dx__tag {
+  left: auto;
+  right: 0;
+}
+.mz-dx__cap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 9px 14px;
+  background: var(--ink);
+  color: var(--bone);
+  opacity: 0;
+  transition: opacity 90ms steps(1);
+}
+.mz-dx__cap span {
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(15px, 1.8vw, 24px);
+  line-height: 1.24;
+}
+.mz-dx__cap i {
+  font-style: normal;
+  font-family: var(--bd);
+  font-weight: 500;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* ── 6. one of twenty-five ──────────────────────────────────────────────── */
+.mz-rank {
+  min-height: 130vh;
+}
+.mz-rank > .mz-sheet__in {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  column-gap: 5vw;
+  align-items: start;
+  padding-bottom: 30vh;
+}
+.mz-rank > .mz-sheet__in > .mz-label,
+.mz-rank > .mz-sheet__in > .mz-h2 {
+  grid-column: 1 / -1;
+}
+.mz-rank__fig {
+  grid-column: 1;
+  position: relative;
+  margin: 1vh 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 0.04em;
+  font-family: var(--nm);
+  letter-spacing: 0.02em;
+  line-height: 0.84;
+}
+.mz-rank__one,
+.mz-rank__ghost {
+  font-size: clamp(120px, 30vw, 420px);
+  line-height: 0.84;
+}
+.mz-rank__ghost {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--verm);
+  transform: translate(7px, 7px);
+  pointer-events: none;
+}
+.mz-rank__one {
+  position: relative;
+  color: var(--fg);
+}
+.mz-rank__of {
+  font-size: clamp(44px, 9vw, 140px);
+  color: var(--verm);
+}
+.mz-bars {
+  grid-column: 2;
+  margin-top: 1.5vh;
+}
+.mz-bars__row {
+  display: grid;
+  grid-template-columns: 84px 1fr 72px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.mz-bars__who {
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: 13px;
+}
+.mz-bars__track {
+  display: block;
+  height: 14px;
+  background: var(--maroon);
+}
+.mz-bars__bar {
+  display: block;
+  height: 100%;
+  background: var(--gold);
+}
+.mz-bars__row--win .mz-bars__bar {
+  background: var(--verm);
+}
+.mz-bars__v {
+  font-family: var(--nm);
+  letter-spacing: 0.02em;
+  font-size: 19px;
+  text-align: right;
+}
+.mz-bars__cap {
+  margin: 14px 0 0;
+  font-family: var(--bd);
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 42ch;
+  opacity: 0.85;
+}
+.mz-facts {
+  grid-column: 2;
+  list-style: none;
+  margin: 3.4vh 0 0;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+}
+.mz-facts li {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 9px 12px;
+  background: rgb(18 10 8 / 0.08);
+}
+.mz-facts b {
+  flex: none;
+  min-width: 78px;
+  font-family: var(--nm);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  font-size: 22px;
+  color: var(--op);
+}
+.mz-facts span {
+  font-family: var(--bd);
+  font-weight: 400;
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.mz-rank .mz-note {
+  grid-column: 2;
+}
+
+/* ── 7. the pasted correction ───────────────────────────────────────────── */
+.mz-corr {
+  position: absolute;
+  z-index: 5;
+  left: 3.5%;
+  top: 54%;
+  width: min(540px, 54%);
+  --stock: var(--bone);
+  --fg: var(--ink);
+  --op: var(--verm);
+  --hal: 0.4;
+  color: var(--fg);
+}
+.mz-corr__in {
+  position: relative;
+  z-index: 1;
+  transform: rotate(var(--rot, 0deg));
+  padding: clamp(18px, 2.2vw, 34px) clamp(18px, 2.4vw, 36px) clamp(20px, 2.6vw, 38px);
+}
+.mz-corr__lead {
+  margin: 0;
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: clamp(17px, 1.85vw, 27px);
+  line-height: 1.34;
+}
+.mz-p--corr {
+  font-size: 14.5px;
+  max-width: none;
+}
+.mz-label--corr {
+  color: var(--verm);
+  opacity: 1;
+}
+.mz-tape {
+  position: absolute;
+  z-index: 2;
+  width: 108px;
+  height: 27px;
+  background: rgb(244 231 206 / 0.42);
+  box-shadow: inset 0 0 0 1px rgb(18 10 8 / 0.12);
+  pointer-events: none;
+}
+.mz-tape--a {
+  left: -22px;
+  top: 16px;
+  transform: rotate(-38deg);
+}
+.mz-tape--b {
+  right: -26px;
+  bottom: 22px;
+  transform: rotate(-31deg);
+}
+
+/* ── 8. emoji speak too ─────────────────────────────────────────────────── */
+.mz-em {
+  list-style: none;
+  margin: 4vh 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+  gap: 3px;
+}
+.mz-em__i {
+  position: relative;
+  min-height: clamp(96px, 13vh, 128px);
+  display: grid;
+  place-items: center;
+  background: rgb(244 231 206 / 0.07);
+}
+.mz-em__g {
+  font-size: clamp(34px, 3.4vw, 46px);
+  line-height: 1;
+  font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+  transition: opacity 120ms steps(1);
+}
+.mz-em__w {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 6px;
+  text-align: center;
+  transition: opacity 120ms steps(1);
+}
+.mz-em__w b {
+  font-family: var(--ta);
+  font-weight: 700;
+  font-size: clamp(16px, 1.55vw, 22px);
+  line-height: 1.24;
+}
+.mz-em__w i {
+  font-style: normal;
+  font-family: var(--bd);
+  font-weight: 500;
+  font-size: 12px;
+  opacity: 0.76;
+}
+.mz-em__i[data-on='0'] .mz-em__w {
+  opacity: 0;
+}
+.mz-em__i[data-on='1'] .mz-em__g {
+  opacity: 0;
+}
+
+/* ── printed marginalia ─────────────────────────────────────────────────── */
+.mz-marg {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 2.4vw;
+  padding-block: 7vh 8vh;
+}
+.mz-marg__h {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: clamp(15px, 1.5vw, 20px);
+  letter-spacing: 0.04em;
+}
+.mz-marg__col h3 {
+  margin: 0 0 6px;
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  color: var(--op);
+}
+.mz-marg__col p {
+  margin: 0;
+  font-family: var(--bd);
+  font-weight: 400;
+  font-size: 13.5px;
+  line-height: 1.52;
+}
+
+/* ── 9. the blank sheet ─────────────────────────────────────────────────── */
+.mz-colo {
+  min-height: 94vh;
+}
+.mz-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4vh;
+}
+.mz-links a {
+  display: inline-block;
+  padding: 11px 17px;
+  background: var(--fg);
+  color: var(--stock);
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: clamp(14px, 1.4vw, 19px);
+  text-decoration: none;
+  transition: background-color 90ms steps(1), color 90ms steps(1);
+}
+.mz-links a:hover {
+  background: var(--op);
+  color: var(--ink);
+}
+.mz-else {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 5vh;
+}
+.mz-else a {
+  font-family: var(--bd);
+  font-weight: 500;
+  font-size: clamp(14px, 1.3vw, 18px);
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  transition: color 90ms steps(1), background-color 90ms steps(1);
+}
+.mz-else a:hover {
+  background: var(--op);
+  color: var(--ink);
+}
+
+/* ── the one piece of shared furniture ──────────────────────────────────── */
+.mz .pj-back {
+  position: fixed;
+  left: 14px;
+  top: 14px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  background: var(--gold);
+  color: var(--ink);
+  font-family: var(--bd);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  text-decoration: none;
+  transition: background-color 90ms steps(1), color 90ms steps(1);
+}
+.mz .pj-back:hover {
+  background: var(--verm);
+  color: var(--bone);
+}
+.mz .pj-back__arrow {
+  width: 21px;
+  height: 11px;
+}
+
+/* ── prefers-reduced-motion: the final, most legible state ──────────────── */
+.mz--still .mz-rw__stage {
+  min-height: 0;
+}
+.mz--still .mz-rw__wrong,
+.mz--still .mz-rw__right {
+  position: relative;
+  inset: auto;
+  transform: none !important;
+  opacity: 1 !important;
+  margin-bottom: 2vh;
+}
+.mz--still .mz-frag {
+  transform: none !important;
+}
+.mz--still .mz-band__track {
+  transform: none !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mz *,
+  .mz *::before,
+  .mz *::after {
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+  }
+}
+
+/* ── the phone: sheets stop rotating, the wall reflows ──────────────────── */
+@media (max-width: 900px) {
+  .mz-margin {
+    display: none;
+  }
+}
+@media (max-width: 760px), (pointer: coarse) {
+  .mz-sheet__stock,
+  .mz-poster__stock,
+  .mz-corr__stock,
+  .mz-sheet__in,
+  .mz-corr__in {
+    transform: rotate(var(--rotm, 0deg));
+  }
+  .mz-band {
+    top: 66vh;
+  }
+  .mz-band__row {
+    height: 24px;
+  }
+  .mz-band__unit {
+    font-size: 13px;
+  }
+}
+@media (max-width: 760px) {
+  .mz-wall > * + * {
+    margin-top: -4vh;
+  }
+  .mz-sheet__in {
+    padding: 8vh 18px 9vh;
+  }
+  .mz-scrub {
+    height: 220vh;
+  }
+  .mz-scrub--tall {
+    height: 240vh;
+  }
+
+  /* the paste-up reflows: the title first, the chips under it */
+  .mz-paste {
+    height: auto;
+    min-height: 100vh;
+    padding: 10vh 12px 8vh;
+  }
+  .mz-shake {
+    position: relative;
+    inset: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .mz-poster {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    min-height: 0;
+    flex: 1 1 40%;
+  }
+  .mz-pp6 {
+    order: -1;
+    flex: 1 1 100%;
+  }
+  .mz-title {
+    max-width: none;
+  }
+  .mz-h1__ta,
+  .mz-h1__ta .mz-mis__g,
+  .mz-h1__ta .mz-mis__t {
+    font-size: clamp(34px, 11vw, 60px);
+  }
+
+  .mz-rank {
+    min-height: 0;
+  }
+  .mz-rank > .mz-sheet__in {
+    grid-template-columns: minmax(0, 1fr);
+    padding-bottom: 8vh;
+  }
+  .mz-rank__fig,
+  .mz-bars,
+  .mz-facts,
+  .mz-rank .mz-note {
+    grid-column: 1;
+  }
+  .mz-corr {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    margin: -6vh 12px 6vh;
+    z-index: 5;
+  }
+  .mz-tape--a {
+    left: 12px;
+    top: -12px;
+  }
+  .mz-tape--b {
+    right: 12px;
+    bottom: -12px;
+  }
+  .mz-dx {
+    height: clamp(150px, 26vh, 220px);
+  }
+  .mz-marg {
+    gap: 4vh;
+  }
+}
