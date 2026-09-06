@@ -6,27 +6,16 @@ then the concept doc for whichever page you are picking up.
 
 ---
 
-## ⚠️ Read before touching the repo
+## Status: stopped cleanly. Working tree is clean, build is green.
 
-**Three project folders are on disk but NOT committed.** They were being written
-by parallel agents when the session paused:
+The three parallel agents were **stopped deliberately** (out of credits), each
+part-way through its own visual verification pass. Their code is committed —
+`2081170` — because the build gate was green and 7,800 lines are safer in
+history than untracked on disk.
 
-```
-v2/src/projects/dravidian-sentiment/   index.tsx  wall.css  tears.ts  (+2 __preview.* scratch files to delete)
-v2/src/projects/fraud-detection/       index.tsx  sealed.css  cipher.ts  Seal.tsx
-v2/src/projects/wisp/                  index.tsx  wisp.css  ir.ts  shapes.ts  species.ts  Frame.tsx
-```
-
-They are substantial (25–41 KB each) and represent real work. **Do not run
-`git clean`, and do not delete these folders.** They are unreviewed and at
-least one (`wisp/ir.ts`) had an open TypeScript error when the session paused,
-which is why they were not committed — `npm run build` is currently red because
-of it.
-
-`v2/src/App.tsx` does **not** route these three yet. That is deliberate: the
-committed tree builds green without them.
-
----
+**They are not registered in `App.tsx`, so they are inert.** Nothing on the live
+site changes until someone routes them. That is the first step of picking this
+back up.
 
 ## What is done
 
@@ -39,8 +28,9 @@ committed tree builds green without them.
 | `54f2d91` | **eeg-emotion**, **memora**, **semantic-modeling** (+ two bug fixes on the first two pages) |
 
 **Step 1 (analyse), Step 2 (concept docs), Step 3 (pairwise self-check) are
-complete.** Step 4 (implement) is 4 of 8 pages done, 3 in progress, 1 not
-started.
+complete.** Step 4 (implement): 4 of 8 pages built and screenshot-reviewed,
+3 built but never rendered, 1 not started. Step 5 (review) and Step 6 (build
+log) are outstanding.
 
 ### The teardown
 
@@ -84,10 +74,12 @@ Shared, and nothing else: `src/projects/_shared/BackLink.tsx`,
 
 ## What is left
 
-### A. Finish the three in-flight pages
+### A. Review and route the three stopped pages
 
-For each: read `docs/design/<slug>.md`, fix the code already on disk (do not
-restart from zero — it is close), then register the route in `App.tsx`:
+Each is code-complete and passes every *static* check. None has ever been
+rendered. Read `docs/design/<slug>.md`, register the route in `App.tsx`, then
+run the review pass in section C — expect real layout bugs, because the first
+four pages each had one and they were only found by screenshotting.
 
 ```tsx
 'dravidian-sentiment': lazy(() => import('@/projects/dravidian-sentiment')),
@@ -95,13 +87,33 @@ restart from zero — it is close), then register the route in `App.tsx`:
 wisp:                  lazy(() => import('@/projects/wisp')),
 ```
 
-Known outstanding:
-- `wisp/ir.ts:327` — `Float32Array<ArrayBufferLike>` is not assignable to
-  `Float32Array<ArrayBuffer>`. Annotate the array's buffer type or construct it
-  as `new Float32Array(n)` rather than from a `.buffer`.
-- Delete `dravidian-sentiment/__preview.html` and `__preview.tsx` (agent scratch).
-- None of the three has been screenshot-reviewed yet. **No page ships on an
-  agent's word alone** — every one needs the review pass in section C.
+**What was verified before they were stopped** (all of it static, none of it visual):
+
+| Check | dravidian-sentiment | fraud-detection | wisp |
+|---|---|---|---|
+| lines (tsx + css + helpers) | 2,222 | 2,366 | 3,235 |
+| `tsc --noEmit` | clean | clean | clean |
+| `vite build` | clean | clean | clean |
+| default export, shared imports only | yes | yes | yes |
+| own self-hosted fonts declared | Noto Sans Tamil, Anton, Work Sans | IBM Plex Sans Condensed 300/600, IBM Plex Mono 400/500 | Cormorant Garamond 300/300i/600, Inter Tight |
+| blocklist sweep (banned faces, `cubic-bezier(.16,1,.3,1)`, magma hexes, `/plates/`) | 0 hits | 0 hits | 0 hits |
+| uses the banned IntersectionObserver → `.in` reveal | no | no | no |
+| `prefersReduced` branch present | yes | yes (in `cipher.ts`) | yes |
+| **rendered in a browser even once** | **no** | **no** | **no** |
+
+**Where each one was interrupted**, from its last action:
+- **dravidian-sentiment** — finished; had just confirmed the bundle was clean and
+  was about to open it in a browser. Closest to done.
+- **fraud-detection** — *mid-edit*, restructuring the CKKS gate JSX. Treat that
+  section as the least trustworthy part of the file and read it before routing.
+- **wisp** — finished and had fixed its own `ir.ts` type error; was about to
+  route the page temporarily to look at it. It left that temporary `wisp` entry
+  in `App.tsx`; that has been reverted, and its `__preview` scratch files deleted.
+
+Because none was rendered, assume the usual suspects are still there: sections
+under a fixed overlay left at `z-index: auto`, pinned sections that never pin,
+elements that start invisible and never arrive, and text over imagery with no
+contrast guard.
 
 ### B. Build the eighth page
 
