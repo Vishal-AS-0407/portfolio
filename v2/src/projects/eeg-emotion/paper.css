@@ -45,7 +45,11 @@ body.pj-paper {
   color: var(--ink);
   font-family: 'SpaceGroteskPP', system-ui, sans-serif;
   font-weight: 300;
-  /* NB: no `overflow` here. An overflow other than `visible` on an ancestor
+  /* The roll and its margin notes bleed past the right edge on a narrow
+     screen. `clip` trims that without becoming a scroll container — unlike
+     `hidden`, which would break the transport's sticky pin below. */
+  overflow-x: clip;
+  /* NB: no `overflow-y` here. An overflow other than `visible` on an ancestor
      makes it the scroll container for `position: sticky`, and the transport
      would stick to this element instead of to the viewport — the whole page
      goes blank a third of the way down. The clipping belongs on .pp-stick. */

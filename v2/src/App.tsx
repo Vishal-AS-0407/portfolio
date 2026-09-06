@@ -47,6 +47,7 @@ const PAGES: Record<string, ComponentType> = {
   'dravidian-sentiment': lazy(() => import('@/projects/dravidian-sentiment')),
   'fraud-detection': lazy(() => import('@/projects/fraud-detection')),
   wisp: lazy(() => import('@/projects/wisp')),
+  'qubit-green-finance': lazy(() => import('@/projects/qubit-green-finance')),
 };
 
 function ProjectRoute() {
