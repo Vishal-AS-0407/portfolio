@@ -112,8 +112,6 @@ export function EscapeHatch() {
   return (
     <a
       href={profile.oldSite}
-      target="_blank"
-      rel="noopener noreferrer"
       data-cur
       className="mono fixed bottom-[18px] left-1/2 z-40 flex items-center gap-2 rounded-full
                  px-4 py-2 uppercase backdrop-blur-md transition-all duration-700"

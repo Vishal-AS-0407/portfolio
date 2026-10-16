@@ -14,7 +14,7 @@ export const profile = {
     'I build AI systems that solve real world problems — not just classroom ones. From healthcare automation to speech and language intelligence, I enjoy taking ideas from research papers to working products.',
   about2:
     'My work spans machine learning, deep learning, NLP, and scalable backend systems. I focus heavily on data quality, model explainability, and deployment-ready solutions rather than just accuracy numbers.',
-  oldSite: 'https://portfolio-sigma-blond-57.vercel.app/',
+  oldSite: '/plain/',
 };
 
 export const socials = {
@@ -283,6 +283,7 @@ export const patents = [
 ];
 
 export const achievements = [
+  { rank: 'Winner', title: 'iQOO ReSkill Hackathon — Chennai City Battle', org: 'iQOO', note: 'First place in the Chennai city round' },
   { rank: 'Top 500', title: 'HackMIT 2025', org: 'MIT', note: 'Selected globally as one of 500 students' },
   { rank: 'Rank 1', title: 'DravidianLangTech', org: 'NAACL', note: 'Tamil political sentiment analysis' },
   { rank: 'Runner Up', title: 'DigiPay Pro Hackathon', org: 'NPCI & IIT Bombay', note: 'Privacy-preserving fraud detection · Techfest 2024' },

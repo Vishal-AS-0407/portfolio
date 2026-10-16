@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview --port 4173"
+    "preview": "vite preview --port 4173",
+    "build:plain": "npm --prefix .. run build:plain",
+    "build:all": "npm run build && npm run build:plain"
   },
   "dependencies": {
     "react": "^18.3.1",

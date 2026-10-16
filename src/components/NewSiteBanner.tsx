@@ -30,8 +30,6 @@ export default function NewSiteBanner() {
           <div className="flex items-center gap-1 rounded-full glass-strong border border-primary/25 pl-1 pr-1 py-1 shadow-lg shadow-primary/5">
             <a
               href={NEW_SITE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
               className="group flex items-center gap-2 rounded-full px-4 py-2 text-sm hover:bg-primary/10 transition-colors"
             >
               <span className="relative flex h-2 w-2 shrink-0">

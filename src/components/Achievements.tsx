@@ -4,6 +4,12 @@ import { SectionHeader, Reveal } from './motion/Reveal';
 
 const achievements = [
   {
+    icon: Trophy,
+    title: 'Winner — iQOO ReSkill Hackathon',
+    organization: 'Chennai City Battle',
+    description: 'First place in the Chennai city round of the iQOO ReSkill Hackathon',
+  },
+  {
     icon: Rocket,
     title: 'Top 500 — HackMIT 2025',
     organization: 'MIT',
@@ -18,7 +24,7 @@ const achievements = [
   {
     icon: Medal,
     title: 'Runner Up — DigiPay Pro Hackathon',
-    organization: 'NCPI & IIT Bombay',
+    organization: 'NPCI & IIT Bombay',
     description: 'Built privacy-preserving fraud detection system with decentralized architecture',
   },
   {

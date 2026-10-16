@@ -78,8 +78,6 @@ export default function Navbar() {
               <div className="hidden lg:flex items-center gap-1">
                 <a
                   href={NEW_SITE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   className="group mr-2 flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/5
                              px-3 py-1.5 text-xs font-medium hover:bg-primary/10 hover:border-primary/40 transition-colors"
                 >
@@ -157,8 +155,6 @@ export default function Navbar() {
                 ))}
                 <a
                   href={NEW_SITE_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
                   onClick={() => setIsOpen(false)}
                   className="mt-2 flex items-center gap-2 rounded-lg border border-primary/25 bg-primary/5 px-4 py-3 text-sm font-medium"
                 >

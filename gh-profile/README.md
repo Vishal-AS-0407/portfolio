@@ -36,6 +36,7 @@ The part that isn't a claim.
 | Under review | ICICC — bilingual VLM fine-tuning for mathematical reasoning | — |
 | **Patent filed** — Nalam AI | personalised medicine compatibility from medical reports | `202541065699` |
 | **Patent filed** — Claire | multi-source fashion trend analysis for manufacturers | `202541092811` |
+| **Winner** — Chennai City Battle | iQOO ReSkill Hackathon | — |
 | **Top 500 globally** | HackMIT 2025 | — |
 | Runner Up | DigiPay Pro · NPCI × IIT Bombay, Techfest | — |
 | Top 25 of 1,200+ teams | ThingQbator Cohort 7 · Cisco | — |
