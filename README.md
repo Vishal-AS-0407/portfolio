@@ -23,14 +23,21 @@ npm run build:all            # v2 → v2/dist, plain site → v2/dist/plain
 npm run preview              # serves both at http://localhost:4173 and /plain/
 ```
 
-On Vercel, keep the project's **Root Directory** set to `v2`. `v2/vercel.json`
-already installs both apps, runs `build:all` and routes `/plain/*` to the plain
-site. The setting *Include source files outside of the Root Directory* must stay
-on (it is by default), because the plain site lives one level up.
+On Vercel it works whichever folder the project is rooted at:
+
+- **Root Directory = repo root** (how the live site is set up today): the root
+  `vercel.json` installs both apps, runs `npm run build:site` and serves `v2/dist`.
+- **Root Directory = `v2`**: `v2/vercel.json` does the same from inside `v2`. Leave
+  *Include source files outside of the Root Directory* on (the default), because
+  the plain site lives one level up.
+
+Both route `/plain/*` to the plain site and everything else to the main site,
+so a single `git push` deploys both.
 
 The plain site's contact form needs `VITE_SUPABASE_URL` and
 `VITE_SUPABASE_ANON_KEY` in the Vercel project's environment variables. Without
 them it falls back to a mailto link.
 
-The old separate deployment (`portfolio-sigma-blond-57.vercel.app`) is no longer
-needed. Delete it or point it at the new URL.
+Live at **https://portfolio-sigma-blond-57.vercel.app/**, which is the URL Google Scholar
+and the GitHub READMEs link to. If you add a custom domain later, search the repo for
+`portfolio-sigma-blond-57` and replace it everywhere.

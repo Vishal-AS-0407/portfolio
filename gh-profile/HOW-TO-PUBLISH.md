@@ -29,16 +29,12 @@ git commit -m "Rebuild profile README"
 git push
 ```
 
-## The one thing to change afterwards
+## Links
 
-Once the new portfolio is live, find-and-replace in `README.md`:
-
-```
-https://portfolio-sigma-blond-57.vercel.app   ->   <the new domain>
-```
-
-It appears **3 times** (banner link, "full case studies" line, Elsewhere table). Until
-then it points at the old site, which is live, so nothing is broken either way.
+Every portfolio link points at `https://portfolio-sigma-blond-57.vercel.app`. That domain now
+serves both sites from one deployment: the main site with the `/work/<slug>` case studies, and
+the plain version at `/plain/`. Nothing needs replacing unless you add a custom domain. In that
+case, find-and-replace the domain in `README.md`.
 
 ## Two profile settings worth fixing while you're there
 

@@ -3,7 +3,7 @@
 Three pieces of work, in the order they were asked for. `[x]` means done **and
 verified**, not done and hoped for.
 
-**Paused at your request (credits).** Resume point is at the bottom.
+**All three parts done.** What is left is yours to do. See *Your move* at the bottom.
 
 ---
 
@@ -34,15 +34,14 @@ verified**, not done and hoped for.
       horizontal overflow
 - [x] Committed — `89e6849`
 
-## Part 2 — A proper README for every GitHub repo — **23 of 30**
+## Part 2 — A proper README for every GitHub repo ✅ DONE — 27 written
 
 30 public repos on `Vishal-AS-0407`. One at a time: shallow clone, read the
 code, understand what it actually does, then write it up — problem statement,
 novelty, architecture, results, honest limitations.
 
 Output lives in `gh-readmes/<repo-name>/README.md`. Nothing is pushed to your
-repos — I have no write access. Publishing instructions still to be written
-(see resume point).
+repos — I have no write access. Publishing instructions: `gh-readmes/HOW-TO-PUBLISH.md`.
 
 ### The eight with case studies — all done
 - [x] `Patient-Mental-Health-Monitoring-Using-EEG`
@@ -71,31 +70,42 @@ repos — I have no write access. Publishing instructions still to be written
 - [x] `Aerosol-Optical-Depth-Estimation`
 - [x] `ml-algorithms-from-scratch`
 
-### Systems and fundamentals — 2 of 6
+### Systems and fundamentals — all done
 - [x] `Hack-Computer-Using-NAND-Gate`
 - [x] `MIPS-to-Binary-converter`
-- [ ] `Dijkstra-Algorithm` — cloned, not written
-- [ ] `Hostel-Magement-System` — cloned, not written
-- [ ] `Telephone-Directory` — cloned, not written
-- [ ] `Quiz-Website` — cloned, not written
+- [x] `Dijkstra-Algorithm` — range checks validate `scanf`'s return value, not the input; double `fclose`
+- [x] `Hostel-Magement-System` — **does not compile as committed** (public `Main` in the wrong file); search-by-name crashes (both verified on JDK 17)
+- [x] `Telephone-Directory` — `strlwr` lowercases every stored name on modify; uninitialised flag can wipe the book
+- [x] `Quiz-Website` — question 4's answer key is wrong; two cleanup commits broke the background and the contact redirect
 
 ### Needs a decision rather than a README
 - [ ] `Vega-Agent` — a fork with no commits from you, currently **pinned first**
       on your profile. Unpin it, or label it plainly as a fork you contributed
       to. Leaving it pinned and unlabelled is the one option that costs you.
-- [ ] `temp` — this portfolio's own remote
-- [ ] `Vishal-AS-0407` — the profile repo, covered by Part 3
+- [x] `temp` / `portfolio` — covered by `gh-readmes/portfolio/`, rewritten for the two-sites-one-deploy setup
+- [x] `Vishal-AS-0407` — the profile repo, covered by Part 3
 
-## Part 3 — The GitHub profile README — **not started**
+## Part 3 — The GitHub profile README ✅ DONE
 
-- [ ] Read what was already built in `gh-profile/` (README.md, 8 SVG assets,
-      a build script, REPO-METADATA.md, HOW-TO-PUBLISH.md — all written, none
-      pushed)
-- [ ] Check it renders, reads well, and matches the portfolio's content
-- [ ] Bring it up to date with the rebuilt project pages
-- [ ] Publishing instructions
+- [x] Read what was already built in `gh-profile/`
+- [x] Rendered in both colour schemes with `build/preview_readme.py`. Clean, no broken assets
+- [x] Brought up to date: iQOO ReSkill win added, every selected-work row links its
+      `/work/<slug>` case study, plain version linked, date stamp updated
+- [x] Publishing instructions: `gh-profile/HOW-TO-PUBLISH.md` (the domain-swap step is gone,
+      because the live domain now serves the new site)
 
----
+## Part 4 — Portfolio follow-ups ✅ DONE
+
+- [x] **One deployment.** The plain site builds into `v2/dist/plain` and is served at `/plain/`.
+      A root `vercel.json` and `v2/vercel.json` both build the combined site, so it deploys
+      whichever folder the Vercel project is rooted at
+- [x] Cross-links are same-origin and open in the same tab; canonical URLs, sitemap and
+      robots all point at the live domain
+- [x] **Winner — iQOO ReSkill Hackathon, Chennai City Battle** added to both sites, the
+      resume (`2p/main.tex`) and the profile README. Also fixed NCPI → NPCI
+- [x] Removed the committed `vite.config.ts.timestamp-*.mjs` and ignored the pattern
+- [x] Combined build verified: both sites render, cross-links work, zero console errors,
+      zero failed requests
 
 ## 🔴 Do this before anything else — exposed credentials
 
@@ -126,29 +136,12 @@ Security → 2-Step Verification → App passwords.
 
 ---
 
-## Resume point
+## Your move
 
-Pick up with the four small systems repos, then Part 3.
-
-1. `Dijkstra-Algorithm` (C, plus a `sample result.html`), `Telephone-Directory`
-   (C), `Hostel-Magement-System` (Java — note the repo name is misspelled
-   "Magement"; renaming is free and GitHub redirects the old URL), `Quiz-Website`
-   (HTML/CSS/JS). All four are already cloned in the scratchpad.
-2. Write `gh-readmes/HOW-TO-PUBLISH.md` — the copy-into-each-repo instructions,
-   same shape as `gh-profile/HOW-TO-PUBLISH.md`.
-3. Part 3: review and finish the profile README in `gh-profile/`.
-
-Commits so far, newest first:
-
-```
-a603b15  docs(readmes): Hack computer and MIPS converter
-bf36b38  docs(readmes): birds distillation, AOD, from-scratch ML, Azure sentiment
-99aa156  docs(readmes): the first three ML repos
-7e1bd53  docs(readmes): Agrizon, Vatsal-AI and the portfolio repo
-6cbcb47  docs(readmes): Nurture-Sync, Claire and Clothcut
-e7d5d3c  docs(readmes): Memora, SemantiGraph and Qubit
-b2f135f  docs(readmes): write the first five repo READMEs from the source
-89e6849  perf(routes): take the landing page off every project route's critical path
-```
-
-Working tree clean, v2 build green.
+1. **Rotate the credentials above.** This is the only urgent item.
+2. **Push this repo.** If the Vercel project builds from this repo, the live URL switches to the
+   new site, with the plain version at `/plain/`. If it builds from the separate `portfolio` repo,
+   push there too, or point the Vercel project at this one.
+3. Publish the READMEs (`gh-readmes/HOW-TO-PUBLISH.md`) and the profile
+   (`gh-profile/HOW-TO-PUBLISH.md`).
+4. Unpin `Vega-Agent`.

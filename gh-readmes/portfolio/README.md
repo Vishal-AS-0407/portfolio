@@ -1,7 +1,8 @@
 <h1 align="center">Portfolio</h1>
 
 <p align="center">
-  <b>Personal site — research, projects, publications and patents.</b>
+  <b>Personal site — research, projects, publications and patents.<br>
+  Two sites, one deployment: the main site at <code>/</code>, the plain version at <code>/plain/</code>.</b>
 </p>
 
 <p align="center">
@@ -17,11 +18,26 @@
 
 ## What it is
 
+One repo, one build, two sites:
+
+| Path | Site | Source |
+|---|---|---|
+| `/` | **The main site.** WebGL particle hero, scroll-driven sections, and **eight standalone case-study pages** under `/work/:slug`. Each page has its own fonts, palette, motion language and technique (a WebGL shader, a canvas force simulation, a pinned horizontal transport, kinetic type and more), lazily code-split per route | `v2/` (React, three.js, GSAP, Lenis) |
+| `/plain/` | **The plain version.** One readable page for anyone who would rather skip the motion, linked from the main site's "see the plain version" pill | repo root (React, shadcn/ui, Framer Motion) |
+
+`npm run build:site` builds the main site into `v2/dist`, then the plain site into
+`v2/dist/plain` with `--base=/plain/`. `vercel.json` routes `/plain/*` to the plain site's
+`index.html` and everything else to the main site's. The two sites link to each other on the
+same origin, so a single push deploys both. Design docs and the build log for the case-study
+pages are in `docs/design/`.
+
+### The plain version
+
 A single-page portfolio: hero, about, education, experience, research, projects, achievements,
 leadership, certifications, skills, extracurricular, hobbies, contact. Built as a static React app
 with one live backend dependency — a Supabase table behind the contact form.
 
-## Stack
+### Stack (plain version)
 
 | | |
 |---|---|
@@ -34,7 +50,7 @@ with one live backend dependency — a Supabase table behind the contact form.
 | Charts / misc | Recharts, Embla carousel, Lucide icons, Sonner toasts |
 | Deploy | Vercel |
 
-## Worth a look
+### Worth a look
 
 **`NeuralField.tsx`** — a canvas particle field that responds to both the pointer *and* the scroll
 position. Particle count scales with viewport area (`width × height / 18000 × density`) rather than
@@ -67,32 +83,25 @@ step most portfolio contact forms skip entirely. Only the service role can read 
 ```bash
 git clone https://github.com/Vishal-AS-0407/portfolio.git
 cd portfolio
-npm install
-npm run dev          # → http://localhost:5173
+npm install && npm --prefix v2 install
+
+npm --prefix v2 run dev     # main site  → http://localhost:5173
+npm run dev                 # plain site → http://localhost:8080
+
+npm run build:site          # both, into v2/dist
+npm --prefix v2 run preview # serve the combined build → http://localhost:4173
 ```
 
-```bash
-npm run build        # production build
-npm run preview      # serve the build
-npm run lint
-```
-
-For the contact form, set your Supabase URL and anon key and apply the migration in
-`supabase/migrations/`.
+For the contact form, set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` and apply the
+migration in `supabase/migrations/`. Without them, the form falls back to a `mailto:` link
+instead of failing.
 
 ---
 
 ## Notes
 
-- **`vite.config.ts.timestamp-*.mjs` is committed by accident** — Vite writes those while resolving
-  the config and they should not be in the repository. Safe to delete, and worth adding
-  `vite.config.ts.timestamp-*` to `.gitignore`.
-- **Both `bun.lockb` and `package-lock.json` are committed.** Pick one package manager; two
-  lockfiles will drift and disagree.
-- **`src/components/ui/` is the full shadcn/ui set**, most of which this site does not use. Harmless
-  — Vite tree-shakes it out of the bundle — but it makes the component count look larger than the
-  site is.
-- **A ground-up v2 exists** in which every project gets its own standalone case-study page, each
-  designed as a separate site rather than a reskin of the index — eight independent design systems,
-  own fonts, own palette, own motion language, lazily code-split per route. Design docs and build
-  log under `docs/design/`.
+- **Both `bun.lockb` and `package-lock.json` are committed** at the root. Pick one package
+  manager, because two lockfiles will drift and disagree. The deploy uses npm.
+- **`src/components/ui/` is the full shadcn/ui set**, most of which the plain site does not use.
+  It is harmless, since Vite tree-shakes the unused components out of the bundle, but it makes
+  the component count look larger than the site is.

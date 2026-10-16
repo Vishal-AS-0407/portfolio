@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://vishal-as.vercel.app/sitemap.xml
+Sitemap: https://portfolio-sigma-blond-57.vercel.app/sitemap.xml

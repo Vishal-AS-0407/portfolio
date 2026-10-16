@@ -4,8 +4,6 @@
   build/build_svgs.py (text is converted to outline paths because an <img>-embedded
   SVG cannot load webfonts).
 
-  ONE THING TO UPDATE once the new portfolio is deployed: replace every
-  https://portfolio-sigma-blond-57.vercel.app  with the new domain.
   ─────────────────────────────────────────────────────────────────────────────
 -->
 
@@ -58,16 +56,17 @@ Ordered by how much evidence backs it, not by how new it is.
 
 | Project | What it does | Result |
 |---|---|---|
-| **[Mental Health Analysis](https://github.com/Vishal-AS-0407/Patient-Mental-Health-Monitoring-Using-EEG)** | EEG emotion detection — VAD + ERP, dual-agent LLM report pipeline over BioGPT | `98.6 / 96.6 / 95.7` VAD · `9.78 ms` · **Best Paper, ICBSII 2025** |
-| **[Tamil Political Sentiment](https://github.com/Vishal-AS-0407/NAACL_DravidianLangTech_2025)** | Feature fusion of IndicBERTv2 + lexical representations, Tamil X comments | `0.3773` macro-F1 · **Rank 1 / 25**, NAACL 2025 |
-| **[Why My Baby is Crying](https://github.com/Vishal-AS-0407/Why-is-my-Baby-Crying)** | Infant cry classification from raw audio · [live demo](https://babycrytesting.streamlit.app/) | `98.76%` accuracy / F1 · `461` engineered features |
-| **[Decentralized Fraud Detection](https://github.com/Vishal-AS-0407/Fraud-Detection-and-VQA-Based-Multilingual-Customer-Care-Chatbot-with-Speech-Support)** | Federated learning + CKKS homomorphic encryption, so no bank exposes raw transactions | `99%` accuracy · `3 ms` inference |
-| **[Semantic Modeling](https://github.com/Vishal-AS-0407/sematic_model_unstructured_data)** | 5-phase knowledge-graph pipeline, scale-aware adaptive community detection | `0.787` modularity · `97.7%` retrieval similarity |
-| **[Memora](https://github.com/Vishal-AS-0407/Memora)** | Domain-wise hierarchical memory for LLMs — multi-domain chat without cross-talk | `14.3% → 1.4%` hallucination · `60%` fewer tokens |
-| **[WISP](https://github.com/Vishal-AS-0407/WISP)** | Wildlife ID from cluttered camera traps without bounding boxes, CrewAI threat maps | `95%` test accuracy · `30%` faster inference |
+| **[Mental Health Analysis](https://github.com/Vishal-AS-0407/Patient-Mental-Health-Monitoring-Using-EEG)**<br><sub>[case study →](https://portfolio-sigma-blond-57.vercel.app/work/eeg-emotion)</sub> | EEG emotion detection — VAD + ERP, dual-agent LLM report pipeline over BioGPT | `98.6 / 96.6 / 95.7` VAD · `9.78 ms` · **Best Paper, ICBSII 2025** |
+| **[Tamil Political Sentiment](https://github.com/Vishal-AS-0407/NAACL_DravidianLangTech_2025)**<br><sub>[case study →](https://portfolio-sigma-blond-57.vercel.app/work/dravidian-sentiment)</sub> | Feature fusion of IndicBERTv2 + lexical representations, Tamil X comments | `0.3773` macro-F1 · **Rank 1 / 25**, NAACL 2025 |
+| **[Why My Baby is Crying](https://github.com/Vishal-AS-0407/Why-is-my-Baby-Crying)**<br><sub>[case study →](https://portfolio-sigma-blond-57.vercel.app/work/baby-cry)</sub> | Infant cry classification from raw audio · [live demo](https://babycrytesting.streamlit.app/) | `98.76%` accuracy / F1 · `461` engineered features |
+| **[Decentralized Fraud Detection](https://github.com/Vishal-AS-0407/Fraud-Detection-and-VQA-Based-Multilingual-Customer-Care-Chatbot-with-Speech-Support)**<br><sub>[case study →](https://portfolio-sigma-blond-57.vercel.app/work/fraud-detection)</sub> | Federated learning + CKKS homomorphic encryption, so no bank exposes raw transactions | `99%` accuracy · `3 ms` inference |
+| **[Semantic Modeling](https://github.com/Vishal-AS-0407/sematic_model_unstructured_data)**<br><sub>[case study →](https://portfolio-sigma-blond-57.vercel.app/work/semantic-modeling)</sub> | 5-phase knowledge-graph pipeline, scale-aware adaptive community detection | `0.787` modularity · `97.7%` retrieval similarity |
+| **[Memora](https://github.com/Vishal-AS-0407/Memora)**<br><sub>[case study →](https://portfolio-sigma-blond-57.vercel.app/work/memora)</sub> | Domain-wise hierarchical memory for LLMs — multi-domain chat without cross-talk | `14.3% → 1.4%` hallucination · `60%` fewer tokens |
+| **[WISP](https://github.com/Vishal-AS-0407/WISP)**<br><sub>[case study →](https://portfolio-sigma-blond-57.vercel.app/work/wisp)</sub> | Wildlife ID from cluttered camera traps without bounding boxes, CrewAI threat maps | `95%` test accuracy · `30%` faster inference |
 
-Full case studies — architectures, what was hard, and the caveats — are on the
-**[portfolio](https://portfolio-sigma-blond-57.vercel.app/)**.
+Each case study is its own page on the **[portfolio](https://portfolio-sigma-blond-57.vercel.app/)**,
+covering the architecture, what was hard, and the caveats. There is also a
+**[plain version](https://portfolio-sigma-blond-57.vercel.app/plain/)** if you would rather skip the motion.
 
 <br>
 
@@ -98,7 +97,7 @@ Championship.
 systems and computer vision are where I am strongest. Coimbatore, India — open to
 relocating.
 
-<sub>updated 2026-08</sub>
+<sub>updated 2026-10</sub>
 
 <br>
 
