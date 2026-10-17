@@ -547,3 +547,56 @@ INFO: Type "CLIP /?" for usage. is not a scroll container, so the two
   .mm .pj-back { top: auto; bottom: clamp(14px, 4vw, 22px); }
   .mm-cap { bottom: 4vh; font-size: 15px; }
 }
+
+/* ── the drawer, opened (docs/design/subpages-mechanism.md) ──────────── */
+.mm-mx { z-index: 2; }
+.mm-mx-pin { overflow: hidden; background: radial-gradient(80% 70% at 50% 40%, #394047 0%, var(--room) 55%, var(--room-dk) 100%); }
+.mm-mx-head { position: absolute; z-index: 2; left: clamp(22px, 5vw, 84px); top: clamp(64px, 10vh, 100px); pointer-events: none; }
+.mm-mx-eyebrow {
+  display: inline-block; font-family: 'CourierPrimeMM', Courier, monospace; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  text-transform: uppercase; padding: 3px 8px; background: var(--brass); color: var(--room-dk);
+}
+.mm-mx-title { margin-top: 0.4em; font-family: 'ManropeMM', system-ui, sans-serif; font-weight: 700; font-size: clamp(32px, 3.8vw, 54px); line-height: 1; letter-spacing: -0.02em; color: #eef1f4; }
+.mm-mx-beats { list-style: none; margin: 0; padding: 0; }
+.mm-mx-beat, .mm-mx-free {
+  position: absolute; z-index: 2; left: clamp(22px, 5vw, 84px); bottom: clamp(60px, 10vh, 100px); width: min(380px, calc(100vw - 44px));
+  padding: 16px 18px 18px; background: var(--card); color: var(--card-ink);
+  background-image: linear-gradient(var(--card-red), var(--card-red)), repeating-linear-gradient(180deg, transparent 0 23px, var(--card-rule) 23px 24px);
+  background-size: 100% 2px, 100% 100%; background-position: 0 38px, 0 42px; background-repeat: no-repeat, repeat;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35), 0 2px 4px rgba(0, 0, 0, 0.3);
+  opacity: 0; transform: translateY(24px) rotate(-1deg); transition: opacity 0.45s var(--paper-set), transform 0.6s var(--paper-set); pointer-events: none;
+}
+.mm-mx-beat[data-on], .mm-mx-free[data-on] { opacity: 1; transform: rotate(-0.6deg); pointer-events: auto; }
+.mm .mm-mx-beat *, .mm .mm-mx-free * { color: var(--card-ink); opacity: 1; }
+.mm .mm-mx-free .mm-mx-hint { color: #6b7178; }
+.mm .mm-mx-tag { font-family: 'CourierPrimeMM', Courier, monospace; font-size: 11.5px; font-weight: 700; color: var(--card-red); }
+.mm-mx-h { font-family: 'ManropeMM', system-ui, sans-serif; font-weight: 700; font-size: clamp(19px, 1.7vw, 23px); margin: 0.55em 0 0.3em; line-height: 1.15; }
+.mm-mx-body { font-family: 'CourierPrimeMM', Courier, monospace; font-size: 13.5px; line-height: 24px; }
+.mm-mx-ctl { margin-top: 0.6rem; }
+.mm-mx-ctl-label { display: none; }
+.mm-mx-opts { display: flex; flex-wrap: wrap; gap: 5px; }
+.mm-mx-opt {
+  font-family: 'CourierPrimeMM', Courier, monospace; font-size: 12px; font-weight: 700; text-transform: uppercase;
+  color: var(--stamp); background: transparent; border: 2px solid var(--stamp); padding: 3px 8px; cursor: pointer; transform: rotate(-1.5deg);
+}
+.mm .mm-mx-opt { color: var(--stamp); }
+.mm .mm-mx-opt[aria-pressed='true'] { background: var(--stamp); color: var(--card); }
+.mm-mx-hint { margin-top: 0.5rem; font-family: 'CourierPrimeMM', Courier, monospace; font-size: 11px; color: #6b7178; }
+.mm-mx-ticks { position: absolute; z-index: 2; right: clamp(22px, 4vw, 64px); top: clamp(64px, 10vh, 100px); display: flex; gap: 4px; }
+.mm-mx-ticks i { width: 14px; height: 20px; background: rgba(242, 239, 233, 0.16); border-top: 2px solid rgba(196, 72, 62, 0.4); }
+.mm-mx-ticks i[data-on] { background: rgba(242, 239, 233, 0.6); }
+.mm-mx-ticks i[data-now] { background: var(--card); border-top-color: var(--card-red); transform: translateY(-4px); }
+.mm-mx-read { position: absolute; z-index: 2; right: clamp(22px, 4vw, 64px); bottom: clamp(60px, 10vh, 100px); max-width: 420px; text-align: right; font-family: 'CourierPrimeMM', Courier, monospace; font-size: 13px; color: var(--brass); }
+.mm-mx-note { position: absolute; z-index: 2; right: clamp(22px, 4vw, 64px); bottom: 18px; max-width: 460px; text-align: right; font-size: 11.5px; color: var(--dim); }
+.mm-mx--still .mm-mx-pin { padding: 90px 0 40px; }
+.mm-mx--still .mm-mx-cv { position: relative !important; height: 70vh !important; }
+.mm-mx--still .mm-mx-head, .mm-mx--still .mm-mx-beat, .mm-mx--still .mm-mx-free, .mm-mx--still .mm-mx-note, .mm-mx--still .mm-mx-read {
+  position: relative; left: auto; right: auto; top: auto; bottom: auto; margin: 0 auto 1.4rem; width: min(560px, calc(100vw - 44px)); opacity: 1; transform: none; text-align: left;
+}
+.mm-mx--still .mm-mx-ticks { display: none; }
+@media (max-width: 759px) {
+  .mm-mx-beat, .mm-mx-free { bottom: 50px; }
+  .mm-mx-body { font-size: 12.5px; line-height: 22px; }
+  .mm-mx-read { top: 160px; bottom: auto; left: 22px; right: 22px; text-align: left; font-size: 12px; }
+  .mm-mx-note { bottom: 10px; left: 130px; right: 16px; text-align: left; }
+}

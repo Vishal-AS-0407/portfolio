@@ -18,6 +18,8 @@ import { prefersReduced, isCoarse } from '@/projects/_shared/reduced';
 import { projects } from '@/data/content';
 import { caseStudies } from '@/data/casestudies';
 import { buildDeck, topK, WRITES, QUERY, QUERY_TOPIC, type Card } from './cards';
+import Mechanism from '@/projects/_shared/Mechanism';
+import { memoraScene, deckTopics } from './mechanism';
 import './catalogue.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -497,6 +499,25 @@ export default function Catalogue() {
       </section>
 
       {/* ── the card at the back ── */}
+      {/* ── the drawer itself, in 3D — then you ask it something ── */}
+      <Mechanism
+        prefix="mm"
+        id="mm-mech"
+        eyebrow="the drawer, opened"
+        title="Filed, not replayed"
+        beats={[
+          { tag: '01 · write', h: 'Every turn becomes a card', body: CS.pipeline[1].body },
+          { tag: '02 · stamp', h: 'A topic, chosen against the thread', body: CS.pipeline[2].body },
+          { tag: '03 · file', h: 'Onto the rod', body: 'The card is threaded in order beside the thread’s other windows. Redis is the rod — exact lookup by thread, user and time — while FAISS holds the vectors, one IndexFlatIP per thread.' },
+          { tag: '04 · narrow', h: 'Topic first', body: 'A query arrives. Before any vector search, the Redis topic index lifts only the cards stamped with the query’s topic.' },
+          { tag: '05 · top-k', h: 'Three enter the prompt', body: `${CS.pipeline[4].body} Only that slice reaches the model — which is where the token and latency savings come from.` },
+        ]}
+        free={{ tag: 'your turn', h: 'Ask the drawer', body: 'Pick a topic: its cards lift, and the three most similar rise into the prompt. Hover a card to read it.', hint: 'pick a topic · hover a card · drag to look' }}
+        controls={[{ kind: 'choice', key: 'topic', label: 'Topic', initial: QUERY_TOPIC, options: deckTopics().map((t) => ({ v: t, label: t })) }]}
+        note="The forty cards are the page's own deck; similarity scores are illustrative, not measured."
+        build={memoraScene}
+      />
+
       <section className="mm-back" aria-labelledby="mm-honest-h">
         <div className="mm-back__card">
           <span className="mm-back__stamp" aria-hidden>NOT REPRODUCIBLE</span>

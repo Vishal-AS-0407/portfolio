@@ -117,7 +117,7 @@ export const wispScene: Builder = (stage, env) => {
   stage.onResize = () => { cam.fov = stage.w / stage.h < 0.8 ? 66 : 38; cam.updateProjectionMatrix(); };
   stage.onResize();
 
-  let method = 0, from = 0, mixT = 1, chosenByStory = false;
+  let method = 0, from = 0, mixT = 1;
   const setMethod = (m: number) => {
     if (m === method) return;
     /* blend from wherever we are */
@@ -132,11 +132,10 @@ export const wispScene: Builder = (stage, env) => {
   const cp = new THREE.Vector3(), ct = new THREE.Vector3();
 
   return {
-    control(k, v) { if (k === 'method') { chosenByStory = false; setMethod(METHODS.indexOf(v as (typeof METHODS)[number])); } },
+    control(k, v) { if (k === 'method') setMethod(METHODS.indexOf(v as (typeof METHODS)[number])); },
     frame({ beat, local, t, dt, free, reduced }) {
       const u = beat + band(0.5, 1, local);
       mixT = Math.min(1, mixT + dt * 0.035);
-      void chosenByStory;
       U.uMix.value = ease.io(mixT);
 
       /* 1 · the pyramid fans out behind the frame */
@@ -154,7 +153,7 @@ export const wispScene: Builder = (stage, env) => {
       U.uShow.value = free ? 1 : band(1.8, 2.4, u);
       if (!free) {
         const m = u < 3 ? 0 : Math.min(5, Math.floor(band(3.0, 3.95, u) * 6));
-        if (m !== method) { chosenByStory = true; setMethod(m); }
+        setMethod(m);
       }
       methodLabs.forEach((s, i) => { (s.material as THREE.SpriteMaterial).opacity = (u > 1.9 || free) && i === method ? 1 : 0; });
 
