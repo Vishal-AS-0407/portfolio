@@ -38,10 +38,39 @@ function ScrollReset() {
   return null;
 }
 
+/* index.html ships one canonical — the homepage — so without this every case
+   study told crawlers it was a duplicate of `/`. Point canonical and og:url at
+   the route actually being served; unknown paths get noindex instead. The
+   origin is read from the shipped tag, so preview deploys still canonicalise
+   to production. */
+function Canonical() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const link = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    const og = document.querySelector('meta[property="og:url"]');
+    const origin = link ? new URL(link.href).origin : location.origin;
+    const known = pathname === '/' || (pathname.startsWith('/work/') && pathname.slice(6) in PAGES);
+    const url = origin + (known ? pathname : '/');
+    link?.setAttribute('href', url);
+    og?.setAttribute('content', url);
+    let robots = document.querySelector('meta[name="robots"]');
+    if (!known) {
+      if (!robots) {
+        robots = document.createElement('meta');
+        robots.setAttribute('name', 'robots');
+        document.head.appendChild(robots);
+      }
+      robots.setAttribute('content', 'noindex');
+    } else if (robots?.getAttribute('content') === 'noindex') robots.remove();
+  }, [pathname]);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollReset />
+      <Canonical />
       {/* One boundary for the whole tree. No spinner: the body already carries
           the ground colour, and every page opens on its own entry gesture — a
           fallback of my own devising would be the ninth design in a set of

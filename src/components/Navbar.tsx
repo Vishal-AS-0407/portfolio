@@ -89,18 +89,19 @@ export default function Navbar() {
                   />
                 </a>
                 {[
-                  { icon: Github, href: 'https://github.com/Vishal-AS-0407' },
-                  { icon: Linkedin, href: 'https://www.linkedin.com/in/vishal-a-s04/' },
-                  { icon: Mail, href: 'mailto:vishalpersonal04@gmail.com' },
+                  { icon: Github, label: 'GitHub', href: 'https://github.com/Vishal-AS-0407' },
+                  { icon: Linkedin, label: 'LinkedIn', href: 'https://www.linkedin.com/in/vishal-a-s04/' },
+                  { icon: Mail, label: 'Email', href: 'mailto:vishalpersonal04@gmail.com' },
                 ].map((link, i) => (
                   <a
                     key={i}
                     href={link.href}
+                    aria-label={link.label}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-2 text-foreground/50 hover:text-primary transition-colors rounded-lg hover:bg-primary/5"
                   >
-                    <link.icon size={18} />
+                    <link.icon size={18} aria-hidden />
                   </a>
                 ))}
               </div>

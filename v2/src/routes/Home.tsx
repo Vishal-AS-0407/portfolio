@@ -101,7 +101,7 @@ function Work() {
               </span>
             </div>
             <div className="relative mono mt-3 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="opacity-70">{p.tech.slice(0, 5).join(' · ')}</span>
+              <span>{p.tech.slice(0, 5).join(' · ')}</span>
               {caseStudies[p.slug] && (
                 <span className="uppercase transition-colors duration-300 group-hover:!text-[color:var(--pa)]"
                   style={{ color: '#FE9F6D' }}>full case study →</span>

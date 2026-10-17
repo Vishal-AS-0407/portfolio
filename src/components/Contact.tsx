@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Linkedin, Github, MapPin, Send, GraduationCap, FlaskConical, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { hasSupabase, getSupabase } from '@/lib/supabase';
 import { SectionHeader, Reveal } from './motion/Reveal';
 
 const EMAIL = 'vishalpersonal04@gmail.com';
@@ -28,7 +28,7 @@ const Contact = () => {
     if (!subject.trim() || !message.trim()) return;
 
     /* no backend configured — hand the message off to the visitor's mail client */
-    if (!supabase) {
+    if (!hasSupabase) {
       const from = [name.trim(), email.trim()].filter(Boolean).join(' · ');
       const body = from ? `${message.trim()}\n\n—\n${from}` : message.trim();
       window.location.href =
@@ -39,6 +39,7 @@ const Contact = () => {
 
     setStatus('sending');
     try {
+      const supabase = await getSupabase();
       const { error } = await supabase.from('contact_messages').insert({
         name: name.trim() || null,
         email: email.trim() || null,
