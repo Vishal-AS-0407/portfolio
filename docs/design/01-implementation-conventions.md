@@ -32,6 +32,8 @@ opened.
 | `@/projects/_shared/BackLink` | `<BackLink label="…" />` — renders `.pj-back` with `.pj-back__arrow` and `.pj-back__label`. It ships no colour, size or face; style it inside your scope. |
 | `@/projects/_shared/page` | `usePageShell`, `raf`, `clamp01`, `lerp`, `track` |
 | `@/projects/_shared/reduced` | `prefersReduced`, `useReducedMotion`, `isCoarse` |
+| `@/projects/_shared/Mechanism` | `<Mechanism prefix="…" … build={scene} />` — the pinned 3D "mechanism" section (see `subpages-mechanism.md`). Structure only; every class is `<prefix>-mx…` and styled in the page's CSS. |
+| `@/projects/_shared/stage3d` | `createStage`, `textTexture`, `ease`, `band` — renderer plumbing for a page's own `mechanism.ts`; no colour, light or material |
 | `@/data/content` | `projects` — words and numbers only, never the `theme` object |
 | `@/data/casestudies` | `caseStudies[slug]` |
 | `react-router-dom` | `Link` |
@@ -69,7 +71,10 @@ prefix every selector in your stylesheet with it. Set the page's font-family on
 
 ## Motion
 
-- One `raf()` per page, cancelled on unmount. Read layout with
+- One `raf()` per page, cancelled on unmount. *Amendment (2026-10, subpage overhaul):* the
+  shared `Mechanism` section runs its own `requestAnimationFrame`, but it is idle unless the
+  section intersects the viewport and the tab is visible, so a page never has two loops
+  doing work at once. Read layout with
   `getBoundingClientRect()` inside it and write `transform` / `opacity` /
   `clip-path` directly to the DOM. No React state per frame.
 - Never subscribe to a global scroll bus; there isn't one on these routes.

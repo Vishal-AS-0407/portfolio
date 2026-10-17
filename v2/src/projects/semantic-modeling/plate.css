@@ -347,6 +347,9 @@ body.pj-plate {
   .bp-block { grid-template-columns: 1fr; }
   .bp-block > div + div { border-left: 0; border-top: 1px solid var(--line); }
   .bp-dims { width: 92vw; }
+  /* the revision cloud and its 'rev. a' tag stay inside a phone's edge */
+  .bp-rev { inset: -12px -8px; }
+  .bp-rev span { right: 2px; }
 }
 
 /* ── reduced motion: the plates become a document ────────────────────────

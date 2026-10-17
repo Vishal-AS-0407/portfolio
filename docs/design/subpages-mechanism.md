@@ -30,7 +30,7 @@ one strong set-piece instead of three bolted-on widgets:
 | File | Does | Does not |
 |---|---|---|
 | `_shared/stage3d.ts` | renderer lifecycle, DPR cap, resize, pointer orbit with inertia, raycast helper, dispose | pick any colour, light or material |
-| `_shared/Mechanism.tsx` | the pinned section, progress, panel index, its own visibility-gated rAF, reduced-motion fallback, snap markers for Qubit's scroller | style anything: every class is prefixed by the page (`nw-mx…`) and styled in the page's CSS |
+| `_shared/Mechanism.tsx` | the pinned section, progress, panel index, its own visibility-gated rAF, reduced-motion fallback, snap markers for Qubit's scroller (one per panel plus one where the pin lets go, so no gap exceeds a screen) | style anything: every class is prefixed by the page (`nw-mx…`) and styled in the page's CSS |
 
 **Conventions amendment.** A mechanism section may run its own rAF, but only while it
 intersects the viewport. Everything else in `01-implementation-conventions.md` still holds.

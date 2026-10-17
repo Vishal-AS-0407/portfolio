@@ -61,7 +61,25 @@ Approved plan: `C:\Users\visha\.claude\plans\compressed-tinkering-map.md`.
 Your note: some pages feel like the base page lightly modified; make them far richer, with
 scroll storyboards and a 3D interactive piece each.
 
-- [ ] Audit all 8 pages side by side; list what reads as reused or thin
-- [ ] Per page: a scroll storyboard told in that project's own visual language + one
-      interactive 3D/WebGL piece that is about the project's actual mechanism
-- [ ] Plan per page first, then build one page at a time, verify, commit
+- [x] Audit all 8 pages side by side; list what reads as reused or thin
+      → `docs/design/subpages-mechanism.md`
+- [x] Plan per page first (same doc: scene, panels, "your turn", honesty rules, order)
+- [x] Shared plumbing: `_shared/stage3d.ts` + `_shared/Mechanism.tsx` (pinned storyboard,
+      visibility-gated rAF, reduced-motion still, no-WebGL fallback, snap markers)
+- [x] Per page: a scroll storyboard in that project's own visual language + one interactive
+      3D piece about the project's actual mechanism, each built from the page's own data
+  - [x] baby-cry · cry spectrogram terrain → bandpass → 461 features → forest vote; pick a cry type
+  - [x] eeg-emotion · ink head, 14 electrodes, traces, VAD cube, report; click an electrode
+  - [x] dravidian · Tamil tiles shredded and re-joined, dense / sparse / fused space; switch channel
+  - [x] fraud · two glass vaults, SMOTE inside, MLP + forest, sealed packets, hard vote; send a transaction
+  - [x] wisp · the IR frame as attribution relief, EfficientNet pyramid, six Captum methods; torch
+  - [x] memora · the oak drawer with the page's 40 cards, stamped, filed, filtered, top 3; ask by topic
+  - [x] semantic · the page's graph as a 3D blueprint, 32% dedupe, PageRank, partitions; 2-hop on click
+  - [x] qubit · isometric blocks, 15×3 matrix, ESG floor, 40% cap, allocation; budget and
+        floor sliders re-solve the page's own `allocate()`
+- [x] Verify: every scene at desktop 1440 and phone 390; all 11 routes × desktop/phone ×
+      normal/reduced motion — 0 errors, 0 failed requests, 0 horizontal overflow; wheel-snap
+      through Qubit's deck checked in both motion modes; `npm run build:all` green
+- [x] Fixes found on the way: Dravidian's ticker covering a phone's lower third, Qubit's ledger
+      printing a 0.699 ESG as "0.70 · below floor", Semantic's "rev. a" tag overflowing a phone
+- [x] Push to `portfolio` (live deploy)
