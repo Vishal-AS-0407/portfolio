@@ -18,6 +18,8 @@ import { useReducedMotion, isCoarse } from '@/projects/_shared/reduced';
 import { projects } from '@/data/content';
 import { caseStudies } from '@/data/casestudies';
 import { buildGraph, Sim, BIG_TOPICS, N_TOPICS, TOPIC_NAMES, N_FULL, N_EDGES } from './sim';
+import Mechanism from '@/projects/_shared/Mechanism';
+import { plateScene, ALGOS } from './mechanism';
 import './plate.css';
 
 const P = projects.find((x) => x.slug === 'semantic-modeling')!;
@@ -578,6 +580,25 @@ export default function Plate() {
 
       {/* the scroll track the camera rides along */}
       <div className="bp-track" style={{ height: reduced ? 0 : '1000vh' }} aria-hidden />
+
+      {/* ── sheet 11: the same pipeline, as a 3D drawing — then yours ── */}
+      <Mechanism
+        prefix="bp"
+        id="bp-mech"
+        eyebrow="sheet 11 · isometric"
+        title="The plate, in depth"
+        beats={[
+          { tag: '01 · parsing', h: 'A folder of PDFs', body: CS.pipeline[0].body },
+          { tag: '02 · extraction', h: 'Entities lift off the page', body: 'GPT-4o-mini reads each document and pulls out entities and typed relations in place of rule-based NER.' },
+          { tag: '03 · deduplication', h: '32% collapse', body: 'Fuzzy string matching plus semantic similarity merges the near-duplicates — the same entity spelled three ways becomes one node.' },
+          { tag: '04 · the graph', h: 'Relations, and a centre', body: `${CS.pipeline[2].body} ${CS.pipeline[3].body}` },
+          { tag: '05 · ensemble', h: 'Three answers, one agreement', body: CS.pipeline[4].body },
+        ]}
+        free={{ tag: 'your turn', h: 'Take the plate apart', body: 'Switch partitions to see where the three algorithms disagree. Click an entity to trace its 2-hop neighbourhood — the context the retriever would pull.', hint: 'click an entity · drag to turn' }}
+        controls={[{ kind: 'choice', key: 'algo', label: 'Partition', initial: 'consensus', options: ALGOS.map((a) => ({ v: a, label: a === 'node2vec' ? 'node2vec + hdbscan' : a })) }]}
+        note="A downsample of the page's own graph (240 of 609 entities) with the same topic sizes, partitions and duplicates."
+        build={plateScene}
+      />
 
       {/* the revision note and the title block — the only flowed content */}
       <div className="bp-end">
