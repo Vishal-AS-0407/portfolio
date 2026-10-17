@@ -16,6 +16,8 @@ import { prefersReduced } from '@/projects/_shared/reduced';
 import { projects } from '@/data/content';
 import { caseStudies } from '@/data/casestudies';
 import { trace, needle, DREAMER_CH, tornEdge } from './traces';
+import Mechanism from '@/projects/_shared/Mechanism';
+import { eegScene } from './mechanism';
 import './paper.css';
 
 const P = projects.find((x) => x.slug === 'eeg-emotion')!;
@@ -309,6 +311,24 @@ export default function Paper() {
           </div>
         </div>
       </section>
+
+      {/* ── sheet 2: the same run, in three dimensions — then the reader's ── */}
+      <Mechanism
+        prefix="pp"
+        id="pp-mech"
+        eyebrow="sheet 2 · the instrument"
+        title="From scalp to sentence"
+        beats={[
+          { tag: '01 · acquisition', h: 'Fourteen sites, 128 times a second', body: CS.pipeline[0].body },
+          { tag: '02 · the pens', h: 'One lane per electrode', body: 'Every site writes its own lane on the roll. The two rigs never share paper: DREAMER at 14 channels and 128 Hz, the INRIA BCI set at 56 sensors and 200 Hz.' },
+          { tag: '03 · conditioning', h: 'Cleaned per rig', body: CS.pipeline[1].body },
+          { tag: '04 · VAD', h: 'One point, three axes', body: CS.pipeline[2].body },
+          { tag: '05 · the report', h: 'Two agents, one sheet', body: CS.pipeline[4].body },
+        ]}
+        free={{ tag: 'your turn', h: 'Read the cap', body: 'Click an electrode to isolate its lane on the paper. Drag to turn the head.', hint: 'click an electrode · drag to turn' }}
+        note="Traces are drawn by a signal generator for this page, not DREAMER recordings; electrode positions are approximate 10–20 sites."
+        build={eegScene}
+      />
 
       {/* ── the report tears off ── */}
       <section className="pp-report" ref={reportRef} style={{ clipPath: torn }}>
