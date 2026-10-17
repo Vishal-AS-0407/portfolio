@@ -1081,3 +1081,45 @@ body.pj-sealed {
     grid-template-columns: 72px 1fr auto;
   }
 }
+
+/* ── seal 07 · the protocol (docs/design/subpages-mechanism.md) ───────── */
+.sd-mx { background: var(--gnd); border-top: 1px solid var(--rule); }
+.sd-mx-pin { overflow: hidden; background: linear-gradient(180deg, var(--gnd), #dfe2e6); }
+.sd-mx-head { position: absolute; z-index: 2; left: var(--gut); top: clamp(64px, 10vh, 100px); pointer-events: none; }
+.sd-mx-eyebrow { font-family: 'PlexMonoSD', ui-monospace, monospace; font-size: 11.5px; letter-spacing: 0.06em; text-transform: lowercase; color: var(--dim); }
+.sd-mx-title { margin-top: 0.3em; font-family: 'PlexCondSD', system-ui, sans-serif; font-weight: 600; font-size: clamp(32px, 3.8vw, 56px); line-height: 0.98; letter-spacing: -0.02em; color: var(--ink); }
+.sd-mx-beats { list-style: none; margin: 0; padding: 0; }
+.sd-mx-beat, .sd-mx-free {
+  position: absolute; z-index: 2; left: var(--gut); bottom: clamp(60px, 10vh, 100px); width: min(390px, calc(100vw - 36px));
+  padding: 16px 18px; background: rgba(232, 234, 237, 0.92); border: 1px solid var(--rule);
+  opacity: 0; clip-path: inset(0 100% 0 0); transition: opacity 0.2s, clip-path 0.55s var(--e); pointer-events: none;
+}
+.sd-mx-beat[data-on], .sd-mx-free[data-on] { opacity: 1; clip-path: inset(0 0 0 0); pointer-events: auto; }
+.sd-mx-tag { font-family: 'PlexMonoSD', ui-monospace, monospace; font-size: 11px; color: var(--ca); letter-spacing: 0.04em; }
+.sd-mx-h { font-family: 'PlexCondSD', system-ui, sans-serif; font-weight: 600; font-size: clamp(21px, 1.9vw, 26px); margin: 0.25em 0 0.45em; color: var(--ink); }
+.sd-mx-body { font-size: 14.5px; line-height: 1.55; color: #2a3038; }
+.sd-mx-ctl { margin-top: 0.9rem; }
+.sd-mx-ctl-label { display: block; font-family: 'PlexMonoSD', ui-monospace, monospace; font-size: 11px; color: var(--dim); margin-bottom: 0.4rem; }
+.sd-mx-opts { display: flex; gap: 0; border: 1px solid var(--ink); width: fit-content; }
+.sd-mx-opt { font-family: 'PlexMonoSD', ui-monospace, monospace; font-size: 12px; padding: 8px 12px; background: transparent; color: var(--ink); border: 0; cursor: pointer; }
+.sd-mx-opt + .sd-mx-opt { border-left: 1px solid var(--ink); }
+.sd-mx-opt[aria-pressed='true'] { background: var(--ink); color: var(--gnd); }
+.sd-mx-hint { margin-top: 0.7rem; font-family: 'PlexMonoSD', ui-monospace, monospace; font-size: 11px; color: var(--dim); }
+.sd-mx-ticks { position: absolute; z-index: 2; right: var(--gut); top: clamp(64px, 10vh, 100px); display: flex; gap: 4px; }
+.sd-mx-ticks i { width: 26px; height: 6px; border: 1px solid var(--ink); }
+.sd-mx-ticks i[data-on] { background: var(--ink); }
+.sd-mx-ticks i[data-now] { background: var(--ca); border-color: var(--ca); }
+.sd-mx-read { position: absolute; z-index: 2; right: var(--gut); bottom: clamp(60px, 10vh, 100px); font-family: 'PlexMonoSD', ui-monospace, monospace; font-size: 12.5px; color: var(--ink); text-align: right; }
+.sd-mx-note { position: absolute; z-index: 2; right: var(--gut); bottom: 18px; max-width: 460px; text-align: right; font-family: 'PlexMonoSD', ui-monospace, monospace; font-size: 10.5px; color: var(--dim); }
+.sd-mx--still .sd-mx-pin { padding: 90px 0 40px; }
+.sd-mx--still .sd-mx-cv { position: relative !important; height: 70vh !important; }
+.sd-mx--still .sd-mx-head, .sd-mx--still .sd-mx-beat, .sd-mx--still .sd-mx-free, .sd-mx--still .sd-mx-note, .sd-mx--still .sd-mx-read {
+  position: relative; left: auto; right: auto; top: auto; bottom: auto; margin: 0 auto 1.4rem; width: min(560px, calc(100vw - 36px)); opacity: 1; clip-path: none; text-align: left;
+}
+.sd-mx--still .sd-mx-ticks { display: none; }
+@media (max-width: 759px) {
+  .sd-mx-beat, .sd-mx-free { bottom: 52px; }
+  .sd-mx-body { font-size: 13.5px; }
+  .sd-mx-read { top: 170px; bottom: auto; left: var(--gut); right: auto; text-align: left; font-size: 11.5px; }
+  .sd-mx-note { bottom: 10px; left: var(--gut); text-align: left; }
+}

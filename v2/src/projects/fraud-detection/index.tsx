@@ -20,6 +20,8 @@ import { projects } from '@/data/content';
 import { caseStudies } from '@/data/casestudies';
 import Seal from './Seal';
 import { Vault, reducedOnce, cipherLines, cipherText, weights, type Side } from './cipher';
+import Mechanism from '@/projects/_shared/Mechanism';
+import { sealedScene } from './mechanism';
 import './sealed.css';
 
 const P = projects.find((x) => x.slug === 'fraud-detection')!;
@@ -935,6 +937,25 @@ export default function Sealed() {
           </div>
         </section>
       </div>
+
+      {/* ══ the whole protocol, in 3D — then a transaction of your own ═══ */}
+      <Mechanism
+        prefix="sd"
+        id="sd-mech"
+        eyebrow="seal 07 · the protocol"
+        title="Two vaults, one verdict"
+        beats={[
+          { tag: '01 · the constraint', h: 'Rows stay where they are', body: 'Two institutions, two transaction logs. The rows inside each vault never cross the gate — not once, at any step that follows.' },
+          { tag: '02 · imbalance', h: 'SMOTE, inside each vault', body: CS.pipeline[1].body },
+          { tag: '03 · local models', h: 'Each vault trains its own', body: CS.pipeline[2].body },
+          { tag: '04 · the gate', h: 'Only sealed parameters cross', body: 'The design: encrypted parameters move to an aggregator that never sees a plaintext weight or a row. The public repository holds the training half — it combines the models by hard voting, and the CKKS code is not in it.' },
+          { tag: '05 · the vote', h: 'Two models, one decision', body: CS.pipeline[4].body },
+        ]}
+        free={{ tag: 'your turn', h: 'Send a transaction', body: 'Put a transaction to both institutions’ models and watch the hard vote. Whatever you send, the raw-record counter does not move.', hint: 'pick a transaction · drag to look around' }}
+        controls={[{ kind: 'choice', key: 'tx', label: 'Transaction', initial: 'fraud', options: [{ v: 'legit', label: 'ordinary transfer' }, { v: 'fraud', label: 'balance drained' }] }]}
+        note="Rows, packets and votes are illustrative of the protocol; the verdict shown is the scene's, not a live model's."
+        build={sealedScene}
+      />
 
       {/* ══ zero — never sealed, legible from the first frame ═════════════ */}
       <section className="sd-zero" aria-labelledby="sd-s9">
