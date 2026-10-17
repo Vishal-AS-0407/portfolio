@@ -1239,3 +1239,46 @@ button.wp-win {
     opacity: 1;
   }
 }
+
+/* ── 02:14 · developing the frame (docs/design/subpages-mechanism.md) ── */
+.wp-mx { z-index: 2; }
+.wp-mx-pin { overflow: hidden; background: radial-gradient(70% 60% at 55% 50%, #1f1813 0%, var(--deep) 75%); }
+.wp-mx-head { position: absolute; z-index: 2; left: var(--gut); top: clamp(64px, 10vh, 100px); pointer-events: none; }
+.wp-mx-eyebrow { font-family: 'InterTightWP', system-ui, sans-serif; font-size: 12px; letter-spacing: 0.04em; color: var(--heat); font-variant-numeric: tabular-nums; }
+.wp-mx-title { margin-top: 0.25em; font-family: 'CormorantWP', Georgia, serif; font-weight: 400; font-size: clamp(34px, 4vw, 60px); line-height: 1; color: var(--ink); }
+.wp-mx-beats { list-style: none; margin: 0; padding: 0; }
+.wp-mx-beat, .wp-mx-free {
+  position: absolute; z-index: 2; left: var(--gut); bottom: clamp(60px, 10vh, 100px); width: min(380px, calc(100vw - 36px));
+  opacity: 0; transform: translateY(10px); transition: opacity 0.6s var(--ease), transform 0.6s var(--ease); pointer-events: none;
+}
+.wp-mx-beat[data-on], .wp-mx-free[data-on] { opacity: 1; transform: none; pointer-events: auto; }
+.wp-mx-tag { font-family: 'CormorantWP', Georgia, serif; font-style: italic; font-size: 17px; color: var(--rust); }
+.wp-mx-h { font-family: 'CormorantWP', Georgia, serif; font-weight: 500; font-size: clamp(24px, 2.2vw, 32px); line-height: 1.05; margin: 0.15em 0 0.4em; color: var(--ink); }
+.wp-mx-body { font-family: 'InterTightWP', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: var(--dim); }
+.wp-mx-ctl { margin-top: 1rem; }
+.wp-mx-ctl-label { display: none; }
+.wp-mx-opts { display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.wp-mx-opt { font-family: 'CormorantWP', Georgia, serif; font-style: italic; font-size: 17px; color: var(--dim); background: none; border: 0; padding: 2px 0; cursor: pointer; border-bottom: 1px solid transparent; }
+.wp-mx-opt:hover { color: var(--ink); }
+.wp-mx-opt[aria-pressed='true'] { color: var(--heat); border-bottom-color: var(--heat); }
+.wp-mx-hint { margin-top: 0.8rem; font-family: 'InterTightWP', system-ui, sans-serif; font-size: 11.5px; color: var(--faint); }
+.wp-mx-ticks { position: absolute; z-index: 2; right: var(--gut); top: clamp(64px, 10vh, 100px); display: flex; gap: 8px; }
+.wp-mx-ticks i { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--faint); }
+.wp-mx-ticks i[data-on] { background: var(--dim); border-color: var(--dim); }
+.wp-mx-ticks i[data-now] { background: var(--heat); border-color: var(--heat); box-shadow: 0 0 10px var(--heat); }
+.wp-mx-read { position: absolute; z-index: 2; right: var(--gut); bottom: clamp(60px, 10vh, 100px); font-family: 'CormorantWP', Georgia, serif; font-style: italic; font-size: 19px; color: var(--heat); }
+.wp-mx-note { position: absolute; z-index: 2; right: var(--gut); bottom: 18px; max-width: 460px; text-align: right; font-family: 'InterTightWP', system-ui, sans-serif; font-size: 11px; color: var(--faint); }
+.wp-mx--still .wp-mx-pin { padding: 90px 0 40px; }
+.wp-mx--still .wp-mx-cv { position: relative !important; height: 70vh !important; }
+.wp-mx--still .wp-mx-head, .wp-mx--still .wp-mx-beat, .wp-mx--still .wp-mx-free, .wp-mx--still .wp-mx-note, .wp-mx--still .wp-mx-read {
+  position: relative; left: auto; right: auto; top: auto; bottom: auto; margin: 0 auto 1.4rem; width: min(560px, calc(100vw - 36px)); opacity: 1; transform: none; text-align: left;
+}
+.wp-mx--still .wp-mx-ticks { display: none; }
+@media (max-width: 759px) {
+  .wp-mx-beat, .wp-mx-free { bottom: 52px; padding: 14px 16px; background: rgba(14, 10, 9, 0.82); }
+  .wp-mx-read { top: 160px; bottom: auto; left: var(--gut); right: auto; font-size: 16px; }
+  .wp-mx-note { bottom: 10px; left: var(--gut); text-align: left; }
+}
+/* the page's lens and its switch have nothing to read over the relief */
+.wp:has(.wp-mx[data-live]) .wp-lens,
+.wp:has(.wp-mx[data-live]) .wp-hold { opacity: 0 !important; pointer-events: none !important; transition: opacity 0.3s; }

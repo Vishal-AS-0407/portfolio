@@ -22,6 +22,8 @@ import { caseStudies } from '@/data/casestudies';
 import { contours, makeIR, makeHeat, METHODS, type FrameSpec } from './ir';
 import Cell, { EmptyMount, paintInto, type Handle } from './Frame';
 import { SHEET, SPECIES, PLATE_OCELOT, PLATE_BOAR, STUDY, NOBOX, NOTE_STRIP } from './species';
+import Mechanism from '@/projects/_shared/Mechanism';
+import { wispScene } from './mechanism';
 import './wisp.css';
 
 const P = projects.find((x) => x.slug === 'wisp')!;
@@ -706,6 +708,25 @@ export default function AfterDark() {
           alt="Full-width infrared camera-trap frame: a wild boar in the left half of the frame, head low, shoulder caught by the flash."
           side="right"
           caption="Not rare. Dangerous at close range — which is the reason the deliverable is a handling protocol and not a class index."
+        />
+
+        {/* ── the frame, lifted into relief — then the torch is yours ──── */}
+        <Mechanism
+          prefix="wp"
+          id="wp-mech"
+          eyebrow="02:14 · developing the frame"
+          title="Where it looked, in relief"
+          beats={[
+            { tag: 'i · intake', h: 'One frame, 299 pixels square', body: CS.pipeline[0].body },
+            { tag: 'ii · the backbone', h: 'Down the pyramid', body: 'EfficientNet-B3 reads the frame at falling resolution, each stage coarser and more abstract than the last, and maps the result through class_mapping.json to one of 20 species.' },
+            { tag: 'iii · attribution', h: 'The heat rises where it looked', body: 'There are no bounding boxes in the data. Captum’s attribution, lifted here into height, is what shows the model was looking at the animal and not the leaves.' },
+            { tag: 'iv · six methods', h: 'And they disagree', body: CS.pipeline[2].body },
+            { tag: 'v · the report', h: 'A document, not a tensor', body: CS.pipeline[3].body },
+          ]}
+          free={{ tag: 'your turn', h: 'Carry the torch', body: 'Move over the frame to light it and read the attribution under the torch. Switch methods to watch the relief argue with itself.', hint: 'move to light · drag to tilt' }}
+          controls={[{ kind: 'choice', key: 'method', label: 'Method', initial: METHODS[0], options: METHODS.map((m) => ({ v: m, label: m })) }]}
+          note="The frame and its six fields are generated in your browser by the same code as every frame on this page — no photograph, no dataset image."
+          build={wispScene}
         />
 
         {/* ── terrain and hazard ──────────────────────────────────────── */}

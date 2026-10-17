@@ -79,14 +79,19 @@ export default function Mechanism({
     const t0 = last;
     const loop = (now: number) => {
       id = requestAnimationFrame(loop);
-      if (document.hidden || !visible) { last = now; return; }
+      if (document.hidden || !visible) {
+        last = now;
+        if (!visible && el.hasAttribute('data-live')) el.removeAttribute('data-live');
+        return;
+      }
       const dt = Math.min(3, (now - last) / 16.667);
       last = now;
       let p = 1;
-      if (!reduced) {
-        const r = el.getBoundingClientRect();
-        p = Math.max(0, Math.min(1, -r.top / Math.max(1, r.height - window.innerHeight)));
-      }
+      const r = el.getBoundingClientRect();
+      if (!reduced) p = Math.max(0, Math.min(1, -r.top / Math.max(1, r.height - window.innerHeight)));
+      /* pages hide their own fixed furniture while the scene holds the screen */
+      const live = r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5;
+      if (live !== el.hasAttribute('data-live')) el.toggleAttribute('data-live', live);
       ps += (p - ps) * Math.min(1, 0.14 * dt);
       if (Math.abs(p - ps) < 0.0005) ps = p;
       const span = ps * (n + 1);
@@ -108,6 +113,14 @@ export default function Mechanism({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* the storyboard may have driven the scene's variables; entering the free
+     panel hands them back to whatever the reader has selected */
+  const isFreeNow = beat >= n;
+  useEffect(() => {
+    if (isFreeNow) controls.forEach((c) => sceneRef.current?.control?.(c.key, vals[c.key]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isFreeNow]);
 
   const set = (k: string, v: string | number) => {
     setVals((o) => ({ ...o, [k]: v }));
