@@ -1119,9 +1119,8 @@ body.pj-muzhakkam {
   .mz-corr__in {
     transform: rotate(var(--rotm, 0deg));
   }
-  .mz-band {
-    top: 66vh;
-  }
+  /* (was `top: 66vh`, left over from when the band sat mid-page: with
+     `bottom` also set it stretched over the lower third of every phone screen) */
   .mz-band__row {
     height: 24px;
   }
@@ -1212,4 +1211,63 @@ body.pj-muzhakkam {
   .mz-marg {
     gap: 4vh;
   }
+}
+
+/* ── the machine behind the wall (docs/design/subpages-mechanism.md) ──── */
+.mz-mx { z-index: 3; margin: clamp(40px, 8vh, 90px) 0; }
+.mz-mx-pin {
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(233, 178, 60, 0.13) 1.2px, transparent 1.6px) 0 0 / 9px 9px,
+    linear-gradient(180deg, var(--maroon) 0%, var(--ink) 70%);
+}
+.mz-mx-head { position: absolute; z-index: 2; left: clamp(22px, 5vw, 84px); top: clamp(60px, 9vh, 96px); pointer-events: none; }
+.mz-mx-eyebrow { font-family: var(--ta); font-weight: 700; font-size: 14px; color: var(--gold); }
+.mz-mx-title {
+  margin-top: 0.2em; font-family: var(--nm); font-size: clamp(38px, 5vw, 76px); line-height: 0.92;
+  text-transform: uppercase; color: var(--bone); letter-spacing: 0.01em; transform: rotate(-1.4deg); transform-origin: left;
+}
+.mz-mx-beats { list-style: none; margin: 0; padding: 0; }
+.mz-mx-beat, .mz-mx-free {
+  position: absolute; z-index: 2; left: clamp(22px, 5vw, 84px); bottom: clamp(60px, 10vh, 104px);
+  width: min(400px, calc(100vw - 44px)); padding: 18px 20px 20px; background: var(--bone); color: var(--ink);
+  clip-path: polygon(0 3%, 6% 0, 40% 2%, 72% 0, 100% 3%, 99% 97%, 64% 100%, 30% 98%, 2% 100%);
+  opacity: 0; transform: rotate(-2deg) translateY(30px) scale(1.04);
+  transition: opacity 0.25s ease, transform 0.35s cubic-bezier(0.2, 1.4, 0.4, 1); pointer-events: none;
+}
+.mz-mx-beat[data-on], .mz-mx-free[data-on] { opacity: 1; transform: rotate(-1.2deg); pointer-events: auto; }
+.mz-mx-tag { font-family: var(--ta); font-weight: 700; font-size: 12px; color: var(--verm); letter-spacing: 0.04em; }
+.mz-mx-h { font-family: var(--nm); font-size: clamp(24px, 2.2vw, 32px); text-transform: uppercase; line-height: 1; margin: 0.2em 0 0.4em; color: var(--verm); }
+.mz-mx-body { font-size: 14.5px; line-height: 1.55; }
+.mz-mx-ctl { margin-top: 0.9rem; }
+.mz-mx-ctl-label { display: none; }
+.mz-mx-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.mz-mx-opt {
+  font-family: var(--nm); text-transform: uppercase; font-size: 15px; letter-spacing: 0.03em;
+  background: var(--ink); color: var(--gold); border: 0; padding: 7px 12px 6px; cursor: pointer; transform: rotate(-1deg);
+}
+.mz-mx-opt[aria-pressed='true'] { background: var(--verm); color: var(--bone); }
+.mz-mx-hint { margin-top: 0.7rem; font-size: 12px; color: var(--verm); font-weight: 600; }
+.mz-mx-ticks { position: absolute; z-index: 2; right: clamp(22px, 4vw, 64px); top: clamp(64px, 10vh, 100px); display: flex; gap: 5px; }
+.mz-mx-ticks i { width: 16px; height: 16px; background: rgba(244, 231, 206, 0.18); transform: rotate(45deg); transition: background 0.2s; }
+.mz-mx-ticks i[data-on] { background: var(--gold); }
+.mz-mx-ticks i[data-now] { background: var(--verm); }
+.mz-mx-read {
+  position: absolute; z-index: 2; right: clamp(22px, 4vw, 64px); bottom: clamp(60px, 10vh, 104px);
+  font-family: var(--ta); font-weight: 700; font-size: 18px; color: var(--gold); text-align: right;
+}
+.mz-mx-note { position: absolute; z-index: 2; right: clamp(22px, 4vw, 64px); bottom: 18px; max-width: 520px; text-align: right; font-size: 11.5px; line-height: 1.5; color: rgba(244, 231, 206, 0.5); }
+.mz-mx--still .mz-mx-pin { padding: 90px 0 40px; }
+.mz-mx--still .mz-mx-cv { position: relative !important; height: 70vh !important; }
+.mz-mx--still .mz-mx-head, .mz-mx--still .mz-mx-beat, .mz-mx--still .mz-mx-free, .mz-mx--still .mz-mx-note, .mz-mx--still .mz-mx-read {
+  position: relative; left: auto; right: auto; top: auto; bottom: auto; margin: 0 auto 1.4rem; width: min(560px, calc(100vw - 44px)); opacity: 1; transform: none;
+}
+.mz-mx--still .mz-mx-ticks { display: none; }
+@media (max-width: 759px) {
+  .mz-mx-beat, .mz-mx-free { bottom: 74px; padding: 14px 16px; }
+  .mz-mx-body { font-size: 13.5px; }
+  .mz-mx-read { top: 212px; bottom: auto; right: 22px; font-size: 15px; }
+  .mz-mx-note { bottom: 10px; left: 22px; text-align: left; font-size: 10.5px; }
+  .mz-mx-ticks { top: 60px; }
+  .mz-mx-head { top: 90px; }
 }

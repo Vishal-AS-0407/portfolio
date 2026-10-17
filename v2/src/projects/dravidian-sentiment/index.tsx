@@ -23,6 +23,8 @@ import { prefersReduced, isCoarse } from '@/projects/_shared/reduced';
 import { projects } from '@/data/content';
 import { caseStudies } from '@/data/casestudies';
 import { tornPolygon, scatter, denseRows, sparseRows } from './tears';
+import Mechanism from '@/projects/_shared/Mechanism';
+import { dravScene } from './mechanism';
 import './wall.css';
 
 const P = projects.find((x) => x.slug === 'dravidian-sentiment')!;
@@ -847,6 +849,25 @@ export default function Muzhakkam() {
             </div>
           </div>
         </section>
+
+        {/* ── the machine behind the wall, in 3D — then yours ─────────────── */}
+        <Mechanism
+          prefix="mz"
+          id="mz-mech"
+          eyebrow="இயந்திரம் · the machine behind the wall"
+          title="How a roar gets sorted"
+          beats={[
+            { tag: '01 · the comment', h: 'One hashtag, all the politics', body: 'Hashtags carry a large share of the political signal on Tamil X — and they arrive as one unsegmented compound.' },
+            { tag: '02 · the tokenizer', h: 'Shredded into ## pieces', body: 'A multilingual subword tokenizer cuts the compound into fragments that no longer mean what the tag meant.' },
+            { tag: '03 · agent.py', h: 'LLaMA 3.1 puts it back', body: CS.pipeline[1].body },
+            { tag: '04 · two channels', h: 'Dense and sparse', body: 'IndicBERTv2-MLM-Back-TLM gives the contextual meaning (round dots); TF-IDF reduced by PCA keeps rare political vocabulary (square type). Neither is chosen over the other.' },
+            { tag: '05 · seven', h: 'Fused, then sorted', body: `${CS.pipeline[4].body} Rank 1 of 25 on the official leaderboard, macro-F1 0.3773 against 0.3710 for second place.` },
+          ]}
+          free={{ tag: 'உங்கள் முறை · your turn', h: 'Pull the channels apart', body: 'Switch between the dense channel, the sparse channel and the fusion to see why concatenating them separates the seven better. Hover a cluster to read its class.', hint: 'drag to turn · hover a cluster' }}
+          controls={[{ kind: 'choice', key: 'mode', label: 'Channel', initial: 'fused', options: [{ v: 'dense', label: 'dense only' }, { v: 'sparse', label: 'sparse only' }, { v: 'fused', label: 'fused' }] }]}
+          note="Illustrative geometry: the clusters show the idea of the fusion, not the model's actual embedding space. 0.3773 is low in absolute terms — seven overlapping classes are hard even for annotators; the result is the rank and the margin."
+          build={dravScene}
+        />
 
         {/* ── printed marginalia ──────────────────────────────────────────── */}
         <section className="mz-strip mz-s--bv mz-slam mz-exit" style={sty(1.1)} aria-labelledby="mz-marg-h">
