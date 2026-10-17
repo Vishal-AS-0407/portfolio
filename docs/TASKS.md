@@ -53,8 +53,8 @@ Approved plan: `C:\Users\visha\.claude\plans\compressed-tinkering-map.md`.
 - [x] Heart: flesh + cardiac clock + lighting → mechanical grafts → grease/steam
 - [x] Interactions → GPGPU swarm + debris → field kick → hold/blast → hero exit
 - [x] Teardown egg → sound → preloader tie-in → tiers / fallbacks / adaptive quality
-- [ ] Story rig + poses → parallax scenery → scenes 1–9 → polish
-- [ ] Verify (desktop, phone, reduced motion, perf) → push
+- [x] Story rig + poses → parallax scenery → scenes 1–9 → polish
+- [x] Verify (desktop, phone, reduced motion, perf) → push
 
 ## Phase 4 (last) — Project sub-page overhaul
 
