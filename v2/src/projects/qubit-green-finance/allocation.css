@@ -53,6 +53,7 @@ body.pj-allocation {
 
 /* ── the deck ───────────────────────────────────────────────────────────── */
 .al-deck {
+  position: relative;
   height: 100dvh;
   overflow-y: scroll;
   overflow-x: hidden;
@@ -426,4 +427,69 @@ body.pj-allocation {
   .al-bar:nth-child(n + 11) { display: none; }
   .al-term { font-size: clamp(19px, 6vw, 30px); }
   .al-figs { gap: 1rem 6vw; }
+}
+
+/* ── the mechanism section between 09 and 10 ────────────────────────────────
+   The one canvas on the page, kept in the poster's terms: bone ground, a flat
+   isometric drawing, captions as hard-edged cards on the grid. Its snap markers
+   keep the deck's one-screen-per-move rhythm through the storyboard. */
+.al-mx-snap { scroll-snap-align: start; scroll-snap-stop: always; }
+.al-mx-pin {
+  height: 100dvh !important;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, transparent calc(100% / 15 * 6 - 1px), rgba(17, 17, 17, 0.08) calc(100% / 15 * 6 - 1px) calc(100% / 15 * 6), transparent calc(100% / 15 * 6)),
+    var(--bone);
+}
+.al-mx-cv { cursor: grab; }
+.al-mx-cv:active { cursor: grabbing; }
+.al-mx-head { position: absolute; z-index: 2; left: clamp(16px, 3.2vw, 54px); top: clamp(58px, 6.4vw, 92px); pointer-events: none; max-width: 34vw; }
+.al-mx-eyebrow { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; opacity: 0.62; }
+.al-mx-title { margin-top: 0.35rem; font-size: clamp(34px, 4.4vw, 72px); }
+.al-mx-beats { list-style: none; margin: 0; padding: 0; }
+.al-mx-beat, .al-mx-free {
+  position: absolute; z-index: 2; left: clamp(16px, 3.2vw, 54px); bottom: clamp(56px, 9vh, 96px);
+  width: min(400px, calc(100vw / 15 * 5.4));
+  padding: 18px 20px 20px; background: var(--bone); border: 2px solid var(--ink);
+  clip-path: inset(0 100% 0 0); transition: clip-path 260ms var(--cut); pointer-events: none;
+}
+.al-mx-beat[data-on], .al-mx-free[data-on] { clip-path: inset(0 0 0 0); pointer-events: auto; }
+.al-mx-tag { display: inline-block; font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; background: var(--forest); color: var(--bone); padding: 2px 7px; }
+.al-mx-free .al-mx-tag { background: var(--gold); color: var(--ink); }
+.al-mx-h { font-family: 'BricolageAL', system-ui, sans-serif; font-weight: 760; font-size: clamp(22px, 2vw, 30px); line-height: 1.02; margin: 0.55rem 0 0.5rem; }
+.al-mx-body { font-size: 15px; line-height: 1.5; margin: 0; }
+.al-mx-ctl { margin-top: 0.85rem; }
+.al-mx-ctl-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 2px; }
+.al-mx-range { display: flex; align-items: center; gap: 12px; }
+.al-mx-range input { flex: 1; min-width: 0; accent-color: var(--forest); height: 22px; cursor: pointer; }
+.al-mx-range output { min-width: 82px; text-align: right; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.al-mx-hint { margin: 0.8rem 0 0; font-size: 12.5px; opacity: 0.7; }
+.al-mx-ticks { position: absolute; z-index: 2; right: clamp(16px, 3.2vw, 54px); top: clamp(14px, 2.4vw, 30px); display: flex; gap: 3px; }
+.al-mx-ticks i { width: 22px; height: 8px; background: rgba(17, 17, 17, 0.14); }
+.al-mx-ticks i[data-on] { background: var(--forest); }
+.al-mx-ticks i[data-now] { background: var(--gold); }
+.al-mx-read {
+  position: absolute; z-index: 2; right: clamp(16px, 3.2vw, 54px); bottom: clamp(56px, 9vh, 96px);
+  max-width: 46vw; text-align: right; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums;
+}
+.al-mx-read:empty { display: none; }
+.al-mx-read:not(:empty) { background: var(--ink); color: var(--bone); padding: 6px 10px; }
+.al-mx-note { position: absolute; z-index: 2; right: clamp(16px, 3.2vw, 54px); bottom: clamp(16px, 3vh, 30px); max-width: 520px; margin: 0; text-align: right; font-size: 12px; opacity: 0.66; }
+/* still: one tall snap area, which the deck lets you scroll through freely */
+.al-mx--still { scroll-snap-align: start; }
+.al-mx--still .al-mx-pin { height: auto !important; padding: 92px clamp(16px, 3.2vw, 54px) 40px; }
+.al-mx--still .al-mx-cv { position: relative !important; height: 64vh !important; }
+.al-mx--still .al-mx-head, .al-mx--still .al-mx-beat, .al-mx--still .al-mx-free, .al-mx--still .al-mx-note, .al-mx--still .al-mx-read {
+  position: relative; left: auto; right: auto; top: auto; bottom: auto; margin: 0 0 1rem; width: min(560px, 100%); max-width: none; clip-path: none; text-align: left;
+}
+.al-mx--still .al-mx-ticks { display: none; }
+@media (max-width: 900px) {
+  .al-mx-pin { background: var(--bone); }
+  .al-mx-head { max-width: none; right: 16px; }
+  .al-mx-title { font-size: clamp(28px, 8vw, 40px); }
+  .al-mx-beat, .al-mx-free { left: 14px; right: 14px; width: auto; bottom: 46px; padding: 14px 16px 16px; }
+  .al-mx-h { font-size: 21px; }
+  .al-mx-body { font-size: 14px; }
+  .al-mx-read { top: calc(clamp(58px, 6.4vw, 92px) + 74px); bottom: auto; left: 14px; right: auto; max-width: calc(100vw - 28px); text-align: left; font-size: 12px; }
+  .al-mx-note { left: 14px; right: 14px; bottom: 12px; text-align: left; font-size: 11px; }
 }

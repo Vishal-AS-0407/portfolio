@@ -63,18 +63,20 @@ export function buildCandidates(): Candidate[] {
   }));
 }
 
-/** The linear programme, solved the way the repo states it. */
-export function allocate(cs: Candidate[]) {
-  const cap = BUDGET * CAP;
+/** The linear programme, solved the way the repo states it. The budget and the
+    floor are parameters only so the mechanism section can let the reader move
+    them; everywhere else the page runs it at the repo's $1,000 and 0.70. */
+export function allocate(cs: Candidate[], budget = BUDGET, floor = FLOOR) {
+  const cap = budget * CAP;
   /* objective: maximise sum(esg_i * x_i) - 0.10 * sum(x_i) - 0.05 * sum(risk_i * x_i).
      The marginal value of a dollar in project i is therefore: */
   const value = (c: Candidate) => c.esg - 0.1 - 0.05 * c.risk * 0.1;
   const live = cs
-    .filter((c) => c.esg >= FLOOR) // a hard zero, not a soft penalty
+    .filter((c) => c.esg >= floor) // a hard zero, not a soft penalty
     .filter((c) => value(c) > 0)
     .sort((a, b) => value(b) - value(a));
 
-  let left = BUDGET;
+  let left = budget;
   const out = new Map<string, number>();
   for (const c of live) {
     if (left <= 0) break;
@@ -82,8 +84,12 @@ export function allocate(cs: Candidate[]) {
     out.set(c.id, take);
     left -= take;
   }
-  return { out, left, cutByFloor: cs.filter((c) => c.esg < FLOOR).length };
+  return { out, left, cutByFloor: cs.filter((c) => c.esg < floor).length };
 }
+
+/** ESG to two places, truncated rather than rounded, so a 0.699 never prints
+    as "0.70" beside the words "below floor" */
+export const fmtEsg = (v: number) => (Math.floor(v * 100 + 1e-9) / 100).toFixed(2);
 
 export const TERMS: { t: string; k: string; note: string }[] = [
   {

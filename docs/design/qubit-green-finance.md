@@ -173,3 +173,9 @@ press run. Total 480ms.
   a genuinely interactive, keyboard-navigable data grid; the only page with no
   canvas and no continuous animation loop at all; the only flat-colour-block
   page; the only page whose motion is exclusively `clip-path`.
+- **Amendment (2026-10, subpage overhaul)** — one exception, by request: the
+  isometric mechanism section between panels 09 and 10 is a WebGL canvas. It
+  keeps the poster's terms (flat tints of the four inks, no light, no shading,
+  ink hairline edges, an orthographic camera, captions cut in by `clip-path`)
+  and its loop runs only while it is on screen. Everything else above still
+  holds for the deck's eleven panels.

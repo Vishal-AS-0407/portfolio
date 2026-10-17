@@ -2,8 +2,8 @@
    qubit-green-finance — "Allocation"    concept: docs/design/qubit-green-finance.md
 
    The only page on the site that snaps, the only one with an interactive
-   keyboard-navigable data grid, and the only one with no canvas and no
-   continuous animation loop at all. Every move is a clip-path wipe along a
+   keyboard-navigable data grid, and — outside the one isometric mechanism
+   section between 09 and 10 — no canvas and no continuous animation loop. Every move is a clip-path wipe along a
    grid line, 140–260ms, cubic-bezier(.7,0,.2,1).
 
    Panel state is read from the deck's own scrollTop rather than from an
@@ -18,9 +18,11 @@ import { usePageShell } from '@/projects/_shared/page';
 import { prefersReduced } from '@/projects/_shared/reduced';
 import { projects } from '@/data/content';
 import { caseStudies } from '@/data/casestudies';
+import Mechanism from '@/projects/_shared/Mechanism';
 import {
-  GOALS, AXES, buildMatrix, buildCandidates, allocate, TERMS, BUDGET, FLOOR, CAP,
+  GOALS, AXES, buildMatrix, buildCandidates, allocate, fmtEsg, TERMS, BUDGET, FLOOR, CAP,
 } from './sdg';
+import { allocScene } from './mechanism';
 import './allocation.css';
 
 const P = projects.find((x) => x.slug === 'qubit-green-finance')!;
@@ -51,11 +53,16 @@ export default function Allocation() {
     if (!d) return;
     let last = -1;
     const sync = () => {
-      const i = Math.round(d.scrollTop / Math.max(1, d.clientHeight));
+      /* a panel is active once its top passes mid-deck; read off offsetTop, not
+         a multiple of the panel height, because the mechanism section between
+         09 and 10 is several screens tall */
+      const y = d.scrollTop + d.clientHeight * 0.5;
+      let i = 0;
+      panels.current.forEach((p, k) => { if (p && p.offsetTop <= y) i = k; });
       if (i === last) return;
       last = i;
       panels.current.forEach((p, k) => p?.classList.toggle('on', k <= i));
-      /* the seven bars below the floor drop the moment that panel is reached */
+      /* the bars below the floor drop the moment that panel is reached */
       if (i >= 6) setFloorOn(true);
     };
     sync();
@@ -106,7 +113,7 @@ export default function Allocation() {
       </div>
       <BackLink label="index" />
 
-      <div className="al-deck" ref={deck}>
+      <div className="al-deck" ref={deck} data-scroller>
         {/* 01 — the grid asserts itself */}
         {panel(0, 'on', (
           <>
@@ -179,9 +186,9 @@ export default function Allocation() {
                       onFocus={() => setSel(idx)}
                       onMouseEnter={() => setSel(idx)}
                       onKeyDown={(e) => onKey(e, idx)}
-                      aria-label={`SDG ${gi + 1} ${g}, ${ax}, ${v.toFixed(2)}${under ? ', below floor' : ''}`}
+                      aria-label={`SDG ${gi + 1} ${g}, ${ax}, ${fmtEsg(v)}${under ? ', below floor' : ''}`}
                     >
-                      {v.toFixed(2).slice(1)}
+                      {fmtEsg(v).slice(1)}
                     </button>
                   );
                 })}
@@ -193,7 +200,7 @@ export default function Allocation() {
               ) : (
                 <>
                   SDG {String(selGoal + 1).padStart(2, '0')} {GOALS[selGoal]} ×{' '}
-                  {AXES[selAxis]} · <b>{matrix[sel].toFixed(2)}</b>{' '}
+                  {AXES[selAxis]} · <b>{fmtEsg(matrix[sel])}</b>{' '}
                   {matrix[sel] < FLOOR && <em>— below floor</em>}
                 </>
               )}
@@ -356,6 +363,30 @@ export default function Allocation() {
           </>
         ))}
 
+        {/* between 09 and 10 — the same programme, built, then the reader's */}
+        <Mechanism
+          prefix="al"
+          id="al-mech"
+          eyebrow="09 → 10 · isometric"
+          title="The programme, built"
+          snap
+          stageOpts={{ ortho: 3.1, yawMax: 0.5, pitchMax: 0 }}
+          beats={[
+            { tag: '01 · candidates', h: 'Twenty asks', body: `Twenty generated candidates, each a block as tall as the capital it asks for — $90 to $470 — against a $${BUDGET.toLocaleString()} notional budget.` },
+            { tag: '02 · the matrix', h: 'Forty-five scores', body: 'Every project is read into the 15 × 3 SDG Impact Matrix: fifteen goals against economic, environmental and social impact. Grey cells sit below the 0.70 line.' },
+            { tag: '03 · the floor', h: 'Below 0.70, zero', body: `${result.cutByFloor} of 20 fall under the ESG floor and their allocation is forced to zero. Not reduced: zero, whatever they would have returned.` },
+            { tag: '04 · the cap', h: `Nothing above ${CAP * 100}%`, body: `The concentration limit is a sheet at $${(BUDGET * CAP).toFixed(0)}. Any ask that reaches through it can only ever be funded up to the sheet.` },
+            { tag: '05 · the allocation', h: `$${BUDGET.toLocaleString('en-US')}, divided`, body: `Ranked by marginal value (ESG less the 0.10 capital and 0.05 risk penalties), funded until the budget runs out: ${alloc.length} projects, $${deployed.toFixed(0)} deployed. The bar along the front is the budget.` },
+          ]}
+          free={{ tag: 'your turn', h: 'Move the constraints', body: 'Change the budget or raise the floor and the same programme solves again. A smaller budget makes the 40% cap bind; a higher floor empties the grid.', hint: 'hover a block for its numbers · drag to turn' }}
+          controls={[
+            { kind: 'range', key: 'budget', label: 'Budget', min: 400, max: 2400, step: 50, initial: BUDGET, format: (v) => `$${v.toLocaleString('en-US')}` },
+            { kind: 'range', key: 'floor', label: 'ESG floor', min: 0.6, max: 0.9, step: 0.01, initial: FLOOR, format: (v) => `floor ${v.toFixed(2)}` },
+          ]}
+          note="The twenty candidates are generated from a fixed seed, as in the repo's committed run — a formulation, not a real portfolio."
+          build={allocScene}
+        />
+
         {/* 10 — prototype */}
         {panel(9, 'al-panel--null', (
           <div style={{ gridColumn: '1 / 13', gridRow: '1 / 4', alignSelf: 'center' }}>
@@ -384,7 +415,7 @@ export default function Allocation() {
                 {cands.map((c) => (
                   <tr key={c.id}>
                     <td>{c.id}</td>
-                    <td>{c.esg.toFixed(2)}</td>
+                    <td>{fmtEsg(c.esg)}</td>
                     <td>{c.risk.toFixed(1)}</td>
                     <td>
                       {result.out.has(c.id)

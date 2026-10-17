@@ -202,9 +202,11 @@ export default function Mechanism({
         <p className={P('-note')}>{failed ? 'This scene needs WebGL, which this browser has turned off. ' : ''}{note}</p>
         {after}
       </div>
-      {snap && !reduced && Array.from({ length: n + 1 }, (_, i) => (
-        <div key={i} className={P('-snap')} aria-hidden
-          style={{ position: 'absolute', left: 0, width: 1, height: 1, top: `${i * 100}vh`, pointerEvents: 'none' }} />
+      {/* one marker per panel, plus one where the pin lets go, so no gap
+          between snap points (including the page's next one) exceeds a screen */}
+      {snap && !reduced && [...Array.from({ length: n + 1 }, (_, i) => i * 100), n * 100 + 60].map((top) => (
+        <div key={top} className={P('-snap')} aria-hidden
+          style={{ position: 'absolute', left: 0, width: 1, height: 1, top: `${top}vh`, pointerEvents: 'none' }} />
       ))}
     </section>
   );
