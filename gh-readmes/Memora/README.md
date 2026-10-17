@@ -1,81 +1,125 @@
-<h1 align="center">Memora</h1>
+<div align="center">
 
-<p align="center">
-  <b>Domain-wise hierarchical memory for LLMs.</b><br>
-  Conversations are tagged by topic as they happen, and a later question retrieves only the slice
-  that shares its topic — so a multi-domain chat does not cross-talk.
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:2A1A0E,55:7A4A1C,100:D98E2B&height=230&section=header&text=Memora&fontSize=72&fontColor=FFF3E0&fontAlignY=34&desc=Domain-wise%20hierarchical%20memory%20for%20LLMs&descSize=19&descAlignY=58&animation=fadeIn" width="100%" alt="Memora"/>
 
-<p align="center">
-  <img alt="Python" src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white">
-  <img alt="Redis" src="https://img.shields.io/badge/Redis-metadata_+_topic_index-DC382D?style=flat-square&logo=redis&logoColor=white">
-  <img alt="FAISS" src="https://img.shields.io/badge/FAISS-IndexFlatIP-0467DF?style=flat-square">
-  <img alt="LangChain" src="https://img.shields.io/badge/LangChain-model_agnostic-1C3C3C?style=flat-square&logo=langchain&logoColor=white">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=D98E2B&center=true&vCenter=true&width=740&lines=%F0%9F%97%84%EF%B8%8F+Database+indexing+%E2%89%A0+book+indexing;%F0%9F%8F%B7%EF%B8%8F+Topics+first%2C+vectors+second;%F0%9F%94%81+A+taxonomy+that+stabilises+itself;%F0%9F%94%8C+Any+LLM%2C+any+embedding+%E2%80%94+safely" alt="typing summary"/>
 
----
+<br/>
 
-## The problem
+<img src="https://img.shields.io/badge/Redis-topic_index-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis"/>
+<img src="https://img.shields.io/badge/FAISS-IndexFlatIP-0467DF?style=for-the-badge&logo=meta&logoColor=white" alt="FAISS"/>
+<img src="https://img.shields.io/badge/LangChain-model_agnostic-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain"/>
+<img src="https://img.shields.io/badge/Pydantic-structured_output-E92063?style=for-the-badge&logo=pydantic&logoColor=white" alt="Pydantic"/>
+<a href="https://portfolio-sigma-blond-57.vercel.app/work/memora"><img src="https://img.shields.io/badge/Case_study-The_Catalogue-2A1A0E?style=for-the-badge&labelColor=D98E2B" alt="case study"/></a>
 
-Give a chatbot a vector store and it will retrieve *semantically similar* past turns. That is the
-right answer roughly two-thirds of the time and quietly wrong the rest.
+</div>
 
-The failure has a shape. You talk to an assistant about **database indexing**. Later you ask about
-**book indexing**. Embeddings put those close together — both are "indexing", both are about
-ordered lookup, and cosine similarity has no idea one is Postgres and the other is a paperback.
-The assistant confidently retrieves your B-tree conversation and answers a question about
-bibliographies with it.
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-The same failure in a longer form: a single long-running assistant that knows about your work,
-your health and your hobbies will, at 5,000 turns, retrieve the wrong life. Flat semantic memory
-degrades exactly as the memory becomes valuable — because the more you store, the more
-near-neighbours every query has.
+<details>
+<summary><b>📑 Table of contents</b></summary>
 
-Three sub-problems fall out of that:
+- [📌 Overview](#-overview)
+- [✨ Highlights](#-highlights)
+- [🧠 How it works](#-how-it-works)
+- [🔬 Under the hood](#-under-the-hood)
+- [🧰 API](#-api)
+- [🚀 Getting started](#-getting-started)
+- [📂 Project structure](#-project-structure)
+- [🧭 Known issues & roadmap](#-known-issues--roadmap)
 
-1. **Retrieval needs a symbolic filter, not just a metric.** Something has to know that "database"
-   and "book" are different domains even when the vectors say otherwise.
-2. **The topic vocabulary cannot be fixed in advance.** You do not know what a user will talk
-   about. A closed taxonomy is wrong on day two.
-3. **Embeddings are not interchangeable.** A store built with one embedding model and queried with
-   another returns garbage that *looks* like results — no error, just silently wrong neighbours.
+</details>
 
-## What this does
+## 📌 Overview
+
+Give a chatbot a vector store and it retrieves *semantically similar* past turns — right most of
+the time, and **quietly wrong** the rest.
+
+> 🗄️ You talk about **database indexing**. Later you ask about **book indexing**. Cosine
+> similarity has no idea one is Postgres and the other is a paperback — so the assistant answers a
+> question about bibliographies with your B-tree conversation.
+
+The more a long-running assistant remembers, the more near-neighbours every query has. **Memora**
+tags every conversation turn with topics as it happens, and retrieves only from the slice that
+shares the question's topic. Domains are separated *before* vectors are consulted.
+
+## ✨ Highlights
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🔁 Self-stabilising topics
+The classifier sees the thread's **existing topics** and reuses them where they fit — so `food`
+doesn't splinter into `cooking`, `recipes`, `culinary`.
+
+</td>
+<td width="50%" valign="top">
+
+### 🗂️ Redis as an inverted index
+Each thread is one hash; each topic is a field holding window IDs. Candidate lookup is a couple of
+`hget`s — no scan, no second database.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🛑 Embedding mismatch is an error
+The embedding model's name is stored per thread and **asserted on every read and write** —
+mixing vector spaces fails loudly instead of silently.
+
+</td>
+<td valign="top">
+
+### 🔌 Bring your own model
+LLM and embedder are **injected**. Gemini in the examples; OpenAI, Ollama or a local
+sentence-transformer are one constructor argument away.
+
+</td>
+</tr>
+</table>
+
+## 🧠 How it works
 
 ```mermaid
-flowchart TB
-    subgraph WRITE["Write path — createConversationWindow"]
-        Q["Q + A pair"] --> T["LLM: classify into topics,<br/>reusing this thread's existing ones"]
-        T --> RH["Redis hash: thread_id<br/>topic → [window_ids]<br/>all_windows → [...]"]
-        Q --> E["embed(Q + ' ' + A)"]
-        E --> FA["FAISS IndexFlatIP<br/>vecdb_storage/&lt;thread&gt;/index.faiss"]
-        Q --> RW["Redis hash: window:&lt;uuid&gt;<br/>text · topics · user · timestamp · referrals"]
+flowchart TD
+    subgraph WRITE["✍️ Write — createConversationWindow"]
+        Q["Q + A pair"] --> T["🏷️ LLM: classify into topics<br/>reusing existing ones"]
+        T --> RH["Redis: topic → window IDs"]
+        Q --> E["embed Q + A"]
+        E --> FA["FAISS index per thread"]
     end
-
-    subgraph READ["Read path — search_by_question"]
-        NQ["New question"] --> NT["LLM: classify the question<br/>against the same topic vocabulary"]
-        NT --> CAND["Redis: union of window_ids<br/>under those topics"]
-        CAND -->|"empty →"| ALL["fall back to all_windows"]
-        NQ --> NE["embed + normalize_L2"]
+    subgraph READ["🔎 Read — search_by_question"]
+        NQ["New question"] --> NT["🏷️ Same classifier,<br/>same vocabulary"]
+        NT --> CAND["Candidate windows<br/>under those topics"]
+        NQ --> NE["embed + normalise"]
         NE --> SR["FAISS search"]
-        SR --> FIL["keep only hits whose window_id<br/>is in the candidate set"]
+        SR --> FIL["Keep hits in candidate set"]
         CAND --> FIL
-        FIL --> OUT["top-k, sorted by score"]
+        FIL --> OUT["🎯 top-k"]
     end
+    RH -.-> CAND
+    FA -.-> SR
+    style T fill:#7A4A1C,stroke:#D98E2B,color:#FFF3E0
+    style NT fill:#7A4A1C,stroke:#D98E2B,color:#FFF3E0
+    style OUT fill:#D98E2B,stroke:#2A1A0E,color:#2A1A0E
 ```
 
-**Two-stage retrieval.** A symbolic topic filter narrows the candidate set; vector similarity ranks
-within it. Cosine similarity never gets the chance to confuse two domains, because the domains were
-separated before it was consulted.
+> 🧩 **Two-stage retrieval:** a symbolic topic filter narrows the candidates, then vector
+> similarity ranks within them. Empty topic match → falls back to all windows.
 
----
+```
+Thread_<uuid>  ┬─ all_windows           → ["w1","w2","w3", ...]
+               ├─ embedding_model_used  → "models/gemini-embedding-exp-03-07"
+               ├─ "food"                → ["w2","w7"]
+               └─ "sports"              → ["w1","w3","w7"]     ← w7: an athlete's diet is both
+```
 
-## Novelty
+## 🔬 Under the hood
 
-### 1. Topics are generated *relative to the topics that already exist*
-
-This is the idea the whole system turns on. The classifier is not asked "what is this about" — it
-is shown the thread's current topic vocabulary and asked to reuse it where it fits:
+<details>
+<summary><b>🔁 Topics generated relative to the ones that exist</b></summary>
 
 ```python
 prompt = f"""
@@ -85,21 +129,17 @@ overlap of already existing topics.
 already existing topics: {alreadyExistingTopics}
 Q: {question}
 A: {answer}
-Only return a list separated by commas.
 """
 response = self._llm.with_structured_output(GenerateTopics).invoke(prompt)
 ```
 
-Without the `already existing topics` line, the same subject drifts across labels — `cooking`,
-`recipes`, `food preparation`, `culinary` — and the topic index shatters into synonyms that never
-match each other. Feeding the existing vocabulary back in makes the taxonomy **self-stabilising**:
-it stays open (a genuinely new subject gets a new topic) while converging (a familiar subject snaps
-to the label already in use).
+Open enough that a new subject gets a new topic; convergent enough that a familiar one snaps to
+the label already in use. "Very generic" keeps buckets big enough to be useful.
 
-"Very generic" is doing work too. Fine-grained topics would give one window per topic and the
-filter would degenerate to exact-match. Coarse topics keep the buckets big enough to be useful.
+</details>
 
-### 2. The *query* is classified with the same classifier as the stored turns
+<details>
+<summary><b>🎯 The query uses the write-side classifier</b></summary>
 
 ```python
 question_topics = self.generateOrMatchTopicsViaLangchain(
@@ -109,102 +149,47 @@ question_topics = self.generateOrMatchTopicsViaLangchain(
 )
 ```
 
-Passing an empty `answer` is a small, deliberate trick: it reuses the *write-side* classifier at
-read time, against the same evolving vocabulary, so the query's topics are drawn from exactly the
-label set the store is indexed by. A separately-prompted query classifier would produce labels that
-do not key into the index.
+An empty `answer` reuses the same classifier against the same vocabulary — so the query's topics
+are guaranteed to key into the index.
 
-### 3. Structured output, so the taxonomy cannot be corrupted by prose
+</details>
+
+<details>
+<summary><b>🧱 Structured output protects the taxonomy</b></summary>
 
 ```python
 class GenerateTopics(BaseModel):
     topics_list: list[str]
-
-self._llm.with_structured_output(GenerateTopics).invoke(prompt)
 ```
 
-Pydantic-constrained decoding rather than "return a comma-separated list and hope". A single
-`Sure! Here are the topics:` preamble parsed as a topic would insert a permanent garbage key into
-the thread's Redis hash and poison every subsequent classification, since the corrupted vocabulary
-is fed back into the next prompt. The schema makes that failure impossible.
+One `Sure! Here are the topics:` parsed as a topic would become a permanent Redis key and be fed
+back into every later prompt. The schema makes that impossible.
 
-### 4. Redis as an inverted index, not just a cache
+</details>
 
-Each thread is a single Redis hash, and topics are **fields** in it:
-
-```
-Thread_<uuid>  ┬─ all_windows           → ["w1","w2","w3", ...]
-               ├─ embedding_model_used  → "models/gemini-embedding-exp-03-07"
-               ├─ "food"                → ["w2","w7"]
-               └─ "sports"              → ["w1","w3","w7"]
-```
-
-`getThreadTopics` is `hkeys` minus the two reserved fields. Candidate lookup for a query is a
-couple of `hget`s. This is a classic inverted index built out of a hash — O(1) per topic, no scan,
-no second database. `w7` appearing under both `food` and `sports` is the point: a window about
-an athlete's diet is genuinely both, and belongs in both buckets.
-
-### 5. A vector index per thread, not one global index
-
-```python
-vecdb_path = os.path.join(self.vecdb_base_path, thread_id)   # vecdb_storage/Thread_<uuid>/
-index = faiss.IndexFlatIP(dim)
-```
-
-Each thread gets its own `index.faiss` and `metadata.json`. Deleting a conversation is `rm -rf` on
-a directory rather than a rebuild. The index dimension is taken from the first embedding actually
-produced (`dim=len(embedding)`), so switching embedding models means a new thread rather than a
-config change — which is enforced:
-
-### 6. Embedding-model consistency is an assertion, not a note in the README
+<details>
+<summary><b>🛑 The embedding-model assertion</b></summary>
 
 ```python
 assert self._embedding_model_name == self.getThreadsEmbeddingModelName(threadId=thread_id), \
-    f"Different Embedding model's used, revert back to the initial one [i.e this model --> {...}]"
+    f"Different Embedding model's used, revert back to the initial one ..."
 ```
 
-The model name is written into the thread's hash at creation and checked on **every write and
-every search**. Mixing embedding spaces is the classic silent failure in vector search — no
-exception, no dimension error if the sizes happen to match, just neighbours that mean nothing.
-Memora refuses instead.
+Mixed embedding spaces return neighbours that *look* like results and mean nothing. Memora refuses.
 
-### 7. Model-agnostic by construction
+</details>
 
-```python
-def __init__(self, langchain_llm, langchain_embedding_model, host='localhost', port=6379, ...)
-```
+<details>
+<summary><b>🔗 Per-thread indexes and referral links</b></summary>
 
-The LLM and the embedding model are **injected**, not constructed. Nothing in `MemoraBrain`
-imports a provider. Gemini in the examples, but OpenAI, Ollama or a local sentence-transformer are
-a constructor argument away — and the consistency assertion above means switching is safe rather
-than silently destructive.
+- Each thread owns `vecdb_storage/<thread>/index.faiss` + `metadata.json` — deleting a
+  conversation is deleting a folder.
+- A window can carry `referral_ids` pointing at earlier windows — the seed of a memory **graph**
+  ("this answer builds on that one"). Stored and returned; not yet traversed.
 
-### 8. Referral IDs — an explicit edge between windows
+</details>
 
-```python
-"referral_ids": ','.join(referral_ids) if referral_ids else ''
-```
-
-Beyond topic and vector similarity, a window can point at other windows. This is the seed of a
-memory *graph*: "this answer builds on that earlier one", recorded as a link rather than inferred
-from cosine distance. It is stored and returned; nothing traverses it yet.
-
----
-
-## Repository layout
-
-```
-memory_system.py         the MemoraBrain class — Redis + FAISS + LangChain
-chatbot_with_memory.py   MemoraChatbot — a conversational wrapper over MemoraBrain
-demo.py                  scripted walkthrough of the memory operations
-requirements.txt
-```
-
-> `memory_system.py` is 935 lines, of which **the first ~424 are an earlier version, commented
-> out**. The live implementation starts at `import redis` on line 425. Worth knowing before you
-> read it top to bottom.
-
-## API
+## 🧰 API
 
 ```python
 from memory_system import MemoraBrain
@@ -212,98 +197,101 @@ from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmb
 
 brain = MemoraBrain(
     langchain_llm=ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0),
-    langchain_embedding_model=GoogleGenerativeAIEmbeddings(
-        model="models/gemini-embedding-exp-03-07"),
-    host="localhost", port=6379, db=0,
-    vecdb_base_path="vecdb_storage",
+    langchain_embedding_model=GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-exp-03-07"),
+    host="localhost", port=6379, db=0, vecdb_base_path="vecdb_storage",
 )
 
 thread_id = brain.createThread()                      # → "Thread_<uuid>"
-
 brain.createConversationWindow(
     query_text="What is Python?",
     answer_text="A high-level programming language known for its simplicity.",
-    thread_id=thread_id,
-    user_name="Alice",            # optional
-    referral_ids=None,            # optional — links to related windows
-    generate_topics=True,         # optional
+    thread_id=thread_id, user_name="Alice", generate_topics=True,
 )
-# → {window_id, thread_id, vector_id, topics}
-
 brain.search_by_question("Tell me about programming languages", thread_id, top_k=3)
-# → [{question, answer, topics, timestamp, username, similarity_score, vector_id}, ...]
-
-brain.search_by_text("machine learning", limit=10)    # substring scan over all windows
-brain.getThreadTopics(thread_id)                      # → ["food", "sports", ...]
-brain.getThreadDetails(thread_id)                     # → the full thread hash
+brain.getThreadTopics(thread_id)                      # → ["programming", ...]
 ```
 
-## Running it
+| Method | Returns |
+|---|---|
+| `createThread()` | new thread ID |
+| `createConversationWindow(...)` | `{window_id, thread_id, vector_id, topics}` |
+| `search_by_question(q, thread, top_k)` | ranked windows with `similarity_score` |
+| `search_by_text(text, limit)` | substring matches across windows |
+| `getThreadTopics(thread)` | the thread's topic vocabulary |
+| `getThreadDetails(thread)` | the full thread hash |
 
-**1 — Redis on `localhost:6379`.**
-
-```bash
-docker run -d -p 6379:6379 redis:latest
-redis-cli ping        # → PONG
-```
-
-**2 — Install.**
-
-```bash
-git clone https://github.com/Vishal-AS-0407/Memora.git
-cd Memora
-pip install -r requirements.txt
-pip install langchain-google-genai        # not in requirements.txt but required
-```
-
-**3 — Key.** `GOOGLE_API_KEY=...` in a `.env` beside the scripts.
-
-**4 — Run.**
-
-```bash
-python demo.py                  # scripted walkthrough
-python chatbot_with_memory.py   # interactive chat with memory
-```
-
----
-
-## Honest notes
-
-- **Stored vectors are never normalised, but the query is.** `insert_into_vecdb` calls
-  `index.add(embedding)` directly, while `search_by_question` calls
-  `faiss.normalize_L2(question_embedding)` first. With `IndexFlatIP` that makes the score
-  `‖v‖·cos(θ)` rather than `cos(θ)` — a **long** stored vector outranks a **relevant** one. The
-  code comment already states the intent (*"use IndexFlatIP (inner product) + normalize vectors"*);
-  the write side just never got the second half. One line fixes it:
-
-  ```python
-  if embedding.ndim == 1:
-      embedding = np.array([embedding], dtype=np.float32)
-  faiss.normalize_L2(embedding)        # ← add this before index.add
-  ```
-
-  The results are still ordered sensibly in practice because embedding norms cluster tightly, but
-  the reported `similarity_score` is not cosine similarity and should not be read as one.
-- **`index.search(question_embedding, index.ntotal)` retrieves the entire index**, then filters by
-  topic in Python. Correct, and fine at a few thousand windows; at a million it is a full scan per
-  query. The scalable form is one FAISS index per topic, or an `IDSelector`.
-- **`requirements.txt` is missing `langchain-google-genai`**, which `demo.py` and the examples
-  import. Install it separately.
-- **The original README documented files that are not in the repository** — `kavya_test.py`,
-  `latest_check.py`, `me_check.py`, `helper/`, `.env`, `dump.rdb`, `vecdb_storage/` — and pointed
-  at a local Windows path. This rewrite documents only the three scripts that are actually here.
-- **`chatbot_with_memory.py` and `demo.py` were written against an earlier API** and use methods
-  the live class no longer exposes in the same shape. `memory_system.py` is the file to read.
-- **Every write costs an LLM call.** Topic classification runs on each stored turn and each query.
-  That is the price of the symbolic layer; caching classifications for repeated questions is the
-  obvious optimisation.
-- **No eviction, no summarisation, no TTL.** Memory grows without bound. Hierarchical *compaction*
-  — old windows in a topic collapsed into a summary window — is the natural next feature and the
-  one the topic index already makes easy.
-
----
+## 🛠️ Tech stack
 
 <p align="center">
-  <sub>Full case study, with the design decisions written out:
-  <a href="https://portfolio-sigma-blond-57.vercel.app/work/memora">portfolio → Memora</a></sub>
+  <img src="https://skillicons.dev/icons?i=python,redis,docker&theme=dark" alt="Python, Redis, Docker"/>
+  <img src="https://img.shields.io/badge/FAISS-vectors-0467DF?style=for-the-badge&logo=meta&logoColor=white" alt="FAISS"/>
+  <img src="https://img.shields.io/badge/LangChain-1C3C3C?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain"/>
+  <img src="https://img.shields.io/badge/Gemini-2.0_Flash-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini"/>
 </p>
+
+## 🚀 Getting started
+
+```bash
+docker run -d -p 6379:6379 redis:latest        # Redis on localhost:6379
+git clone https://github.com/Vishal-AS-0407/Memora.git
+cd Memora
+pip install -r requirements.txt langchain-google-genai
+echo "GOOGLE_API_KEY=your-key" > .env
+python demo.py                    # scripted walkthrough
+python chatbot_with_memory.py     # interactive chat with memory
+```
+
+> 💡 **Tip:** on Windows without Docker, [Memurai](https://www.memurai.com/) is a drop-in Redis.
+> `memory_system.py`'s live implementation starts at `import redis` (line 425) — the top half is an
+> earlier version kept as comments.
+
+## 📂 Project structure
+
+```
+📦 Memora
+ ┣ 🐍 memory_system.py         MemoraBrain — Redis + FAISS + LangChain
+ ┣ 🐍 chatbot_with_memory.py   conversational wrapper over MemoraBrain
+ ┣ 🐍 demo.py                  scripted walkthrough
+ ┗ 📄 requirements.txt
+```
+
+## 🧭 Known issues & roadmap
+
+<details>
+<summary><b>What I'd fix next</b></summary>
+
+- 📐 **Stored vectors aren't L2-normalised** (the query is), so `similarity_score` is
+  `‖v‖·cos θ`, not cosine. One line before `index.add` fixes it:
+  ```python
+  faiss.normalize_L2(embedding)
+  ```
+- 🐢 Search pulls the whole index then filters by topic — fine at thousands, a full scan at
+  millions. Per-topic indexes or an `IDSelector` scale better.
+- 💸 Every write and query costs one LLM call for classification — cache repeated questions.
+- 🧹 `chatbot_with_memory.py` / `demo.py` predate the current API; `memory_system.py` is the
+  reference.
+
+**Roadmap**
+- [ ] Normalise on write
+- [ ] Per-topic FAISS indexes
+- [ ] Hierarchical compaction — old windows in a topic collapse into a summary window
+- [ ] Traverse `referral_ids` as a memory graph
+- [ ] TTL / eviction
+
+</details>
+
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
+
+<div align="center">
+
+**📖 Read the full design story →** [portfolio · The Catalogue](https://portfolio-sigma-blond-57.vercel.app/work/memora)
+
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://github.com/Vishal-AS-0407"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
+<a href="mailto:vishalpersonal04@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/></a>
+
+⭐ **If this helped you, star the repo!**
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:D98E2B,45:7A4A1C,100:2A1A0E&height=120&section=footer" width="100%" alt="footer"/>
+
+</div>

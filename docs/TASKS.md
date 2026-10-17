@@ -11,8 +11,9 @@ verified**.
 - [x] Live site (`portfolio-sigma-blond-57.vercel.app`) deployed from `Vishal-AS-0407/portfolio`
 - [x] All 11 routes × desktop 1440 + phone 390 — 0 console errors, 0 failed requests,
       0 horizontal overflow (`/`, `/plain/`, 8 × `/work/*`, 404)
-- [ ] Deeper QA: Lighthouse (perf / a11y / SEO / best practices) on `/`, `/plain/`, one `/work/*`
-- [ ] Fix whatever that finds; re-verify
+- [x] Deeper QA: Lighthouse (perf / a11y / SEO / best practices) on `/`, `/plain/`, one `/work/*`
+- [x] Fix whatever that finds; re-verify — canonical per route, AA contrast, labelled icon
+      links, lazy Supabase → a11y + SEO 100 on all three
 
 ## Phase 2 — GitHub READMEs, rebuilt in your style (researched)
 
@@ -34,14 +35,15 @@ content but present it that way, using open-source components that were each che
 | Activity graph · trophies | Ashutosh00710 · ryo-ma | ❌ 402 — **not used** |
 | Native: Mermaid, `> [!NOTE]` alerts, `<details>` | GitHub | ✅ |
 
-- [ ] Shared kit: one set of header/footer/divider/badge conventions, a colour per project
-- [ ] Profile README (Vishal-AS-0407) — your animated style, upgraded: results with evidence,
+- [x] Shared kit: one set of header/footer/divider/badge conventions, a colour per project
+- [x] Profile README (Vishal-AS-0407) — your animated style, upgraded: results with evidence,
       case-study links, stats + streak, fixed Google Scholar link (was a placeholder)
-- [ ] 27 repo READMEs — keep your originals' screenshots, demo links and good parts; add
+- [x] 27 repo READMEs — keep your originals' screenshots, demo links and good parts; add
       architecture Mermaid, results tables, quick-start; known issues go in a collapsed
       `<details>` at the bottom instead of dominating
-- [ ] Preview every one through GitHub's own markdown API + GitHub CSS, dark and light
-- [ ] Ask before pushing to your repos
+- [x] Preview every one through GitHub's own markdown API + GitHub CSS, dark and light
+- [ ] Ask before pushing to your repos — `python gh-readmes/publish.py --dry-run` is ready
+      (27 READMEs + profile + About/topics from `repo-metadata.json`)
 
 ## Phase 3 — Hero 3D "Biomech" + "Inheritance" scroll story
 

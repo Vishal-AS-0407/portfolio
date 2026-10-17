@@ -1,60 +1,63 @@
-<h1 align="center">Dijkstra's Shortest Path</h1>
+<div align="center">
 
-<p align="center">
-  <b>Dijkstra's algorithm in C over an adjacency matrix, with the answer exported<br>
-  as an HTML table that highlights the edges on the shortest path.</b>
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,55:7A1E3C,100:FF416C&height=220&section=header&text=Dijkstra's%20Shortest%20Path&fontSize=50&fontColor=FFF1F2&fontAlignY=34&desc=C%20%C2%B7%20adjacency%20matrix%20%C2%B7%20HTML%20result%20with%20the%20path%20highlighted&descSize=17&descAlignY=57&animation=fadeIn" width="100%" alt="Dijkstra's Shortest Path"/>
 
-<p align="center">
-  <img alt="C" src="https://img.shields.io/badge/C-C99-A8B9CC?style=flat-square&logo=c&logoColor=white">
-  <img alt="deps" src="https://img.shields.io/badge/dependencies-libc_only-2ea44f?style=flat-square">
-  <img alt="complexity" src="https://img.shields.io/badge/time-O(V²)-blue?style=flat-square">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2600&pause=900&color=FF416C&center=true&vCenter=true&width=720&lines=1+%E2%86%92+3+%E2%86%92+5+%C2%B7+total+25.00;O(V%C2%B2)+%E2%80%94+right+for+a+dense+matrix;Results+exported+as+an+HTML+table" alt="typing summary"/>
 
----
+<br/>
 
-## What it is
+<img src="https://img.shields.io/badge/C-C99-A8B9CC?style=for-the-badge&logo=c&logoColor=white" alt="C"/>
+<img src="https://img.shields.io/badge/Dependencies-libc_only-2EA44F?style=for-the-badge" alt="libc"/>
+<img src="https://img.shields.io/badge/Time-O(V²)-FF416C?style=for-the-badge&labelColor=0F172A" alt="O(V^2)"/>
 
-You enter an undirected weighted graph of up to 20 nodes, one edge weight at a time, then a
-source and a target. The program prints the adjacency matrix, runs Dijkstra, prints the path and
-its length, and writes `dijkstra_result.html`, opening it automatically on Windows.
+</div>
+
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
+
+## 📌 What it is
+
+Enter an undirected weighted graph of up to 20 nodes, a source and a target. The program prints
+the adjacency matrix, runs Dijkstra, prints the path and its length — and writes
+`dijkstra_result.html` with **the shortest-path edges highlighted**, opening it automatically on
+Windows.
+
+<div align="center">
+<img src="https://github.com/user-attachments/assets/abfc5361-f894-41d5-a2c4-285926f7d15f" alt="HTML output" width="80%"/>
+</div>
 
 ```
 Enter the number of nodes in the graph (up to 20): 5
 Enter the weight of the path between nodes 1 and 2 (or 6969 for no path): 10
 ...
-Enter the source node (1-5): 1
-Enter the target node (1-5): 5
-
 Shortest path from 1 to 5:
 1 -> 3 -> 5
 Total distance: 25.00
 ```
 
-![HTML output](https://github.com/user-attachments/assets/abfc5361-f894-41d5-a2c4-285926f7d15f)
+## 🧠 The algorithm
 
-## How it works
+```mermaid
+flowchart TD
+    A["📥 Read graph<br/>each pair once · i &lt; j · mirrored"] --> B["dist[] = ∞, dist[src] = 0<br/>prev[] = −1"]
+    B --> C["🔍 Pick unvisited node<br/>with the smallest dist"]
+    C --> D{"Reachable node left?"}
+    D -->|no| G
+    D -->|yes| E["Relax every edge<br/>dist[u] + w &lt; dist[v] → update, prev[v] = u"]
+    E -->|"repeat V − 1 times"| C
+    E --> G["🔙 Walk prev[] back from target"]
+    G --> H["🖨️ Console + 🌐 HTML table"]
+    style E fill:#7A1E3C,stroke:#FF416C,color:#FFF1F2
+    style H fill:#FF416C,stroke:#0F172A,color:#0F172A
+```
 
-The textbook array version of the algorithm, which is the right choice for a dense matrix:
+| Choice | Why |
+|---|---|
+| 📊 **Linear-scan minimum, O(V²)** | a heap only helps sparse graphs; on a 20-node matrix the scan is simpler and as fast |
+| ↔️ **Undirected input** | each weight entered once, written to `cost[i][j]` and `cost[j][i]` |
+| 🚫 **Negative weights rejected** | Dijkstra is incorrect on negative edges |
+| ⏹️ **Early stop** | when no reachable unvisited node remains |
 
-1. `dist[]` starts at infinity everywhere except the source, and `prev[]` at `-1`.
-2. Repeat V−1 times. Pick the unvisited node with the smallest `dist`, mark it visited, and
-   relax every edge out of it. If `dist[u] + w < dist[v]`, update `dist[v]` and set
-   `prev[v] = u`.
-3. Stop early if no reachable unvisited node is left, which means the rest of the graph is
-   disconnected from the source.
-4. Rebuild the path by following `prev[]` back from the target.
-
-Selecting the minimum with a linear scan makes it O(V²). With a binary heap it would be
-O((V+E) log V), which helps only on sparse graphs. On a full matrix of 20 nodes the scan is
-simpler and just as fast.
-
-The graph is **undirected**: each weight is entered once for the pair `(i, j)` with `i < j`, and
-written to both `cost[i][j]` and `cost[j][i]`. That halves the typing, and it means the program
-never asks for a weight twice. Negative weights are rejected and re-asked, which matters because
-Dijkstra is incorrect on negative edges.
-
-## Running it
+## 🚀 Getting started
 
 ```bash
 git clone https://github.com/Vishal-AS-0407/Dijkstra-Algorithm.git
@@ -63,62 +66,41 @@ gcc -std=c99 -o dijkstra dijkstra.c
 ./dijkstra
 ```
 
-The repo also contains a prebuilt `dijkstra.exe`. Build from source instead. A committed binary
-cannot be reviewed, and it goes stale the moment the `.c` file changes.
+> 💡 **Tip:** build from source rather than using the committed `dijkstra.exe`.
 
----
+## 🧭 Known issues & roadmap
 
-## Known issues, with fixes
+<details>
+<summary><b>Fixes</b></summary>
 
-### 1. The range checks check the wrong number
+- 🔢 **Range checks validate `scanf`'s return value, not the input** — read, then validate:
+  ```c
+  if (scanf("%d", &nodes) != 1 || !validateInput(nodes, 1, MAX_NODES, "Invalid number of nodes"))
+      return EXIT_FAILURE;
+  ```
+- 📄 `exportToHTML` closes the file twice — delete the trailing `fprintf`/`fclose`.
+- ♾️ `6969` doubles as "no edge" and initial distance, so totals ≥ 6969 read as "no path" — use
+  `INFINITY` for `dist[]` and a separate sentinel for input.
+- 🎨 Zero-weight edges render as `-`; `.path-info` styles are missing; `∞` is mojibake in the
+  Windows console.
 
-```c
-if (!validateInput(scanf("%d", &nodes), 1, MAX_NODES, "Invalid number of nodes"))
-```
+**Roadmap**
+- [ ] Input validation fix
+- [ ] Proper infinity
+- [ ] Graph drawn as SVG in the HTML report
 
-`validateInput` receives the **return value of `scanf`**, which is the count of items read: `1`
-on success. It never sees `nodes`. So every numeric input passes, and the bounds are never
-enforced:
+</details>
 
-- `nodes = 25` passes, and the initialisation loop writes past the end of the 20×20 `cost`
-  matrix on the stack.
-- `source = 99` passes, and `dist[source - 1] = 0` writes outside `dist[]`.
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-Read first, then validate the value:
+<div align="center">
 
-```c
-if (scanf("%d", &nodes) != 1 || !validateInput(nodes, 1, MAX_NODES, "Invalid number of nodes"))
-    return EXIT_FAILURE;
-```
+<a href="https://portfolio-sigma-blond-57.vercel.app"><img src="https://img.shields.io/badge/Portfolio-0F172A?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"/></a>
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://github.com/Vishal-AS-0407"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
 
-The same change is needed for `source` and `target`.
+⭐ **If this helped you, star the repo!**
 
-### 2. The HTML file is closed twice
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FF416C,45:7A1E3C,100:0F172A&height=110&section=footer" width="100%" alt="footer"/>
 
-`exportToHTML` writes the closing tags and calls `fclose(file)`. Then, after a leftover comment
-(`// Rest of the function remains the same...`), it calls `fprintf(file, ...)` and
-`fclose(file)` again on the handle it has already closed. Both calls are undefined behaviour. On
-some C runtimes they crash, and on others they silently do nothing. Delete the last two lines
-before the `#ifdef`.
-
-### 3. `6969` is both "no edge" and a real distance
-
-`INF` is a number a user can legitimately type, and it is also the starting value of `dist[]`. The
-second use is the real problem. Relaxation only accepts a path if it is shorter than the current
-`dist`, so **any path whose total is 6969 or more is reported as "No path exists"**. For example,
-edges of 4000 and 4000 between 1, 2 and 3 give no route from 1 to 3.
-
-Use `INFINITY` from `<math.h>` (or `DBL_MAX`) for `dist[]`, and ask the user for a negative number
-or a letter to mean "no edge".
-
-### 4. Smaller things
-
-- **Zero-weight edges show as "no path" in the HTML.** The `cost[i][j] == 0 && i != j` branch
-  prints `-`, the same as the diagonal. A zero-weight edge is valid.
-- **`∞` in `printGraph` is UTF-8**, which shows as mojibake in a default Windows console. The HTML
-  side uses `&infin;` correctly.
-- **The `.path-info` and `.total-distance` classes have no styles.** The `<style>` block ends at a
-  `// ... rest of the styles remain the same ...` comment, so the summary under the table renders
-  unstyled.
-- **The HTML total is recomputed** from the path's edges instead of using `dist[target]`. They
-  agree, but it is a second source of truth for the same number.
+</div>

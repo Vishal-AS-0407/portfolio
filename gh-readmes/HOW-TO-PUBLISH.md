@@ -1,70 +1,46 @@
 # Publishing the repo READMEs
 
-There are 27 READMEs in this folder, one per repo, each in a folder named exactly after the repo.
-None of them are pushed, because I have no write access to your GitHub account.
+27 READMEs live here, one per repo, each in a folder named exactly after the repo. The profile
+README is in `../gh-profile/README.md`. Suggested **About** text (description, homepage, topics)
+for every repo is in `repo-metadata.json`.
 
-## One repo
-
-```bash
-git clone https://github.com/Vishal-AS-0407/<repo>.git
-cp gh-readmes/<repo>/README.md <repo>/README.md
-cd <repo>
-git add README.md
-git commit -m "Rewrite README from the source"
-git push
-```
-
-## All of them at once
-
-From the root of this portfolio repo, in Git Bash:
+## One command
 
 ```bash
-mkdir -p ../readme-push && cd ../readme-push
-for dir in ../portfolio/gh-readmes/*/; do
-  repo=$(basename "$dir")
-  git clone -q "https://github.com/Vishal-AS-0407/$repo.git" || { echo "skip $repo"; continue; }
-  cp "$dir/README.md" "$repo/README.md"
-  git -C "$repo" add README.md
-  git -C "$repo" commit -q -m "Rewrite README from the source" && echo "ready  $repo"
-done
-# look at a few with `git -C <repo> show`, then:
-for repo in */; do git -C "$repo" push -q && echo "pushed $repo"; done
+python gh-readmes/publish.py --dry-run           # what would change, touches nothing
+python gh-readmes/publish.py                     # all 27 READMEs + profile + About/topics
+python gh-readmes/publish.py --only WISP,Memora  # a subset
 ```
+
+It uses the GitHub token git already stores (`git credential fill`) and commits each README
+through the contents API (`docs: rebuild README`), so nothing is cloned. Repos whose README is
+already identical are skipped. Re-running is safe.
 
 Two exceptions:
 
-- **`portfolio/`** describes *this* codebase, the two sites in one deployment. Its local remote is
-  `Vishal-AS-0407/temp`, but a `Vishal-AS-0407/portfolio` repo also exists. Put the README in
-  whichever repo your Vercel project deploys from, and consider archiving the other one so there
-  is a single source.
-- **The profile README** is not here. It lives in `gh-profile/`, with its own
-  `HOW-TO-PUBLISH.md`.
+- **`portfolio/`** is this codebase's README. It is also copied to the repo root and ships with a
+  normal `git push` to `Vishal-AS-0407/portfolio`; the script only sets that repo's About text.
+- **The profile** (`Vishal-AS-0407/Vishal-AS-0407`) gets `gh-profile/README.md`. It needs no
+  asset files — every image is a hosted component (capsule-render, readme-typing-svg,
+  github-readme-stats, streak-stats, skillicons, shields, Cool-GIFs).
 
-## Before you push — read the "Known issues" sections
+## Components used (all checked live)
 
-Most READMEs end with a **Known issues, with fixes** section. These are real defects found by
-reading or running the code, and each one comes with its fix. Publishing them is a choice. They
-show you know where your own code is weak, and reviewers tend to respect that. But a few are
-quick enough that fixing the code first is the better move:
+capsule-render waving header/footer · readme-typing-svg (demolab) · shields `for-the-badge` ·
+skillicons.dev · github-readme-stats (stats, top-langs, pin cards; `tokyonight`) ·
+streak-stats (demolab) · Cool-GIFs fading divider · native Mermaid and `<details>`.
 
-| Repo | Fix | Effort |
-|---|---|---|
-| `Quiz-Website` | Question 4's answer key is wrong (head, not body). Restore the deleted background image and `thankyou.html` | 5 min |
-| `Hostel-Magement-System` | Drop `public` from `class Main` so it compiles. Guard `Integer.parseInt` in search | 5 min |
-| `Dijkstra-Algorithm` | Validate the value read, not `scanf`'s return. Delete the second `fclose` | 5 min |
-| `MIPS-to-Binary-converter` | `{:05d}` → `{:05b}` in three places | 2 min |
-| `Telephone-Directory` | `int flag = 0;` in `delete_contact`. Open files with `"rb"`/`"wb"`/`"ab"` | 5 min |
+> Never put `&` or `%26` in a capsule-render `text`/`desc`: it returns invalid SVG. Write "and".
 
-If you fix one, delete its entry from the README's issue list before you push.
+## Checking before you push
 
-## Exposed credentials — do this first
+```bash
+python <scratchpad>/imgcheck.py      # every image URL resolves and every SVG parses
+python <scratchpad>/ghpreview.py ... # renders through GitHub's markdown API, dark + light
+```
 
-See the table at the bottom of `TASK-TRACKER.md`. Ten repos have live API keys or passwords in
-their public history. Rotating them is the one step on this page that protects you, and a README
-does not. Revoke and reissue each key first, then publish.
+Each README ends with **Notes and roadmap** — known issues are folded into a collapsed
+`<details>`, not the headline. If you fix one in the code, delete its row before publishing.
 
-## While you are in each repo
-
-Set a **description** and **topics** (the gear icon next to *About*). Suggested text for every
-repo is in `gh-profile/REPO-METADATA.md`. 27 of 29 repos have neither, and it is the first thing
-a visitor sees.
+Credential notes (keys in public history to rotate) stay in `TASK-TRACKER.md`, never in a
+public README.

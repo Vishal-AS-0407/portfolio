@@ -1,75 +1,114 @@
-<h1 align="center">AdvanceCut</h1>
+<div align="center">
 
-<p align="center">
-  <b>2D irregular nesting for cloth cutting.</b><br>
-  No-Fit Polygon placement, beam search over the cutting order, gravity settling —
-  and a fallback that guarantees every piece gets placed.
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1F1B2E,55:4C3F8A,100:A78BFA&height=230&section=header&text=AdvanceCut&fontSize=68&fontColor=F5F3FF&fontAlignY=34&desc=2D%20irregular%20nesting%20for%20cloth%20cutting&descSize=19&descAlignY=58&animation=fadeIn" width="100%" alt="AdvanceCut"/>
 
-<p align="center">
-  <img alt="Python" src="https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white">
-  <img alt="Shapely" src="https://img.shields.io/badge/Shapely-exact_geometry-2ea44f?style=flat-square">
-  <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-FF4B4B?style=flat-square&logo=streamlit&logoColor=white">
-  <img alt="Plotly" src="https://img.shields.io/badge/Plotly-interactive-3F4F75?style=flat-square&logo=plotly&logoColor=white">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=A78BFA&center=true&vCenter=true&width=740&lines=%E2%9C%82%EF%B8%8F+Every+gap+between+pieces+is+money;%F0%9F%A7%A9+No-Fit+Polygons%2C+not+bounding+boxes;%F0%9F%94%A6+Beam+search+over+the+cutting+order;%E2%9C%85+Guaranteed+mode%3A+every+piece+gets+placed" alt="typing summary"/>
 
----
+<br/>
 
-## The problem
+<img src="https://img.shields.io/badge/Problem-NP--hard-A78BFA?style=for-the-badge&labelColor=1F1B2E" alt="NP-hard"/>
+<img src="https://img.shields.io/badge/Shapely-exact_geometry-2EA44F?style=for-the-badge" alt="Shapely"/>
+<img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit"/>
+<img src="https://img.shields.io/badge/Plotly-interactive-3F4F75?style=for-the-badge&logo=plotly&logoColor=white" alt="Plotly"/>
 
-Fabric is the largest single cost in garment manufacturing, and every square centimetre between
-two cut pieces is money thrown away. A cutting-room supervisor laying out patterns by hand is
-solving, by eye, one of the genuinely hard problems in combinatorial optimisation.
+</div>
 
-**2D irregular strip packing is NP-hard.** Not "slow" — there is no known efficient exact
-algorithm, and there very likely is not one. Three things make the cloth version worse than the
-textbook version:
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-1. **The pieces are not rectangles.** A sleeve is not a rectangle; neither is a collar, a gusset,
-   or a yoke. Bounding-box packing — which is what most simple nesters do — throws away all the
-   space in the concavities, and on garment patterns that is a large fraction of the total.
-2. **Rotation is continuous.** Each piece can be placed at any angle, which turns a discrete search
-   into a continuous one.
-3. **Order matters enormously.** Where piece 7 can go depends entirely on where pieces 1–6 went.
-   Greedy placement paints itself into corners it cannot back out of.
+<details>
+<summary><b>📑 Table of contents</b></summary>
 
-And there is a practical constraint that theory usually ignores: **an optimiser that leaves two
-pieces unplaced is useless on a factory floor.** You cannot ship a garment that is missing a
-sleeve. A 94%-utilisation layout with one piece left over is worse than an 89% layout with all of
-them.
+- [📌 Overview](#-overview)
+- [✨ Highlights](#-highlights)
+- [🧠 The algorithm](#-the-algorithm)
+- [🎛️ Three modes](#️-three-modes)
+- [🔬 Under the hood](#-under-the-hood)
+- [🚀 Getting started](#-getting-started)
+- [📂 Project structure](#-project-structure)
+- [🧭 Notes & roadmap](#-notes--roadmap)
 
-## What it does
+</details>
+
+## 📌 Overview
+
+Fabric is the largest single cost in garment manufacturing, and a cutting-room supervisor laying
+out patterns by hand is solving — by eye — an **NP-hard** problem.
+
+| Why cloth is harder than the textbook | |
+|---|---|
+| 🧥 **Pieces aren't rectangles** | sleeves, collars, yokes — bounding boxes waste every concavity |
+| 🔄 **Rotation is continuous** | any angle turns a discrete search into a continuous one |
+| 🔢 **Order matters** | where piece 7 fits depends on pieces 1–6 — greedy paints itself into corners |
+| 🏭 **Missing a piece = useless** | a 94% layout missing a sleeve loses to an 89% layout with all of them |
+
+## ✨ Highlights
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🧩 No-Fit Polygon placement
+Candidate positions where a piece **touches but doesn't overlap** — so an L nests inside another
+L's concavity, where the real savings are.
+
+</td>
+<td width="50%" valign="top">
+
+### 🔦 Beam search over order
+`beam_width` partial layouts survive each step — a second-best move that leaves a better hole gets
+to prove itself.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### ⬇️ Gravity settling
+Each piece slides **down, then left** until it touches — removing slivers and keeping one big open
+region for the next piece.
+
+</td>
+<td valign="top">
+
+### ✅ Guaranteed mode
+AdvanceCut first, then **Bottom-Left-Fill** on whatever's left — nearly all the quality *and* a
+layout you can actually cut.
+
+</td>
+</tr>
+</table>
+
+## 🧠 The algorithm
 
 ```mermaid
-flowchart TB
-    IN["Sheets + patterns<br/>with quantities"] --> SORT["Sort by area, largest first"]
-    SORT --> BEAM
-
-    subgraph BEAM["Beam search over placement order"]
-        direction TB
-        B1["for each pattern:<br/>for each surviving solution:<br/>for each sheet:"]
-        B1 --> NFP["No-Fit Polygon<br/>edge + corner candidates"]
-        NFP --> ROT["× rotations at every<br/>rotation_step degrees"]
-        ROT --> GRAV["Gravity settle<br/>down, then left"]
-        GRAV --> SCORE["Quality score<br/>contact length · corners · edges"]
-        SCORE --> KEEP["keep top 3 per solution,<br/>prune beam to beam_width"]
-    end
-
-    BEAM --> CHECK{"all patterns<br/>placed?"}
-    CHECK -->|yes| OUT
-    CHECK -->|no| BLF["Bottom-Left-Fill fallback<br/>0° · 90° · 180° · 270°"]
-    BLF --> MERGE["merge + recompute metrics"] --> OUT["Layout · utilisation ·<br/>waste · per-piece coordinates"]
+flowchart TD
+    IN["🧵 Sheets + patterns<br/>with quantities"] --> SORT["Sort by area, largest first"]
+    SORT --> NFP["🧩 No-Fit Polygon candidates<br/>edges + corners"]
+    NFP --> ROT["🔄 × every rotation_step"]
+    ROT --> GRAV["⬇️ Gravity settle<br/>down, then left"]
+    GRAV --> SCORE["⭐ Quality score<br/>contact · corners · edges"]
+    SCORE --> KEEP["🔦 Keep top beam_width layouts"]
+    KEEP -->|next pattern| NFP
+    KEEP --> CHECK{"All placed?"}
+    CHECK -->|yes| OUT["📐 Layout · utilisation · waste<br/>per-piece coordinates"]
+    CHECK -->|no| BLF["🧱 Bottom-Left-Fill fallback<br/>0° · 90° · 180° · 270°"]
+    BLF --> OUT
+    style KEEP fill:#4C3F8A,stroke:#A78BFA,color:#F5F3FF
+    style OUT fill:#A78BFA,stroke:#1F1B2E,color:#1F1B2E
 ```
 
----
+## 🎛️ Three modes
 
-## Novelty
+| Mode | Algorithm | Placement rate | Use it for |
+|---|---|:---:|---|
+| 🔬 **Quality** | pure AdvanceCut | may be < 100% | benchmarking the unassisted algorithm |
+| ⭐ **Guaranteed** | AdvanceCut → BLF for leftovers | **100%** (where feasible) | production |
+| ⚡ **Fast** | reduced search | high | interactive iteration |
 
-### 1. No-Fit Polygon rather than bounding boxes
+## 🔬 Under the hood
 
-The NFP is the standard tool of serious nesting, and it is what separates this from a
-rectangle packer. `NoFitPolygonCalculator` enumerates the positions at which a moving piece
-**touches but does not overlap** a fixed one, from two families:
+<details>
+<summary><b>🧩 No-Fit Polygon candidates</b></summary>
 
 ```python
 # Edge placements — slide the moving piece along each edge of the fixed piece
@@ -87,175 +126,123 @@ for fixed_vertex in fixed_coords:
                            fixed_vertex[1] - mv_vertex[1]))
 ```
 
-This is what lets an L-shape nest **inside the concavity of another L-shape**, which is where the
-real material savings in garment cutting come from — and which bounding-box packing cannot express
-at all.
+The `0.1` nudge makes Shapely's boundary predicates decisive — exact touching is a floating-point
+coin toss.
 
-The `0.1` nudge along the outward normal is a small piece of engineering wisdom: exact touching
-means floating-point-boundary intersection tests, which are unreliable. A hair of clearance makes
-`shapely`'s predicates decisive.
+</details>
 
-### 2. Beam search over placement *order*, not just position
-
-Most nesters place greedily: best position for piece 1, then piece 2, and so on. That commits to
-early decisions that constrain everything after them.
+<details>
+<summary><b>🔦 Beam search</b></summary>
 
 ```python
 beam = [initial_solution]
-for pattern in all_patterns:                       # sorted largest area first
+for pattern in all_patterns:                       # largest area first
     new_beam = []
-    for solution in beam:                          # every surviving partial layout
+    for solution in beam:
         for sheet in cloth_sheets:
-            for placement in possible_placements[:3]:   # top 3 candidates
+            for placement in possible_placements[:3]:
                 new_beam.append(extend(solution, placement))
     new_beam.sort(key=lambda s: s['score'], reverse=True)
-    beam = new_beam[:self.beam_width]              # prune
+    beam = new_beam[:self.beam_width]              # prune — memory stays bounded
 ```
 
-`beam_width` partial layouts are carried forward at every step. A placement that looks second-best
-now but leaves a better-shaped hole for the next piece survives to prove it. This is the standard
-answer to greedy's blind spot, and the memory is bounded by construction — the beam is pruned every
-iteration, so the search never explodes.
+Big pieces have the fewest feasible spots — place them while the sheet is open, then fill gaps.
 
-Largest-area-first is the right ordering heuristic here: big pieces have the fewest feasible
-positions, so placing them while the sheet is still open, and filling the gaps with small pieces
-afterwards, dominates the reverse.
+</details>
 
-### 3. Gravity settling — in two directions
+<details>
+<summary><b>⭐ Scoring and spacing</b></summary>
 
-After a candidate position is chosen, the piece is not left floating:
-
-```python
-GravitySimulator.apply_gravity(...)        # slide down until it hits something
-GravitySimulator.apply_left_gravity(...)   # then slide left until it hits something
-```
-
-Each step advances while the piece stays inside the sheet **and** intersects nothing. Down-then-left
-is the classic bottom-left compaction, and it does something a pure NFP search does not: it removes
-the small gaps that accumulate from discretised candidate positions, and it keeps the *frontier* of
-placed pieces compact so later pieces face one large open region rather than a scatter of unusable
-slivers.
-
-### 4. Quality scoring rewards contact, corners and edges
-
-`QualityScorer.calculate_placement_quality` does not score by area used — every placement uses the
-same area. It scores by **how well the piece is tucked in**: how much of its perimeter touches
-already-placed pieces, and whether it sits against a corner or an edge of the sheet.
-
-This is the right proxy. Contact length is a direct measure of *not leaving a gap*, and a piece
-in a corner consumes a region that is hard to use for anything else. Scoring the *shape of the
-remaining free space* is how a nester avoids the failure where every individual placement was
-locally sensible and the sheet ends up as swiss cheese.
-
-### 5. Three modes, because "optimal" and "shippable" are different requirements
-
-This is the most commercially-literate decision in the project.
-
-| Mode | Algorithm | Success rate | Use |
-|---|---|---|---|
-| **Quality** | pure AdvanceCut | variable, may be < 100% | research, benchmarking, seeing what the algorithm really does |
-| **Guaranteed** ⭐ | AdvanceCut, then BLF for anything left | **100%** (where feasible) | production |
-| **Fast** | reduced search | high | interactive iteration |
-
-Guaranteed mode is a **four-phase hybrid**: run AdvanceCut → check for unplaced pieces → run
-Bottom-Left-Fill on just those, trying 0°/90°/180°/270° → merge and recompute all metrics.
-
-The reasoning is exactly right, and most academic nesters get it wrong: the sophisticated algorithm
-optimises quality and occasionally fails to place a difficult piece; the dumb algorithm always
-finds *somewhere*. Running the good one first and the dumb one only on the remainder gives you
-almost all of the quality **and** a layout you can actually cut. Keeping the pure mode available,
-so you can still see the unassisted algorithm's true performance, is the honest touch.
-
-### 6. Configurable spacing, applied geometrically
+Every placement uses the same area, so the score is about **how well it's tucked in**: perimeter
+contact with placed pieces, plus sitting against a corner or sheet edge.
 
 ```python
 def add_spacing_buffer(polygon, spacing):
-    return polygon.buffer(spacing, join_style=2)   # mitered corners
+    return polygon.buffer(spacing, join_style=2)   # mitred corners
 ```
 
-Real cutting needs seam allowance and blade clearance. Rather than shrinking every piece or
-inflating the sheet, each polygon is **dilated by the spacing before collision testing** and drawn
-at its true size. The geometry stays honest and the gap is guaranteed. `join_style=2` (mitre)
-keeps corners sharp instead of rounding them, which matters because a rounded buffer would
-overestimate clearance at exactly the tight corners where pieces nest.
+Seam allowance and blade clearance: each polygon is dilated before collision tests and drawn at
+true size. Mitred joins keep corners sharp, so clearance isn't overestimated where pieces nest
+tightest.
 
-### 7. Rich shape library and demo scenarios
+</details>
 
-`shapes/shape_library.py` builds rectangles, L-shapes, T-shapes, hexagons, stars and triangles as
-real polygons; `shapes/demo_scenarios.py` bundles five stress cases — *Simple Rectangles*,
-*Complex Shapes Showcase*, *High Density Challenge*, *Multi-Color Real World*, *Geometric Shapes
-Showcase*. Stars and T-shapes are deliberately nasty: deep concavities are exactly where NFP earns
-its keep over bounding boxes, so the demo set is chosen to prove the claim rather than to flatter
-it.
+## 🛠️ Tech stack
 
----
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python&theme=dark" alt="Python"/>
+  <img src="https://img.shields.io/badge/Shapely-geometry-2EA44F?style=for-the-badge" alt="Shapely"/>
+  <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white" alt="NumPy"/>
+  <img src="https://img.shields.io/badge/Streamlit-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white" alt="Streamlit"/>
+  <img src="https://img.shields.io/badge/Plotly-3F4F75?style=for-the-badge&logo=plotly&logoColor=white" alt="Plotly"/>
+</p>
 
-## Repository layout
-
-```
-app.py                            Streamlit UI — demo mode, custom input, parameters, export
-core/
-  advancecut_engine.py            NFP · beam search · gravity · quality scoring · spacing
-  bfl_fallback.py                 Bottom-Left-Fill, the guarantee
-shapes/
-  shape_library.py                rectangles, L, T, hexagon, star, triangle
-  demo_scenarios.py               five prepared scenarios
-visualization/
-  plotly_renderer.py              interactive layout — zoom, pan, hover
-  export_utils.py                 CSV · JSON · text report · coordinates
-
-ALGORITHM_MODES.md    the three modes, in detail
-SPACING_FEATURE.md    seam allowance / blade clearance
-PROJECT_SUMMARY.md    architecture overview
-INSTALL.md · DEPLOYMENT_GUIDE.md · QUICK_DEPLOY.md · QUICK_REFERENCE.md
-run_app.bat · deploy.bat
-```
-
-## Running it
+## 🚀 Getting started
 
 ```bash
 git clone https://github.com/Vishal-AS-0407/Clothcut.git
 cd Clothcut
 pip install -r requirements.txt
-streamlit run app.py            # → http://localhost:8501
+streamlit run app.py            # → http://localhost:8501   (or run_app.bat on Windows)
 ```
 
-Or `run_app.bat` on Windows.
+| Parameter | Default | Effect |
+|---|:---:|---|
+| `rotation_step` | 30° | smaller = finer angles, slower |
+| `beam_width` | 2 | wider = better layouts, slower |
+| `pattern_spacing` | 0 | seam allowance / blade clearance |
 
-**Quick Demo** — pick a scenario, hit Run. **Custom Input** — define sheets and patterns yourself.
+> 💡 **Tip:** start with **Quick Demo → Complex Shapes Showcase** — stars and T-shapes are where
+> NFP beats bounding boxes. Export as CSV, JSON, a text report or **raw coordinates** for a cutting
+> machine.
 
-Parameters worth turning:
+## 📂 Project structure
 
-| Parameter | Effect |
-|---|---|
-| `rotation_step` (default 30°) | smaller = finer angular search, more candidates, slower |
-| `beam_width` (default 2) | wider = more partial layouts survive, better results, slower |
-| `pattern_spacing` (default 0) | seam allowance / blade clearance in the same units as the sheet |
+```
+📦 Clothcut
+ ┣ 🐍 app.py                         Streamlit UI — demo, custom input, export
+ ┣ 📂 core
+ ┃ ┣ 🐍 advancecut_engine.py         NFP · beam search · gravity · scoring · spacing
+ ┃ ┗ 🐍 bfl_fallback.py              Bottom-Left-Fill — the guarantee
+ ┣ 📂 shapes
+ ┃ ┣ 🐍 shape_library.py             rectangle · L · T · hexagon · star · triangle
+ ┃ ┗ 🐍 demo_scenarios.py            five stress scenarios
+ ┣ 📂 visualization
+ ┃ ┣ 🐍 plotly_renderer.py           zoom · pan · hover
+ ┃ ┗ 🐍 export_utils.py              CSV · JSON · report · coordinates
+ ┗ 📄 ALGORITHM_MODES.md · SPACING_FEATURE.md · PROJECT_SUMMARY.md · INSTALL.md
+```
 
-Export as **CSV**, **JSON**, a **text report**, or **raw coordinates** — the last of these is the
-one that matters, since it is what feeds a cutting machine.
+## 🧭 Notes & roadmap
 
----
+<details>
+<summary><b>Trade-offs worth knowing</b></summary>
 
-## Honest notes
+- 🧩 The NFP is **sampled** (3 points per edge), not an exact Minkowski difference — fast, but some
+  tight placements are never generated.
+- 📈 Candidates grow as `patterns × rotations × placed × vertices`, times `beam_width` — comfortable
+  at 30° and dozens of pieces; use Fast mode beyond that.
+- 📊 No benchmark against a public nesting set (e.g. ESICUP) yet.
 
-- **The NFP is an approximation, and says so.** `calculate_nfp_approximation` samples 3 points per
-  edge (`np.linspace(0, 1, 3)`) rather than computing the exact Minkowski-difference NFP. That is a
-  reasonable trade — exact NFP for arbitrary concave polygons is genuinely difficult and slow — but
-  it means some valid tight placements are never generated. Raising the sample count is a one-token
-  change if you want to trade time for density.
-- **Complexity grows quickly.** Candidates ≈ `patterns × rotations × placed_pieces × vertices`, and
-  the beam multiplies that by `beam_width`. At `rotation_step = 30°` (12 rotations) and a few dozen
-  pieces it is comfortable; at 5° and hundreds of pieces it is not. The Fast mode exists for that
-  reason.
-- **`beam_width = 2` is a conservative default.** Worth raising for a real production layout, where
-  a few extra seconds are free compared to the fabric saved.
-- **No utilisation benchmark is committed.** The engine reports utilisation and waste per run, but
-  there is no comparison against a published nesting benchmark (ESICUP, for example), so "how good
-  is it really" is unanswered. Running it against a standard instance set would be the most
-  valuable next addition.
-- **No tests.**
-- **`ui/` contains only an `__init__.py`** — the interface all lives in `app.py`.
-- **The documentation reads as written-alongside-development** (`ALGORITHM_MODES.md` says *"YOUR
-  REQUESTED FEATURE!"*). It is accurate and unusually thorough for a project this size; only the
-  register gives it away.
+**Roadmap**
+- [ ] Exact NFP via Minkowski sums
+- [ ] ESICUP benchmark results
+- [ ] DXF import for real pattern files
+- [ ] Tests
+
+</details>
+
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
+
+<div align="center">
+
+<a href="https://portfolio-sigma-blond-57.vercel.app"><img src="https://img.shields.io/badge/Portfolio-1F1B2E?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"/></a>
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://github.com/Vishal-AS-0407"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
+<a href="mailto:vishalpersonal04@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/></a>
+
+⭐ **If this helped you, star the repo!**
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:A78BFA,45:4C3F8A,100:1F1B2E&height=120&section=footer" width="100%" alt="footer"/>
+
+</div>

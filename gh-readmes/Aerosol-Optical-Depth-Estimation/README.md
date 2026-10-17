@@ -1,77 +1,87 @@
-<h1 align="center">Aerosol Optical Depth Estimation</h1>
+<div align="center">
 
-<p align="center">
-  <b>Predicting AOD from 13-band Sentinel-2 imagery, with a VanillaNet backbone<br>
-  chosen because it can fold its own batch-norm away at inference.</b>
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0C1A3A,55:2B4A8C,100:93C5FD&height=220&section=header&text=Aerosol%20Optical%20Depth&fontSize=50&fontColor=EFF6FF&fontAlignY=34&desc=13-band%20Sentinel-2%20%E2%86%92%20AOD%2C%20with%20a%20re-parameterisable%20VanillaNet&descSize=17&descAlignY=57&animation=fadeIn" width="100%" alt="Aerosol Optical Depth Estimation"/>
 
-<p align="center">
-  <img alt="Rank" src="https://img.shields.io/badge/Solafune-45th_place-orange?style=flat-square">
-  <img alt="bands" src="https://img.shields.io/badge/Sentinel--2-13_bands-2ea44f?style=flat-square">
-  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch_+_timm-EE4C2C?style=flat-square&logo=pytorch&logoColor=white">
-  <img alt="rasterio" src="https://img.shields.io/badge/rasterio-GeoTIFF-8A2BE2?style=flat-square">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=93C5FD&center=true&vCenter=true&width=720&lines=%F0%9F%9B%B0%EF%B8%8F+All+13+Sentinel-2+bands%2C+not+RGB;%F0%9F%8C%AB%EF%B8%8F+Separate+the+haze+from+the+ground;%E2%9A%A1+BatchNorm+folded+away+at+inference;%F0%9F%8F%85+Solafune+%E2%80%94+45th+place" alt="typing summary"/>
 
----
+<br/>
 
-## The problem
+<img src="https://img.shields.io/badge/Solafune-45th_place-F97316?style=for-the-badge" alt="45th"/>
+<img src="https://img.shields.io/badge/Sentinel--2-13_bands-93C5FD?style=for-the-badge&labelColor=0C1A3A" alt="13 bands"/>
+<img src="https://img.shields.io/badge/VanillaNet--10-re--param-8A2BE2?style=for-the-badge" alt="VanillaNet"/>
+<img src="https://img.shields.io/badge/PyTorch_+_timm-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch"/>
 
-**Aerosol Optical Depth** measures how much sunlight the particles suspended in a column of
-atmosphere block. It is a direct handle on air quality, a major uncertainty in climate models, and
-one of the few atmospheric quantities that connects satellite data to public health.
+</div>
 
-It is measured accurately by **AERONET** — a global network of ground sun-photometers. There are a
-few hundred of them, on a planet. Everywhere else, AOD has to be inferred from satellite imagery.
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-That is hard for a reason specific to the physics: **the satellite sees the surface and the
-atmosphere superimposed**, and it is the *atmosphere* you want. A hazy image over bright desert and
-a clear image over dark forest can produce similar radiances. Separating the aerosol signal from the
-surface reflectance is the entire problem, and it is what makes multispectral input essential —
-different bands are sensitive to aerosols and to the ground in different proportions, so the
-separation lives in the *relationships between bands*, not in any single one.
+## 📌 Overview
 
-Built for the Solafune AOD competition. **45th place.**
+**Aerosol Optical Depth** — how much sunlight airborne particles block — is a direct handle on air
+quality and a major climate-model uncertainty. Ground truth comes from **AERONET**: a few hundred
+sun-photometers for the whole planet. Everywhere else, it has to be inferred from orbit.
 
-## What it does
+> 🌫️ **The physics problem:** the satellite sees surface and atmosphere **superimposed**. Hazy
+> desert and clear forest can look alike. The aerosol signal lives in the **relationships between
+> bands** — which is why all 13 matter.
+
+## 🧠 Model
 
 ```mermaid
-flowchart LR
-    S2["Sentinel-2 GeoTIFF<br/>13 bands · cloud-masked<br/>2016-01 → 2024-05"] --> RIO["rasterio<br/>reads all bands"]
-    RIO --> STEM["Custom stem<br/>Conv2d(13 → 512, k=4, s=3) + BN"]
-    STEM --> VN["VanillaNet-10 body<br/>series-informed activations<br/>progressive downsampling"]
-    VN --> HEAD["Conv2d(1000 → 100, 1×1) + BN<br/>Conv2d(100 → 1, 1×1)"]
-    HEAD --> OUT["scalar AOD"]
-    GT["AERONET ground truth"] -.->|regression target| OUT
+flowchart TD
+    S2["🛰️ Sentinel-2 GeoTIFF<br/>13 bands · 2016 → 2024"] --> RIO["rasterio<br/>all bands, full bit depth"]
+    RIO --> STEM["🧱 Custom stem<br/>Conv 13 → 512 · k4 s3 + BN"]
+    STEM --> VN["⚡ VanillaNet-10 body<br/>series-informed 7×7 activations"]
+    VN --> HEAD["1×1 conv 1000 → 100 → 1<br/>no flatten · any input size"]
+    HEAD --> OUT["🌫️ scalar AOD"]
+    GT["📡 AERONET ground truth"] -.->|"regression target"| OUT
+    style STEM fill:#2B4A8C,stroke:#93C5FD,color:#EFF6FF
+    style OUT fill:#93C5FD,stroke:#0C1A3A,color:#0C1A3A
 ```
 
----
+## ✨ Highlights
 
-## Novelty
+<table>
+<tr>
+<td width="50%" valign="top">
 
-### 1. VanillaNet — an architecture chosen for what it does *after* training
+### ⚡ Chosen for inference
+VanillaNet's activation is a conv **plus** BatchNorm in training; `switch_to_deploy()` folds the
+BN **into the weights** — identical output, one op instead of two.
 
-The interesting property of VanillaNet is not its accuracy, it is **structural
-re-parameterisation**. Its activation function is a learnable depthwise convolution followed by
-batch norm:
+</td>
+<td width="50%" valign="top">
 
-```python
-class activation(nn.ReLU):
-    def __init__(self, dim, act_num=3, deploy=False):
-        self.weight = nn.Parameter(torch.randn(dim, 1, act_num*2 + 1, act_num*2 + 1))
-        if not deploy:
-            self.bn = nn.BatchNorm2d(dim, eps=1e-6)
-```
+### 🛰️ A 13-band stem
+B1 exists *for* aerosol retrieval, B10 for cirrus — an RGB-shaped adaptation throws away exactly
+the two bands that matter most.
 
-At training time that is a conv **and** a batch-norm — two ops, extra parameters, extra memory
-traffic. At deployment, `switch_to_deploy()` folds the batch-norm's scale and shift **into the
-convolution weights**:
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 📐 Resolution-agnostic
+A fully convolutional head (1×1 convs, no `Linear`) — tiles of any extent work.
+
+</td>
+<td valign="top">
+
+### 🧪 Experiments, tracked
+`config.json` with seed, `experiment_number`, test cadence — plus ResNet-LSTM and VGG-LSTM
+branches kept as the record of a temporal hypothesis.
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary><b>🔬 BatchNorm folding</b></summary>
 
 ```python
 def _fuse_bn_tensor(self, weight, bn):
-    running_mean, running_var = bn.running_mean, bn.running_var
-    gamma, beta, eps = bn.weight, bn.bias, bn.eps
-    std = (running_var + eps).sqrt()
-    return weight * (gamma / std).reshape(-1, 1, 1, 1), beta - running_mean * gamma / std
+    std = (bn.running_var + bn.eps).sqrt()
+    return weight * (bn.weight / std).reshape(-1, 1, 1, 1), bn.bias - bn.running_mean * bn.weight / std
 
 def switch_to_deploy(self):
     kernel, bias = self._fuse_bn_tensor(self.weight, self.bn)
@@ -79,163 +89,85 @@ def switch_to_deploy(self):
     self.__delattr__('bn')
 ```
 
-Two layers become one, with **mathematically identical output** — batch-norm at inference is an
-affine transform, and an affine transform composed with a convolution is another convolution. Free
-speed, no accuracy cost, no approximation.
+BN at inference is an affine transform; an affine transform after a convolution is another
+convolution. Train once, run over every tile forever — the right shape for this workload.
 
-For an environmental-monitoring model this is the right thing to optimise for. Training happens
-once; inference runs over every Sentinel-2 tile, forever. A model that is expensive to train and
-cheap to run is exactly the shape this workload wants.
+</details>
 
-The "series-informed" activation is the other half: instead of a fixed pointwise ReLU, each channel
-learns a **7×7 spatial kernel** (`act_num=3` → `2·3+1`). The non-linearity has a receptive field.
-That is what lets VanillaNet stay shallow — it recovers expressiveness through wider activations
-rather than through depth, and shallow means fewer sequential kernel launches at inference.
+<details>
+<summary><b>🛰️ The bands</b></summary>
 
-### 2. The 13-band stem is the real modification
+| Band | Role |
+|---|---|
+| **B1** | coastal **aerosol** |
+| B2–B4 | visible |
+| B5–B7 | red edge |
+| B8 / B8A | near infrared |
+| B9 | water vapour |
+| **B10** | **cirrus** |
+| B11 / B12 | short-wave infrared |
 
-```python
-self.vanillanet[0] = nn.Sequential(
-    nn.Conv2d(13, 512, kernel_size=(4, 4), stride=(3, 3), padding=(1, 1)),
-    nn.BatchNorm2d(512, eps=1e-06, momentum=0.1, affine=True, track_running_stats=True)
-)
-```
+Read with `rasterio` at native 12-bit depth — PIL would quantise to 8-bit RGB and destroy the subtle
+inter-band differences the signal lives in.
 
-Every ImageNet backbone expects three channels. Sentinel-2 has **thirteen** — B1 coastal aerosol,
-B2–B4 visible, B5–B7 red edge, B8/B8A NIR, B9 water vapour, B10 cirrus, B11/B12 SWIR.
+</details>
 
-Replacing the stem rather than stacking bands into RGB triples is the correct move, and the
-retained bands matter enormously here: **B1 exists specifically for aerosol retrieval** and B10 for
-cirrus detection. Both would be discarded by any RGB-shaped adaptation, and they are the two most
-directly relevant to the target.
+## 🛠️ Tech stack
 
-The stem is deliberately wide (512 channels immediately) with an aggressive `stride=3`, so the
-network mixes all 13 bands in the first operation — the cross-band relationships that separate
-aerosol from surface get to exist from layer one — while cutting spatial resolution early to keep
-the wide stem affordable.
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,pytorch&theme=dark" alt="Python, PyTorch"/>
+  <img src="https://img.shields.io/badge/timm-VanillaNet-FFD21E?style=for-the-badge" alt="timm"/>
+  <img src="https://img.shields.io/badge/rasterio-GeoTIFF-8A2BE2?style=for-the-badge" alt="rasterio"/>
+  <img src="https://img.shields.io/badge/Sentinel--2-ESA-003399?style=for-the-badge" alt="Sentinel-2"/>
+</p>
 
-### 3. A fully convolutional regression head
-
-```python
-self.vanillanet[-1] = nn.Sequential(nn.Conv2d(1000, 100, kernel_size=(1,1)), nn.BatchNorm2d(100))
-self.conv1 = nn.Conv2d(100, 1, kernel_size=(1,1))
-...
-return x[:, 0, 0, 0]
-```
-
-The classification head is replaced with two 1×1 convolutions narrowing 1000 → 100 → 1, and the
-scalar is read out of the single remaining spatial cell. No flatten, no `Linear` — which means the
-network has **no fixed input-size requirement**, and satellite tiles that vary in extent still work.
-Combined with the adaptive pooling in the VanillaNet body, the model is resolution-agnostic by
-construction.
-
-### 4. Three architectures kept, not just the winner
-
-```
-model/vanillanet.py     the submitted model
-model/Resnetlstm.py     ResNet features → LSTM
-model/Vgglstm.py        VGG features → LSTM
-```
-
-The two LSTM variants are a genuinely different hypothesis — that AOD has a **temporal** structure
-worth modelling, since the dataset spans 2016 to 2024 and aerosol load is strongly seasonal. That
-turned out not to be the submitted approach, and keeping both in the repo is the honest record of
-an explored branch rather than a tidied-up history.
-
-### 5. `rasterio`, not PIL
-
-```python
-with rasterio.open(file_path) as fl:
-    image = fl.read()          # all 13 bands, native dtype, georeferenced
-```
-
-The right library for the job. `rasterio` reads multi-band GeoTIFF at full bit depth and preserves
-the geospatial metadata; PIL would silently reduce to 8-bit RGB and throw away ten bands and most
-of the dynamic range. Sentinel-2 reflectance is 12-bit — quantising it to 8 bits would destroy
-precisely the subtle inter-band differences the aerosol signal lives in.
-
-### 6. Configuration in JSON, separate from code
-
-```json
-{"model_configuration": {"learning_rate": 0.0001, "seed": 100, "batch_size": 16,
-                         "epochs": 200, "device": "cuda", "test_every": 5,
-                         "test_batch_size": 15},
- "meta_data": {"model_name": "Vanilla_net", "experiment_number": 4}}
-```
-
-An `experiment_number` field, a fixed `seed`, checkpoint and prediction paths, and a `test_every`
-cadence. This is experiment tracking built in from the start — a competition setting where you run
-dozens of variants is exactly where it pays, and `experiment_number: 4` is the evidence it was used.
-
-`main.py` is 34 lines: read config, build model, hand it to the `Trainer`. The trainer holds
-mixed-precision training, rotating checkpoints, periodic evaluation and optional experiment
-logging.
-
----
-
-## Repository layout
-
-```
-main.py                  entry point — reads config.json, builds, trains
-config.json              paths, hyperparameters, experiment number
-dataLoader.py            rasterio-backed Dataset, filename-ordered, CSV target mapping
-trainer/trainer.py       AMP training loop, rotating checkpoints, periodic test, logging
-model/
-  model_van.py           VanillaPred — 13-band stem + VanillaNet-10 + regression head
-  vanillanet.py          the VanillaNet implementation, with switch_to_deploy()
-  Resnetlstm.py          alternative: ResNet features → LSTM
-  Vgglstm.py             alternative: VGG features → LSTM
-  resnet/                supporting blocks, layers, models
-requirements.txt
-```
-
-## Running it
+## 🚀 Getting started
 
 ```bash
 git clone https://github.com/Vishal-AS-0407/Aerosol-Optical-Depth-Estimation.git
 cd Aerosol-Optical-Depth-Estimation
 pip install -r requirements.txt
+python main.py         # reads config.json → checkpoint/ and prediction/
 ```
 
-Lay the data out as `config.json` expects:
+> 💡 **Tip:** download the [competition data](https://solafune.com/competitions/ca6ee401-eba9-4f7d-95e6-d1b378a17200)
+> into `Data/train_images/`, `Data/test_images/` and `Data/train_answer.csv`.
 
 ```
-Data/train_images/     Sentinel-2 GeoTIFFs
-Data/train_answer.csv  ground-truth AOD (headerless; col 0 = filename, col 2 = value)
-Data/test_images/
+📦 Aerosol-Optical-Depth-Estimation
+ ┣ 🐍 main.py              read config → build → train
+ ┣ ⚙️ config.json          paths · hyperparameters · experiment number
+ ┣ 🐍 dataLoader.py        rasterio Dataset
+ ┣ 📂 trainer              AMP loop · checkpoints · periodic test
+ ┗ 📂 model
+   ┣ 🐍 model_van.py       13-band stem + VanillaNet-10 + head  ⭐
+   ┣ 🐍 vanillanet.py      with switch_to_deploy()
+   ┣ 🐍 Resnetlstm.py      temporal alternative
+   ┗ 🐍 Vgglstm.py         temporal alternative
 ```
 
-```bash
-python main.py
-```
+## 🧭 Notes & roadmap
 
-Checkpoints go to `checkpoint/`, predictions to `prediction/`.
+<details>
+<summary><b>Next steps</b></summary>
 
-[Competition and data](https://solafune.com/competitions/ca6ee401-eba9-4f7d-95e6-d1b378a17200)
+- 📏 Add RMSE / R² and a predicted-vs-true scatter coloured by land cover.
+- ⚡ Call `switch_to_deploy()` before saving the inference checkpoint.
+- 🎨 Per-band standardisation + flips/rotations (orientation is meaningless on satellite tiles).
+- 🧩 Commit `utils/utility.py` (`sort_filenames_by_number`) so the loader imports as cloned.
 
----
+</details>
 
-## Honest notes
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-- **No metrics are committed.** The final placement (45th) is the only performance figure. RMSE or
-  R² against the AERONET targets, and a scatter of predicted vs. true AOD, would say far more about
-  where the model actually fails — and for AOD the failure mode usually depends on surface type,
-  which a scatter coloured by land cover would show immediately.
-- **`switch_to_deploy()` is implemented but never called.** The whole architectural argument for
-  VanillaNet is the re-parameterisation, and the inference path in this repo does not use it. One
-  call over the model's modules before saving the deployment checkpoint would realise the benefit
-  the backbone was chosen for.
-- **`create_model('vanillanet_10')` is called without `pretrained=True`**, so the backbone starts
-  from random initialisation. Given a competition dataset and 200 epochs that may well be
-  deliberate — a 13-band stem cannot inherit RGB stem weights anyway — but the body could have.
-- **`assert loss.dtype is torch.float16`** in the training step will fail on CPU or with AMP
-  disabled. It documents the intent (this loop assumes mixed precision) at the cost of portability.
-- **No augmentation and no normalisation** in the dataset — raw reflectance goes straight in. The
-  stem's batch-norm absorbs the scale, but per-band standardisation would still likely help, and
-  flips/rotations are free on satellite imagery where orientation carries no meaning.
-- **`__pycache__/*.pyc` is committed.** Add `__pycache__/` to `.gitignore`.
-- **`utils/utility.py` is imported by `dataLoader.py` but not committed**, so the loader will not
-  import as cloned. It provides `sort_filenames_by_number`, which is a numeric filename sort —
-  small enough to reconstruct, but the repo does not run without it.
-- **`Data/` is not committed** (competition data), so the pipeline needs the dataset downloaded
-  first.
+<div align="center">
+
+<a href="https://portfolio-sigma-blond-57.vercel.app"><img src="https://img.shields.io/badge/Portfolio-0C1A3A?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"/></a>
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://github.com/Vishal-AS-0407"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
+
+⭐ **If this helped you, star the repo!**
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:93C5FD,45:2B4A8C,100:0C1A3A&height=110&section=footer" width="100%" alt="footer"/>
+
+</div>

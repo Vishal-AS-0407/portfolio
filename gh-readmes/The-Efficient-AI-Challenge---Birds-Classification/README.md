@@ -1,76 +1,92 @@
-<h1 align="center">The Efficient AI Challenge — Bird Classification</h1>
+<div align="center">
 
-<p align="center">
-  <b>Train a 66M-parameter teacher to be as accurate as possible.<br>
-  Then throw it away and ship a 1.3M-parameter student that learned from it.</b>
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1A2E05,55:4D6B12,100:FACC15&height=220&section=header&text=The%20Efficient%20AI%20Challenge&fontSize=46&fontColor=FEFCE8&fontAlignY=34&desc=200%20bird%20species%20%C2%B7%2066M%20teacher%20%E2%86%92%201.3M%20student&descSize=18&descAlignY=57&animation=fadeIn" width="100%" alt="The Efficient AI Challenge"/>
 
-<p align="center">
-  <img alt="Leaderboard" src="https://img.shields.io/badge/Kaggle-Leaderboard_%231-20BEFF?style=flat-square&logo=kaggle&logoColor=white">
-  <img alt="compression" src="https://img.shields.io/badge/compression-51×-2ea44f?style=flat-square">
-  <img alt="classes" src="https://img.shields.io/badge/CUB--200--2011-200_species-blue?style=flat-square">
-  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch_+_timm-EE4C2C?style=flat-square&logo=pytorch&logoColor=white">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=FACC15&center=true&vCenter=true&width=720&lines=%F0%9F%A5%87+Kaggle+leaderboard+%231;%F0%9F%90%A6+CUB-200+%C2%B7+~59+images+per+species;%F0%9F%A7%AA+Knowledge+distillation%2C+done+right;%F0%9F%93%A6+51%C3%97+fewer+parameters+shipped" alt="typing summary"/>
 
----
+<br/>
 
-## The problem
+<img src="https://img.shields.io/badge/🥇_Kaggle-Leaderboard_%231-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white" alt="Leaderboard #1"/>
+<img src="https://img.shields.io/badge/Compression-51×-FACC15?style=for-the-badge&labelColor=1A2E05" alt="51x"/>
+<img src="https://img.shields.io/badge/CUB--200--2011-200_species-4D6B12?style=for-the-badge" alt="CUB-200"/>
+<img src="https://img.shields.io/badge/PyTorch_+_timm-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch"/>
 
-The competition is called the *Efficient* AI Challenge, and that word changes everything. Accuracy
-alone is not the objective — the model has to be small and fast enough to run where a bird actually
-is: on a field device, a phone, a camera trap, an edge box with no GPU.
+</div>
 
-Fine-grained bird classification is a genuinely hard vision task. **200 species, 11,788 images** —
-roughly 59 images per class. The between-class differences are tiny (a wing bar, a bill shape, an
-eye-ring), the within-class variation is enormous (juvenile, breeding plumage, wing angle,
-occlusion, lighting). This is exactly the regime where a very large pretrained backbone wins,
-because the task needs subtle texture features that small networks cannot learn from 59 examples.
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-So the two requirements pull in opposite directions:
+## 📌 Overview
 
-- **Accuracy wants a large model.** EfficientNet-B7, 66M parameters.
-- **Efficiency wants a tiny one.** EdgeNeXt-XX-Small, 1.3M parameters.
+The word *Efficient* changes the objective: the model has to run where a bird actually is — a
+phone, a camera trap, an edge box. But fine-grained classification over **200 species with ~59
+images each** is exactly where big backbones win.
 
-Training the small model directly on 200 × 59 images does not work — it does not have the capacity
-to discover fine-grained features from that little data.
+| Requirement | Wants |
+|---|---|
+| 🎯 Accuracy | a large model — **EfficientNet-B7, 66M params** |
+| ⚡ Efficiency | a tiny one — **EdgeNeXt-XX-Small, 1.3M params** |
 
-## The answer: knowledge distillation
+The answer: **train the big one, then teach the small one.** The teacher is frozen and used only as
+a label generator; the student never sees its weights, only its opinions.
+
+## 🧠 Distillation
 
 ```mermaid
-flowchart LR
-    D["CUB-200-2011<br/>11,788 images · 200 species<br/>80/20 split"] --> T
-    T["Teacher<br/>EfficientNet-B7 · 66M params<br/>fine-tuned to the ceiling"]
-    T -->|"soft logits<br/>(frozen, eval mode)"| L
-    D --> S["Student<br/>EdgeNeXt-XX-Small · 1.3M params"]
+flowchart TD
+    D["🐦 CUB-200-2011<br/>11,788 images · 200 species"] --> T["👨‍🏫 Teacher · EfficientNet-B7<br/>66M · fine-tuned, then frozen"]
+    D --> S["👶 Student · EdgeNeXt-XX-Small<br/>1.3M"]
+    T -->|"soft logits"| L["⚖️ KL(soft)·T² + CE(hard)<br/>T = 3.0"]
     S -->|"student logits"| L
     D -->|"hard labels"| L
-    L["DistillationLoss<br/>KL(soft) · T² + CrossEntropy(hard)<br/>T = 3.0"]
-    L -->|backprop| S
-    S --> SUB["test.py → submission<br/>ship the 1.3M model"]
+    L -->|"backprop"| S
+    S --> SUB["📦 Ship the 1.3M model"]
+    style L fill:#4D6B12,stroke:#FACC15,color:#FEFCE8
+    style SUB fill:#FACC15,stroke:#1A2E05,color:#1A2E05
 ```
 
-The teacher is trained once, then **frozen and used only as a label generator**. The student never
-sees the teacher's weights — only its opinions.
+> 🌑 A one-hot label says *"Cerulean Warbler"*. The teacher says *"87% Cerulean, 9%
+> Black-throated Blue, 3% Northern Parula"* — **which species this one resembles**. On a
+> fine-grained task that similarity structure *is* the knowledge, and it's the only reason a 1.3M
+> model can learn 200 classes from 59 images each.
 
----
+## ✨ Highlights
 
-## Novelty
+<table>
+<tr>
+<td width="50%" valign="top">
 
-### 1. Soft targets carry the information hard labels destroy
+### ✅ A textbook-correct loss
+`log_softmax` on the student, `softmax` on the teacher, `batchmean` reduction, and the `T²`
+correction from Hinton et al. — the one most often left out.
 
-This is why distillation works, and it is worth being precise about.
+</td>
+<td width="50%" valign="top">
 
-A one-hot label says *"this is a Cerulean Warbler"* and nothing else. The teacher's softmax says
-*"87% Cerulean Warbler, 9% Black-throated Blue Warbler, 3% Northern Parula, 0.4% everything
-else"* — and that distribution encodes **which species this one resembles**. On a fine-grained task
-that similarity structure *is* the domain knowledge: it tells the student that warblers cluster
-together and that the Cerulean/Black-throated-Blue boundary is the hard one, which is knowledge it
-could never extract from 59 one-hot vectors.
+### 💾 Two models, one GPU
+Teacher in `eval()` + `no_grad` (no graph, frozen BN); student under AMP `autocast` +
+`GradScaler`.
 
-Geoffrey Hinton called these the "dark knowledge" in a trained network. Here they are the only
-reason a 1.3M-parameter model can learn a 200-way fine-grained task at all.
+</td>
+</tr>
+<tr>
+<td valign="top">
 
-### 2. The loss is textbook-correct, including the `T²`
+### 📉 A schedule that reacts
+`ReduceLROnPlateau(0.1, patience 5)` — distillation curves chase a moving target, so react, don't
+guess.
+
+</td>
+<td valign="top">
+
+### 🧠 A student built for the edge
+EdgeNeXt is a hybrid CNN–transformer — keeps some global attention for fine texture at mobile size.
+
+</td>
+</tr>
+</table>
+
+<details>
+<summary><b>🔬 The loss, line by line</b></summary>
 
 ```python
 soft_targets = torch.softmax(teacher_logits / self.temperature, dim=1)
@@ -80,153 +96,85 @@ classification_loss = nn.CrossEntropyLoss()(student_logits, targets)
 return distillation_loss + classification_loss
 ```
 
-Four details, all right:
+- Swapping `softmax`/`log_softmax` is the classic silent bug — loss still falls, student learns the
+  wrong thing.
+- `'mean'` instead of `'batchmean'` would shrink the gradient 200× here.
+- `T²` keeps the soft term's gradient comparable to CE when you change `T`.
 
-- **`log_softmax` on the student, `softmax` on the teacher.** PyTorch's `KLDivLoss` expects
-  log-probabilities for the input and probabilities for the target. Getting this backwards is the
-  single most common distillation bug and it fails silently — the loss still decreases, and the
-  student learns the wrong thing.
-- **`reduction='batchmean'`.** The mathematically correct KL reduction. The default `'mean'`
-  divides by `batch × classes` and gives you a gradient 200× too small here.
-- **The `T²` factor.** Dividing logits by `T` shrinks the gradients by roughly `1/T²`; multiplying
-  the loss back by `T²` keeps the distillation term's gradient magnitude comparable to the
-  cross-entropy term's, so changing the temperature does not silently change the effective
-  weighting between them. This is the correction from the original Hinton paper and it is very
-  frequently left out.
-- **Both terms, summed.** Soft targets teach the similarity structure; hard labels anchor the
-  student to the ground truth and stop it inheriting the teacher's mistakes wholesale.
+</details>
 
-**`temperature = 3.0`** is a sensible choice for a 200-class problem: high enough to lift the
-informative low-probability classes out of the floor, low enough that the distribution does not
-flatten into uniform noise.
+## 📊 Configuration
 
-### 3. The teacher runs under `no_grad`, the student under `autocast`
-
-```python
-with torch.no_grad():
-    teacher_logits = teacher_model(images)          # frozen — no graph, no memory
-
-with torch.amp.autocast('cuda'):
-    student_logits = student_model(images)
-    loss = criterion(student_logits, teacher_logits, labels)
-
-scaler.scale(loss).backward()
-```
-
-Holding a 66M-parameter EfficientNet-B7 and a student in GPU memory simultaneously is the practical
-constraint of distillation. Two things make it fit: the teacher is inside `no_grad` so no
-activation graph is retained for it, and it is in `eval()` mode so its batch-norm statistics are
-frozen rather than being polluted by the student's training batches.
-
-Mixed precision (`autocast` + `GradScaler`) applies to the student's forward and backward only,
-where it belongs.
-
-### 4. Every epoch is checkpointed
-
-```python
-torch.save(student_model.state_dict(), f'student_model{epoch}.pth')
-```
-
-100 epochs, 100 checkpoints, on a 1.3M-parameter model — a few megabytes each. Cheap insurance
-against a crash 80 epochs in, and it means the best epoch can be picked after the fact rather than
-relying on the last one.
-
-### 5. `ReduceLROnPlateau` rather than a fixed schedule
-
-```python
-ReduceLROnPlateau(optimizer, factor=0.1, patience=5, verbose=True)
-```
-
-Used for both teacher and student. Distillation loss curves are less predictable than plain
-supervised ones — the student chases a moving similarity structure — so a schedule that *reacts* to
-a plateau beats a cosine or step schedule guessed in advance. `factor=0.1` with `patience=5` is the
-standard aggressive-but-patient setting.
-
-### 6. 51× compression, and that is the actual deliverable
-
-| Model | Parameters | Role |
-|---|---:|---|
-| EfficientNet-B7 | **66M** | teacher — trained, then discarded |
-| EdgeNeXt-XX-Small | **1.3M** | student — the thing that ships |
-
-**51× fewer parameters.** EdgeNeXt is itself a good choice for the student: it is a hybrid
-CNN–transformer designed for edge inference, so it keeps some of the global attention that helps on
-fine-grained texture while staying mobile-sized. A 1.3M MobileNet would have less of the
-architectural capacity to absorb what the teacher knows.
-
-**Leaderboard #1** in the competition.
-
----
-
-## Repository layout
-
-```
-effb7.py              teacher — EfficientNet-B7 fine-tuning
-distill.py            student — EdgeNeXt-XX-Small distilled from the teacher
-test.py               inference + Kaggle submission file
-FINALSUBMISSION.ipynb  the submitted notebook
-requirements.txt
-```
-
-## Training configuration
-
-| | Teacher | Student |
+| | 👨‍🏫 Teacher | 👶 Student |
 |---|---|---|
-| Model | `efficientnet_b7` (timm) | `edgenext_xx_small` (timm) |
-| Input | 224×224, ImageNet normalisation | same |
-| Optimiser | AdamW, lr 1e-3 | Adam, lr 1e-3 |
-| Schedule | ReduceLROnPlateau (0.1, patience 5) | same |
-| Loss | CrossEntropy | KL·T² + CrossEntropy, T = 3.0 |
-| Precision | — | AMP (`autocast` + `GradScaler`) |
-| Epochs | — | 100 |
+| Model | `efficientnet_b7` | `edgenext_xx_small` |
+| Parameters | **66M** | **1.3M** |
+| Input | 224 × 224 | 224 × 224 |
+| Optimiser | AdamW 1e-3 | Adam 1e-3 |
+| Loss | CE | KL·T² + CE, T = 3 |
+| Precision | FP32 | AMP |
+| Epochs | — | 100 (each checkpointed) |
 
-## Running it
+## 🛠️ Tech stack
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,pytorch&theme=dark" alt="Python, PyTorch"/>
+  <img src="https://img.shields.io/badge/timm-models-FFD21E?style=for-the-badge" alt="timm"/>
+  <img src="https://img.shields.io/badge/Kaggle-20BEFF?style=for-the-badge&logo=kaggle&logoColor=white" alt="Kaggle"/>
+</p>
+
+## 🚀 Getting started
 
 ```bash
 git clone https://github.com/Vishal-AS-0407/The-Efficient-AI-Challenge---Birds-Classification.git
 cd The-Efficient-AI-Challenge---Birds-Classification
 pip install -r requirements.txt
+
+python effb7.py      # 1️⃣ train the teacher
+python distill.py    # 2️⃣ distil into the student → student_model{epoch}.pth
+python test.py       # 3️⃣ predictions + submission
 ```
 
-Put the [CUB-200-2011](http://www.vision.caltech.edu/datasets/cub_200_2011/) images in `images/`
-and `annotation2.csv` at the root, then:
+> 💡 **Tip:** put the [CUB-200-2011](http://www.vision.caltech.edu/datasets/cub_200_2011/) images
+> in `images/` with `annotation2.csv` at the root. Remove the hard-coded `E:/...` save line in
+> `distill.py` first. · [Competition](https://www.kaggle.com/competitions/bird-classification-anokha/data)
 
-```bash
-python effb7.py      # 1. train the teacher       → teacher checkpoint
-python distill.py    # 2. distil into the student → student_model{epoch}.pth
-python test.py       # 3. predictions + submission file
+```
+📦 The-Efficient-AI-Challenge---Birds-Classification
+ ┣ 🐍 effb7.py               teacher fine-tuning
+ ┣ 🐍 distill.py             student distillation
+ ┣ 🐍 test.py                inference + submission
+ ┗ 📓 FINALSUBMISSION.ipynb  the submitted notebook
 ```
 
-[Competition](https://www.kaggle.com/competitions/bird-classification-anokha/data) ·
-[Dataset](http://www.vision.caltech.edu/datasets/cub_200_2011/)
+## 🧭 Notes & roadmap
 
----
+<details>
+<summary><b>What would make the result complete</b></summary>
 
-## Honest notes
+- 📏 Teacher and student top-1 — and **the gap between them** — aren't recorded yet; that gap is
+  the whole argument.
+- 🧪 Add a validation loop (the 80/20 split isn't used in `distill.py`) to pick the best epoch.
+- 🎨 Fine-grained augmentation (random resized crop, flip, jitter, Mixup) would likely help both.
+- 🔍 224 px is well below B7's native 600 px — a deliberate efficiency trade.
 
-- **No accuracy figures are committed.** The performance table reports parameters and qualitative
-  inference speed, and the leaderboard position is the accuracy claim. The teacher's top-1, the
-  student's top-1, and — the number that would actually make the argument — **the gap between
-  them** are not recorded. That gap is the whole point of the exercise: it says how much of a 66M
-  model survives compression to 1.3M. It would take one evaluation pass to produce, and it is the
-  single most valuable thing missing.
-- **A hard-coded absolute path** in `distill.py`:
-  ```python
-  torch.save(student_model.state_dict(), f'E:/PROJECT/anokha/effi2/models/student_model{epoch}.pth')
-  ```
-  Immediately after a relative-path save of the same file. Will crash on any machine without an
-  `E:` drive. Delete the line.
-- **No validation loop.** Accuracy is printed on the *training* set each epoch, and there is no
-  held-out check, so the checkpoint to pick from the 100 saved has to be chosen by leaderboard
-  submission rather than by validation. The 80/20 split is described in the README but not used in
-  `distill.py`.
-- **`annotation2.csv` is not committed**, so the training scripts cannot run as cloned.
-- **No augmentation.** Just resize + normalise. On 59 images per class, standard fine-grained
-  augmentation — random resized crop, horizontal flip, colour jitter — would likely help both
-  models materially, and RandAugment or Mixup more so.
-- **224×224 for EfficientNet-B7** is well below its native 600×600 training resolution. That saves
-  a great deal of compute and costs accuracy on a fine-grained task where the discriminative
-  features are small. A deliberate trade, given the competition's efficiency framing, but worth
-  naming.
-- **`torch.cuda.amp.GradScaler()` and `torch.amp.autocast('cuda')`** mix the deprecated and current
-  APIs. Harmless; will warn on recent PyTorch.
+**Roadmap**
+- [ ] Report teacher vs student accuracy
+- [ ] Validation-based checkpoint selection
+- [ ] Augmentation ablation
+
+</details>
+
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
+
+<div align="center">
+
+<a href="https://portfolio-sigma-blond-57.vercel.app"><img src="https://img.shields.io/badge/Portfolio-1A2E05?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"/></a>
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://github.com/Vishal-AS-0407"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
+
+⭐ **If this helped you, star the repo!**
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:FACC15,45:4D6B12,100:1A2E05&height=110&section=footer" width="100%" alt="footer"/>
+
+</div>

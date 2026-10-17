@@ -1,57 +1,83 @@
-<h1 align="center">Hybrid Time-Series Framework</h1>
+<div align="center">
 
-<p align="center">
-  <b>FFT spectral features + ADMM sparse feature selection, in front of an LSTM —<br>
-  with both the FFT and the ADMM solver written from scratch, and an ablation to prove they help.</b>
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:0F172A,55:1E4E79,100:38BDF8&height=230&section=header&text=Hybrid%20Time-Series%20Framework&fontSize=46&fontColor=F0F9FF&fontAlignY=34&desc=FFT%20%2B%20ADMM%20feature%20engineering%20in%20front%20of%20an%20LSTM&descSize=18&descAlignY=57&animation=fadeIn" width="100%" alt="Hybrid Time-Series Framework"/>
 
-<p align="center">
-  <img alt="R2" src="https://img.shields.io/badge/R²-0.342_vs_0.076_baseline-2ea44f?style=flat-square">
-  <img alt="Python" src="https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white">
-  <img alt="TensorFlow" src="https://img.shields.io/badge/TensorFlow-Keras_LSTM-FF6F00?style=flat-square&logo=tensorflow&logoColor=white">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=38BDF8&center=true&vCenter=true&width=740&lines=%E3%80%B0%EF%B8%8F+Cooley%E2%80%93Tukey+FFT%2C+written+from+scratch;%F0%9F%8E%AF+LASSO+via+ADMM%2C+written+from+scratch;%F0%9F%93%88+R%C2%B2+0.342+vs+0.076+baseline+%E2%80%94+4.5%C3%97;%F0%9F%A7%AA+Same+LSTM%2C+two+inputs%3A+a+real+ablation" alt="typing summary"/>
 
----
+<br/>
 
-## The problem
+<img src="https://img.shields.io/badge/R²-0.342_vs_0.076-2EA44F?style=for-the-badge" alt="R2"/>
+<img src="https://img.shields.io/badge/FFT-hand--written-38BDF8?style=for-the-badge&labelColor=0F172A" alt="FFT"/>
+<img src="https://img.shields.io/badge/ADMM-hand--written-8A2BE2?style=for-the-badge" alt="ADMM"/>
+<img src="https://img.shields.io/badge/TensorFlow-Keras_LSTM-FF6F00?style=for-the-badge&logo=tensorflow&logoColor=white" alt="TensorFlow"/>
 
-Financial time series are the hard case for deep learning. The signal-to-noise ratio is terrible,
-the series is non-stationary, and an LSTM handed raw OHLC columns will happily learn the noise.
+</div>
 
-Two things are missing from the raw representation, and this project adds one each:
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-1. **Periodic structure is invisible in the time domain.** Weekly effects, quarterly cycles and
-   longer oscillations are real and an LSTM reading a sequence of prices has to discover them from
-   scratch, from very few examples. Handing the model the frequency decomposition directly is
-   cheaper than making it learn a Fourier transform.
-2. **Not every input column earns its place.** With correlated OHLC features, more inputs means more
-   parameters, more overfitting and no more information. Something has to decide which features
-   survive — and it should be a principled sparse selector, not intuition.
+<details>
+<summary><b>📑 Table of contents</b></summary>
 
-## What it does
+- [📌 Overview](#-overview)
+- [🧠 Pipeline](#-pipeline)
+- [📊 Ablation](#-ablation)
+- [🔬 The two algorithms](#-the-two-algorithms)
+- [🗂️ Data](#️-data)
+- [🚀 Getting started](#-getting-started)
+- [🧭 Evaluation notes & next steps](#-evaluation-notes--next-steps)
+
+</details>
+
+## 📌 Overview
+
+Financial series are the hard case for deep learning — low signal-to-noise, non-stationary, and an
+LSTM fed raw OHLC columns happily learns the noise. Two things are missing from the raw view:
+
+| Missing | Added |
+|---|---|
+| 〰️ **Periodic structure** — weekly, quarterly cycles are invisible in the time domain | **FFT features** (real + imaginary, so phase survives) |
+| 🧹 **Feature discipline** — correlated OHLC columns add parameters, not information | **ADMM LASSO** selects a sparse feature set |
+
+Both algorithms are **implemented from first principles** — no `np.fft`, no `sklearn.Lasso`.
+
+## 🧠 Pipeline
 
 ```mermaid
-flowchart LR
-    D["OHLC series<br/>2,873 days"] --> OUT["Z-score outlier removal<br/>|z| < 3"]
+flowchart TD
+    D["📈 OHLC series · 2,873 days"] --> OUT["Z-score outlier removal · |z| < 3"]
     OUT --> SC["StandardScaler"]
-    SC --> SPLIT["80/20 split"]
-    SPLIT --> FFT["recursive_fft<br/>hand-written Cooley–Tukey<br/>→ real + imaginary parts"]
-    SPLIT --> ADMM["admm_feature_selection<br/>hand-written LASSO via ADMM<br/>→ sparse feature mask"]
+    SC --> SPLIT["80 / 20 split"]
+    SPLIT --> FFT["〰️ recursive_fft<br/>Cooley–Tukey → real + imag"]
+    SPLIT --> ADMM["🎯 admm_feature_selection<br/>LASSO via ADMM → sparse mask"]
     FFT --> CAT["concat"]
     ADMM --> CAT
-    CAT --> LSTM["LSTM(250, relu) → Dense(1)<br/>Adam · MSE · 50 epochs · batch 32"]
-    LSTM --> EV["MSE · MAE · R² · wall time · memory"]
-    SPLIT -.->|"ablation: same LSTM,<br/>raw features"| BASE["baseline"]
+    CAT --> LSTM["🧠 LSTM(250) → Dense(1)<br/>Adam · MSE · 50 epochs"]
+    SPLIT -.->|"ablation: raw features"| BASE["🧠 same LSTM"]
+    LSTM --> EV["📊 MSE · MAE · R² · time · memory"]
     BASE --> EV
+    style FFT fill:#1E4E79,stroke:#38BDF8,color:#F0F9FF
+    style ADMM fill:#1E4E79,stroke:#38BDF8,color:#F0F9FF
+    style EV fill:#38BDF8,stroke:#0F172A,color:#0F172A
 ```
 
----
+## 📊 Ablation
 
-## Novelty
+The **same LSTM**, trained twice:
 
-### 1. A Cooley–Tukey FFT written from first principles
+| Metric | 〰️ FFT + ADMM | Baseline |
+|---|:---:|:---:|
+| MSE | **347,210** | 487,391 |
+| MAE | **441.86** | 590.68 |
+| **R²** | **0.342** | 0.076 |
+| Input shape | (2298, 1, 7) | (2298, 1, 5) |
 
-Not `np.fft.fft` — the radix-2 decimation-in-time recursion, implemented:
+> 📈 **R² improves 4.5×.** Wall-clock time and memory are measured and plotted too, so the cost of
+> the preprocessing is visible alongside the gain.
+
+## 🔬 The two algorithms
+
+<details open>
+<summary><b>〰️ Cooley–Tukey FFT</b></summary>
 
 ```python
 def recursive_fft(x):
@@ -65,18 +91,14 @@ def recursive_fft(x):
                            X_even + factor[n // 2:] * X_odd])
 ```
 
-The last line is the butterfly, and it is worth reading twice. The textbook form is
-`[E + f·O, E − f·O]`; this uses `factor[n//2:]` for the second half instead of negating. Those are
-the same thing, because `e^{-2πi(k+n/2)/n} = −e^{-2πik/n}` — the twiddle factor's own symmetry does
-the negation. It is a correct and slightly elegant way to write it.
+The butterfly uses `factor[n//2:]` instead of negating — identical, because
+`e^{-2πi(k+n/2)/n} = −e^{-2πik/n}`. Input is padded with `1 << (n - 1).bit_length()`, and real and
+imaginary parts are kept as separate columns: **phase carries when a cycle peaks**.
 
-The wrapper pads to the next power of two with a bit trick — `1 << (n - 1).bit_length()` — which
-radix-2 requires, then keeps the real and imaginary parts as two separate feature columns rather
-than a magnitude. That is the right call: **phase carries the alignment information** that
-magnitude throws away, and for a series where *when* a cycle peaks matters, discarding phase
-discards half the signal.
+</details>
 
-### 2. LASSO by ADMM, also from scratch
+<details open>
+<summary><b>🎯 LASSO via ADMM</b></summary>
 
 ```python
 def admm_feature_selection(X, y, rho=1.0, max_iter=100):
@@ -88,62 +110,29 @@ def admm_feature_selection(X, y, rho=1.0, max_iter=100):
     return np.abs(z) > 0
 ```
 
-This is a textbook-correct Alternating Direction Method of Multipliers for the LASSO, and all three
-steps are doing exactly what they should:
+| Step | Does |
+|---|---|
+| **β-update** | ridge-regularised least squares — `+ρI` keeps collinear OHLC invertible |
+| **z-update** | soft thresholding, the L1 proximal operator — produces the zeros |
+| **u-update** | scaled dual ascent — drives β and z into agreement |
 
-- **β-update** — a ridge-regularised least-squares solve. The `+ ρI` is what makes `XᵀX` invertible
-  even when features are collinear, which OHLC columns very much are.
-- **z-update** — soft thresholding, `sign(x)·max(0, |x| − λ)`. This is the proximal operator of the
-  L1 norm, and it is the step that actually produces zeros.
-- **u-update** — dual ascent on the scaled dual variable, driving β and z into agreement.
+</details>
 
-The split is the whole point of ADMM: the smooth part (least squares) and the non-smooth part (L1)
-are handled by separate updates, each of which has a closed form. Writing it out rather than
-calling `sklearn.linear_model.Lasso` demonstrates the machinery rather than the API.
+## 🗂️ Data
 
-`np.abs(z) > 0` then reads the selected feature mask straight off the sparse variable.
+`Data Set.csv` — **2,873 trading days** of Bajaj Auto (NSE) from 26 May 2008:
+`High · Prev Close · Open · Low · Close · Last · VWAP · Date`. Target is `High`, removed from the
+features.
 
-### 3. A real ablation, measured on four axes
+## 🛠️ Tech stack
 
-The notebook trains **the same LSTM twice** — once on FFT + ADMM features, once on the raw scaled
-columns — and compares:
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,tensorflow,sklearn&theme=dark" alt="Python, TensorFlow, scikit-learn"/>
+  <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white" alt="NumPy"/>
+  <img src="https://img.shields.io/badge/Jupyter-F37626?style=for-the-badge&logo=jupyter&logoColor=white" alt="Jupyter"/>
+</p>
 
-| | With FFT + ADMM | Baseline |
-|---|---:|---:|
-| MSE | **347,210** | 487,391 |
-| MAE | **441.86** | 590.68 |
-| **R²** | **0.342** | 0.076 |
-| Input shape | (2298, 1, 7) | (2298, 1, 5) |
-
-**R² improves 4.5×.** Both wall-clock time and memory footprint are also recorded and plotted, so
-the cost side of the trade is visible too — which is unusual and good, since a preprocessing step
-that quadruples training time for a marginal gain is not obviously worth it, and here you can see
-that it is.
-
-Running the ablation at all is the thing most projects skip. A single number for a hybrid model
-tells you nothing; the delta against the same architecture on raw features tells you everything.
-
----
-
-## Data
-
-`Data Set.csv` — **2,873 trading days** of Bajaj Auto (NSE), from 26 May 2008.
-
-`High` · `Prev Close` · `Open` · `Low` · `Close` · `Last` · `VWAP` · `Date`
-
-Target is `High`; it is removed from the feature matrix (`column_to_remove = 0`) so the model
-cannot read its own answer.
-
-## Repository layout
-
-```
-Code.ipynb      the whole pipeline: preprocessing, FFT, ADMM, both LSTMs, the ablation, the plots
-Data Set.csv    2,873 rows of OHLC
-Report.docx     the written report
-PPT.pptx        the presentation
-```
-
-## Running it
+## 🚀 Getting started
 
 ```bash
 git clone https://github.com/Vishal-AS-0407/Hybrid-Time-Series-FrameWork.git
@@ -152,53 +141,41 @@ pip install pandas numpy scipy scikit-learn tensorflow matplotlib
 jupyter notebook Code.ipynb
 ```
 
-The first cell reads `BAJAJ-AUTO1.csv`; the committed file is `Data Set.csv`. Rename one or the
-other.
+> 💡 **Tip:** the first cell reads `BAJAJ-AUTO1.csv` — point it at `Data Set.csv`. The written
+> `Report.docx` and `PPT.pptx` are in the repo too.
 
----
+## 🧭 Evaluation notes & next steps
 
-## Honest notes
+<details>
+<summary><b>What I'd change to make the numbers forecast-grade</b></summary>
 
-These are worth stating plainly, because the two hand-written algorithms are genuinely good work
-and the evaluation around them has problems that would need fixing before the numbers meant
-anything outside the notebook.
+The two hand-written algorithms are correct; the evaluation around them needs tightening:
 
-- **The train/test split is random, on a time series.**
+- 🔀 The split is random on a time series — use `shuffle=False` or a chronological cut.
+- 📏 The scaler is fit before the split — fit on train only.
+- 〰️ The FFT runs across shuffled rows — **window the series** (e.g. 30 days) and FFT within each
+  window for a true spectral view of each sample's past.
+- 📅 Same-day `Low/Close/VWAP` predict same-day `High` — predict `High[t+1]` instead.
+- 📐 Scale the target too, and expose λ in ADMM to plot the sparsity/accuracy trade-off.
 
-  ```python
-  train_test_split(X, y, test_size=0.2, random_state=42)     # shuffle=True by default
-  ```
+**Next steps**
+- [ ] Sliding-window FFT features
+- [ ] Chronological split + next-day target
+- [ ] λ sweep for ADMM
 
-  This puts days from 2019 in the training set and days from 2012 in the test set. For a
-  *forecasting* task that is look-ahead leakage and it inflates both scores. The fix is one
-  argument — `shuffle=False` — or better, a chronological cut. Expect both R² values to fall.
+</details>
 
-- **Scaling is fitted before the split.** `scaler.fit_transform` runs over the whole frame, so test
-  statistics leak into the training representation. `fit` on train, `transform` on test.
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-- **The FFT is taken across samples, not across time within a sample.**
-  `compute_fft_features(X_train[:, 0])` transforms one column of the *shuffled* training matrix.
-  After a random shuffle the row order is a permutation, so the resulting "frequency" content is
-  not the series' frequency content. Combined with the point above, this is the single change that
-  would most improve the work: **window the series first** (a sliding window of, say, 30 days),
-  FFT *within* each window, and give the LSTM a genuine spectral view of each sample's recent past.
-  The `recursive_fft` implementation is correct and ready; only what it is applied to needs to
-  change.
+<div align="center">
 
-- **Same-day columns are in the feature set.** `Low`, `Close` and `VWAP` for day *t* are used to
-  predict `High` for day *t*. That is not forecasting, it is same-bar interpolation — and it makes
-  R² = 0.34 oddly *low* rather than suspiciously high, which suggests the FFT columns are adding
-  noise that the model is fighting. Predicting `High[t+1]` from day *t* would make the task honest
-  and the number meaningful.
+<a href="https://portfolio-sigma-blond-57.vercel.app"><img src="https://img.shields.io/badge/Portfolio-0F172A?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"/></a>
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://github.com/Vishal-AS-0407"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
+<a href="mailto:vishalpersonal04@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/></a>
 
-- **`y` is unscaled while `X` is scaled.** The target is in raw rupees (hundreds), the inputs are
-  z-scores. The MSE of ~347,000 is in rupees², which is why it looks enormous. Scaling the target
-  (and inverse-transforming for reporting) would help the optimiser and make the loss readable.
+⭐ **If this helped you, star the repo!**
 
-- **ADMM's `soft_thresholding(beta + u, 1 / rho)`** uses `λ = 1` implicitly. Exposing λ as a
-  parameter and sweeping it would show the sparsity/accuracy trade-off, which is the interesting
-  plot the ablation is missing.
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:38BDF8,45:1E4E79,100:0F172A&height=120&section=footer" width="100%" alt="footer"/>
 
-- **`space_complexity` is measured with `sys.getsizeof`** on the arrays, which returns the
-  container size rather than the model's memory footprint. `nbytes` on the arrays plus the model's
-  parameter count would be closer to the intended measurement.
+</div>

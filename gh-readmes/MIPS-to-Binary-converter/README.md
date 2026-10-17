@@ -1,65 +1,63 @@
-<h1 align="center">MIPS to Binary Converter</h1>
+<div align="center">
 
-<p align="center">
-  <b>A teaching assembler: type a MIPS instruction, get its machine encoding —<br>
-  or get told exactly what is wrong with it and what the correct form looks like.</b>
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1E1E1E,55:7C3A10,100:F97316&height=220&section=header&text=MIPS%20%E2%86%92%20Binary&fontSize=60&fontColor=FFF7ED&fontAlignY=34&desc=A%20teaching%20assembler%20that%20explains%20its%20errors&descSize=19&descAlignY=57&animation=fadeIn" width="100%" alt="MIPS to Binary Converter"/>
 
-<p align="center">
-  <img alt="Python" src="https://img.shields.io/badge/Python-3.x-3776AB?style=flat-square&logo=python&logoColor=white">
-  <img alt="deps" src="https://img.shields.io/badge/dependencies-none-2ea44f?style=flat-square">
-  <img alt="instructions" src="https://img.shields.io/badge/instructions-30+-blue?style=flat-square">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2600&pause=900&color=F97316&center=true&vCenter=true&width=720&lines=add+%24t0%2C+%24t1%2C+%24t2;000000+01001+01010+01000+00000+100000;R-type+%C2%B7+I-type+%C2%B7+J-type+%E2%80%94+30%2B+instructions" alt="typing summary"/>
 
----
+<br/>
 
-## What it is
+<img src="https://img.shields.io/badge/Python-3.x-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
+<img src="https://img.shields.io/badge/Dependencies-none-2EA44F?style=for-the-badge" alt="no deps"/>
+<img src="https://img.shields.io/badge/Instructions-30+-F97316?style=for-the-badge&labelColor=1E1E1E" alt="30+"/>
 
-MIPS is the instruction set most computer-architecture courses teach on, because its encoding is
-regular enough to work out by hand. "Regular enough" still means memorising three instruction
-formats, thirty-two register names and aliases, and which opcode goes where.
+</div>
 
-This is an interactive assembler built for that moment. You type:
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-```
-add $t0, $t1, $t2
-```
+## 📌 What it is
 
-and it prints the fields of the machine word — opcode, `rs`, `rt`, `rd`, shift amount, function
-code — laid out separately so you can see the *structure* of the encoding rather than a 32-bit
+MIPS is what architecture courses teach on because its encoding is regular enough to work out by
+hand — which still means memorising three formats, 32 registers and their aliases, and every
+opcode. Type an instruction, and this prints the **fields of the machine word separately** —
+opcode, `rs`, `rt`, `rd`, shift, function — so you see the encoding's *structure*, not a 32-bit
 blob.
 
-## The design idea worth keeping
+<div align="center">
+<img src="https://github.com/user-attachments/assets/f1a07530-a1ef-4a2e-a678-9e5bbc9d6e7e" alt="Sample output" width="75%"/>
+</div>
 
-**Every error message names the instruction and shows the correct format.**
+## 🧠 How an instruction becomes bits
 
-```python
-print("Invalid number of operands for 'and' instruction. Expected format: and $rd, $rs, $rt")
-print("The register should start with '$' sign.")
-print("Invalid register '{}'. Please use one of the MIPS registers.".format(r))
+```mermaid
+flowchart TD
+    IN["⌨️ add $t0, $t1, $t2"] --> P["Parse mnemonic + operands"]
+    P --> V{"✅ Valid?<br/>operand count · $ prefix · register name"}
+    V -->|no| E["💬 Named error + correct format<br/>'Expected format: add $rd, $rs, $rt'"]
+    V -->|yes| F{"Format"}
+    F --> R["R-type<br/>op · rs · rt · rd · sa · fn"]
+    F --> I["I-type<br/>op · rs · rt · imm"]
+    F --> J["J-type<br/>op · address"]
+    R & I & J --> OUT["🔢 Machine word, field by field"]
+    style E fill:#7C3A10,stroke:#F97316,color:#FFF7ED
+    style OUT fill:#F97316,stroke:#1E1E1E,color:#1E1E1E
 ```
 
-Thirty-odd instructions, each with its own operand-count check and its own worked example in the
-failure path. For a learning tool this is the entire value proposition — a bare *"syntax error"*
-teaches nothing, while *"Expected format: `lw $rt, offset($rs)`"* teaches the format the moment it
-is needed. The register validator lists all 32 names and rejects anything outside them, so a typo
-like `$t10` is caught with an explanation rather than silently mis-encoded.
+> 💬 **The idea worth keeping:** every error names the instruction and shows the correct form. A
+> bare *"syntax error"* teaches nothing; *"Expected format: `lw $rt, offset($rs)`"* teaches it the
+> moment it's needed. `$t10` is caught with an explanation, not silently mis-encoded.
 
-## What it covers
+## 📋 Coverage
 
 | Format | Instructions |
 |---|---|
-| **R-type** | `add` `addu` `sub` `subu` `and` `or` `xor` `nor` `slt` `sltu` `sll` `srl` `sra` `sllv` `srlv` `srav` `mult` `multu` `div` `divu` `mfhi` `mflo` `jr` `jalr` |
-| **I-type** | `addi` `subi` `slti` `li` `lw` `sw` `beq` `bne` `bgt` `bge` `blt` `ble` |
-| **J-type** | `j` `jlar` |
+| 🟧 **R-type** | `add` `addu` `sub` `subu` `and` `or` `xor` `nor` `slt` `sltu` `sll` `srl` `sra` `sllv` `srlv` `srav` `mult` `multu` `div` `divu` `mfhi` `mflo` `jr` `jalr` |
+| 🟦 **I-type** | `addi` `subi` `slti` `li` `lw` `sw` `beq` `bne` `bgt` `bge` `blt` `ble` |
+| 🟩 **J-type** | `j` `jlar` |
 
-Immediates are parsed in decimal, hex (`0x…`) and binary (`0b…`). Labels resolve through a small
-symbol table (`loop → 0x100`, `start → 0x200`).
+Immediates in decimal, hex (`0x…`) or binary (`0b…`); all 32 registers by name — `$zero`, `$at`,
+`$v0–1`, `$a0–3`, `$t0–9`, `$s0–7`, `$k0–1`, `$gp`, `$sp`, `$fp`, `$ra`.
 
-The full register file is mapped by name: `$zero`, `$at`, `$v0–$v1`, `$a0–$a3`, `$t0–$t9`,
-`$s0–$s7`, `$k0–$k1`, `$gp`, `$sp`, `$fp`, `$ra`.
-
-## Running it
+## 🚀 Getting started
 
 ```bash
 git clone https://github.com/Vishal-AS-0407/MIPS-to-Binary-converter.git
@@ -67,117 +65,45 @@ cd MIPS-to-Binary-converter
 python main.py
 ```
 
-```
-Enter your MIPS instruction:
-add $t0, $t1, $t2
-Do you want to enter another instruction? (yes/no): no
-Thanks!
-```
+> 💡 **Tip:** mnemonics are lowercase, as in most assemblers.
 
-Instructions must be lowercase — the input check is deliberate, since MIPS mnemonics are
-case-sensitive in most assemblers.
+## 🧭 Known issues & roadmap
 
----
+<details>
+<summary><b>Fixes, in order of impact</b></summary>
 
-## Known issues, with fixes
-
-The structure is sound and the opcode/function tables are largely right. These are the things that
-stop it doing what the README promises, in rough order of impact.
-
-### 1. Registers print in decimal, not binary
-
-This is the one that matters, because it is the program's whole purpose:
+| # | Issue | Fix |
+|:---:|---|---|
+| 1 | Register fields print in **decimal** (`{:05d}`) | `{:05b}` in `rType`, `iType`, `iTypeLabel` |
+| 2 | `lw`/`sw` call `parseLwSwOffset` (undefined) | rename to `check_Offset` and split on `(` before `int()` |
+| 3 | `sll`/`srl`/`sra` pass `"00000"` as a register | a shift variant validating only `rd`, `rt` |
+| 4 | `j` prints the label, not an address | look it up like the branches do |
+| 5 | `subi`, `li`, `blt`… are pseudo-ops with invented opcodes | expand them (`addi` with −imm, `lui`+`ori`, `slt`+`beq`) |
+| 6 | Duplicate `and` / `sub` / `jr` branches | a dispatch dict — halves `main.py` |
 
 ```python
-print("000000 {:05d} {:05d} {:05d} {} {}".format(registerNumber(rs), registerNumber(rt), ...))
+def check_Offset(operand):                    # "8($t1)" or "-4($sp)"
+    i = operand.index("(")
+    return int(operand[:i]), operand[i + 1: operand.index(")")]
 ```
 
-`{:05d}` zero-pads a **decimal** number to five characters. For `add $t0, $t1, $t2` that gives:
+**Roadmap**
+- [ ] Binary field output
+- [ ] Two-pass assembler over a whole `.asm` file
+- [ ] `if __name__ == "__main__":` guard
 
-```
-000000 00009 00010 00008 00000 100000        ← what it prints
-000000 01001 01010 01000 00000 100000        ← what the README shows, and what is correct
-```
+</details>
 
-The fix is one character in three places — `{:05d}` → `{:05b}` in `rType`, `iType` and
-`iTypeLabel`.
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-### 2. `lw` and `sw` call a function that does not exist
+<div align="center">
 
-```python
-offset, base = parseLwSwOffset(data[1])       # NameError
-```
+<a href="https://portfolio-sigma-blond-57.vercel.app"><img src="https://img.shields.io/badge/Portfolio-1E1E1E?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"/></a>
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://github.com/Vishal-AS-0407"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
 
-The function is defined as `check_Offset`. Renaming it fixes the crash — but it will then still
-return `(None, None)`, because it tries `int("8($t1)")` before extracting the parenthesised part.
-The parse needs to split first:
+⭐ **If this helped you, star the repo!**
 
-```python
-def check_Offset(operand):                    # "8($t1)"  or  "-4($sp)"
-    try:
-        i = operand.index("(")
-        offset = int(operand[:i])
-        base   = operand[i + 1: operand.index(")")]
-        return offset, base
-    except (ValueError, IndexError):
-        return None, None
-```
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:F97316,45:7C3A10,100:1E1E1E&height=110&section=footer" width="100%" alt="footer"/>
 
-### 3. `sll`, `srl` and `sra` reject their own shift amount
-
-```python
-rType(data[0], "00000", data[1], data[2], "000000")
-```
-
-`rType`'s signature is `(rd, rs, rt, sa, fn)`, and it validates all three of `rd`, `rs`, `rt` with
-`register_dollar_check`. The literal `"00000"` passed as `rs` fails that check immediately, so the
-shift instructions always return early. They need a variant that validates only `rd` and `rt` and
-formats `sa` as a 5-bit binary field.
-
-### 4. `jType` prints the label instead of an address
-
-```python
-def jType(opc, label):
-    print("{} {}".format(opc, label))
-```
-
-`j loop` prints `000010 loop`. It should look the label up in the symbol table and emit the 26-bit
-word address — the same `parseLabel` the branch instructions already use.
-
-### 5. Some opcodes are not the instructions they claim to be
-
-- **`subi`** is not a real MIPS instruction. `001001` is `addiu`. (Assemblers implement `subi` as
-  `addi` with a negated immediate.)
-- **`li`** is a pseudo-instruction; `001111` is `lui`. Real `li` expands to `lui` + `ori`, or to a
-  single `addiu $rt, $zero, imm` for small values.
-- **`blt`, `ble`, `bgt`, `bge`** are pseudo-instructions too. They are given `beq`/`bne`/`bgtz`/
-  `blez` opcodes here, which will not do what the mnemonic says. Real MIPS expands them to
-  `slt` + `beq`/`bne`.
-
-Not wrong for a teaching tool — assemblers *do* accept all of these — but they should be expanded
-rather than given invented encodings, and it is worth a note in the output that they are pseudo-ops.
-
-### 6. Duplicate branches
-
-`and`, `sub` and `jr` each appear twice in the `if/elif` chain. The second copy is unreachable.
-Harmless, and a sign that the chain has outgrown its shape: a dispatch dictionary would make the
-duplication impossible.
-
-```python
-R_TYPE = {"add": "100000", "addu": "100001", "sub": "100010", ...}
-if op in R_TYPE:
-    rType(*data, "00000", R_TYPE[op])
-```
-
-That single change would cut `main.py` by more than half and remove an entire class of bug.
-
-### 7. Smaller things
-
-- **`main()` is called at module level**, so `import main` runs the interactive loop. Guard it with
-  `if __name__ == "__main__":`.
-- **The symbol table is hard-coded** to two labels. Reading a whole `.asm` file and building the
-  label table in a first pass — a real two-pass assembler — is the natural next version, and this
-  code is already most of the way to it.
-- **`registerNumber` will raise `KeyError`** if reached with an unvalidated register. In practice
-  `register_dollar_check` runs first everywhere, but `.get(r)` with an explicit error would be
-  safer.
+</div>

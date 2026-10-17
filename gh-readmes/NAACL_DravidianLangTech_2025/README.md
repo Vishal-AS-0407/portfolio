@@ -1,33 +1,58 @@
-<h1 align="center">Synapse @ DravidianLangTech, NAACL 2025</h1>
+<div align="center">
 
-<p align="center">
-  <b>Multiclass political sentiment analysis of Tamil X (Twitter) comments,<br>
-  by fusing IndicBERTv2 with lexical representations.</b>
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1C1206,55:7A4A10,100:E9B23C&height=230&section=header&text=Synapse%20%40%20NAACL%202025&fontSize=48&fontColor=FFF7E6&fontAlignY=36&desc=Tamil%20political%20sentiment%20%C2%B7%20IndicBERTv2%20%2B%20lexical%20fusion&descSize=17&descAlignY=57&animation=fadeIn" width="100%" alt="Synapse @ NAACL 2025"/>
 
-<p align="center">
-  <img alt="Rank 1" src="https://img.shields.io/badge/Shared_Task-Rank_1_of_25-gold?style=flat-square">
-  <img alt="macro-F1" src="https://img.shields.io/badge/macro--F1-0.3773-2ea44f?style=flat-square">
-  <a href="https://doi.org/10.18653/v1/2025.dravidianlangtech-1.122"><img alt="ACL Anthology" src="https://img.shields.io/badge/NAACL_2025-DravidianLangTech-b31b1b?style=flat-square"></a>
-  <img alt="Python" src="https://img.shields.io/badge/Python-3.8+-3776AB?style=flat-square&logo=python&logoColor=white">
-  <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-EE4C2C?style=flat-square&logo=pytorch&logoColor=white">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=E9B23C&center=true&vCenter=true&width=720&lines=%F0%9F%A5%87+Rank+1+of+25+teams+%E2%80%94+DravidianLangTech;%F0%9F%93%88+Macro-F1+0.3773+on+7+overlapping+classes;%F0%9F%94%8E+An+agent+that+googles+every+hashtag;%F0%9F%A7%AC+Dense+%2B+sparse%2C+fused+on+purpose" alt="typing summary"/>
 
----
+<br/>
 
-## The problem
+<img src="https://img.shields.io/badge/🥇_Rank-1_of_25-E9B23C?style=for-the-badge&labelColor=1C1206" alt="Rank 1"/>
+<img src="https://img.shields.io/badge/Macro--F1-0.3773-2EA44F?style=for-the-badge" alt="macro-F1"/>
+<a href="https://doi.org/10.18653/v1/2025.dravidianlangtech-1.122"><img src="https://img.shields.io/badge/ACL_Anthology-NAACL_2025-B31B1B?style=for-the-badge" alt="ACL Anthology"/></a>
+<img src="https://img.shields.io/badge/🤗_IndicBERTv2-Back--TLM-FFD21E?style=for-the-badge" alt="IndicBERTv2"/>
+<a href="https://portfolio-sigma-blond-57.vercel.app/work/dravidian-sentiment"><img src="https://img.shields.io/badge/Case_study-Muzhakkam-1C1206?style=for-the-badge&labelColor=E9B23C" alt="case study"/></a>
 
-The shared task asks for one label out of seven — **Substantiated, Sarcastic, Opinionated,
-Positive, Negative, Neutral, None of the above** — on political comments from Tamil X. Every part
-of that sentence is harder than it sounds.
+</div>
 
-**The classes overlap by construction.** A sarcastic comment is also opinionated. A substantiated
-one is usually also positive or negative about something. The boundary between *Opinionated* and
-*Neutral* is a judgement call even for a fluent annotator. This is why a macro-F1 of 0.38 wins a
-shared task here, where the same number would be a failure on a sentiment benchmark with three
-clean classes.
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-**The label set is severely imbalanced.** From the 4,352 training rows:
+<details>
+<summary><b>📑 Table of contents</b></summary>
+
+- [📌 Overview](#-overview)
+- [🧩 Why it's hard](#-why-its-hard)
+- [✨ Highlights](#-highlights)
+- [🧠 Architecture](#-architecture)
+- [🏆 Results](#-results)
+- [🔬 Under the hood](#-under-the-hood)
+- [🚀 Getting started](#-getting-started)
+- [📂 Project structure](#-project-structure)
+- [📄 Citation](#-citation)
+- [🧭 Honest notes](#-honest-notes)
+
+</details>
+
+## 📌 Overview
+
+The **DravidianLangTech @ NAACL 2025** shared task: give one of seven labels — *Substantiated,
+Sarcastic, Opinionated, Positive, Negative, Neutral, None of the above* — to political comments
+from Tamil X (Twitter).
+
+Team **Synapse** fused **IndicBERTv2** embeddings with a deliberately narrow **TF-IDF** channel,
+and used a **retrieval-augmented agent** to turn opaque hashtags into readable phrases.
+It placed **first of 25 submitting teams** (139 registered).
+
+## 🧩 Why it's hard
+
+| Challenge | What it means in practice |
+|---|---|
+| 🔀 **Classes overlap** | A sarcastic comment is also opinionated — so 0.38 macro-F1 *wins* here |
+| ⚖️ **Severe imbalance** | 1,361 *Opinionated* vs 171 *None of the above* — **8× gap**, equal weight in macro-F1 |
+| 🌐 **Low-resource, code-mixed** | Tamil and English switch mid-sentence; rare political words get shredded |
+| #️⃣ **Hashtags carry the politics** | `#DMKFailsTN` is a full position — to a tokenizer it's `##MKF` `##ails` |
+
+<details>
+<summary><b>📊 Full label distribution (4,352 training rows)</b></summary>
 
 | Label | Count | Share |
 |---|---:|---:|
@@ -39,73 +64,114 @@ clean classes.
 | Negative | 406 | 9.3% |
 | None of the above | 171 | **3.9%** |
 
-The rarest class has **eight times fewer examples** than the most common one. Macro-F1 weights all
-seven equally, so the 171 rows matter exactly as much as the 1,361.
+</details>
 
-**Tamil is low-resource and the text is code-mixed.** Comments switch between Tamil and English
-mid-sentence. Multilingual subword tokenizers shred rare political vocabulary into fragments that
-carry no meaning.
+## ✨ Highlights
 
-**And the hashtags are where the politics lives.** `#DMKFailsTN` is a complete political position
-in one token. To a subword tokenizer it is `#`, `DMK`, `Fails`, `TN` — or worse, `##MKF`, `##ails`.
-The single most informative feature in the comment arrives as noise.
+<table>
+<tr>
+<td width="50%" valign="top">
 
-## The approach
+### 🔎 An agent, not a lookup table
+Each hashtag is **searched live (Serper)**, and LLaMA 3.1 summarises the *retrieved evidence* in
+one line — so `#Mike_VoiceOfPeople` becomes a fact about the 2024 election, not a guess.
 
-Two moves, both aimed at recovering signal that the tokenizer destroys.
+</td>
+<td width="50%" valign="top">
+
+### ✂️ Branches disagree on purpose
+The dense branch **keeps** the expanded hashtags; the TF-IDF branch **strips** them — so lexical
+features catch rare vocabulary instead of campaign topics.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🗜️ A 5-dimension bottleneck
+TF-IDF is squeezed **521 → 128 → 5** before it meets BERT's 256 — it contributes a summary,
+not a lookup key the head can memorise.
+
+</td>
+<td valign="top">
+
+### 🧪 Checkpoint chosen by ablation
+Four IndicBERTv2 variants trained end-to-end. **Back-TLM beats plain MLM by 9.3 points** —
+every notebook is committed.
+
+</td>
+</tr>
+</table>
+
+## 🧠 Architecture
 
 ```mermaid
 flowchart TD
-    RAW["Raw Tamil X comment<br/>code-mixed · emoji-dense · hashtag-compressed"]
-
-    RAW --> EMO["Emoji → text<br/>(demojize)"]
-    EMO --> HASH["Agentic hashtag expansion<br/>Serper web search → LLaMA 3.1"]
+    RAW["💬 Raw Tamil X comment<br/>code-mixed · emoji-dense · hashtags"]
+    RAW --> EMO["😀 → text (demojize)"]
+    EMO --> HASH["🔎 Agentic hashtag expansion<br/>Serper search → LLaMA 3.1"]
     HASH --> STOP["Stopword removal"]
-
-    STOP --> DENSE["IndicBERTv2-MLM-Back-TLM<br/>[CLS] → 768-d"]
-    RAW  --> CLEAN["Aggressive lexical clean<br/>strip URLs, @mentions, #tags,<br/>Tamil + English punctuation, digits,<br/>ZWJ/ZWNJ, NFC normalise"]
-    CLEAN --> TFIDF["TF-IDF · 5,000 features"]
-    TFIDF --> PCA["PCA to 50% variance<br/>→ 521-d"]
-
-    DENSE --> D1["Dropout 0.1 → Linear 768→256 → ReLU"]
-    PCA   --> S1["Linear 521→128 → ReLU<br/>Linear 128→5 → ReLU → Dropout 0.1"]
-
+    STOP --> DENSE["🤗 IndicBERTv2-MLM-Back-TLM<br/>[CLS] → 768-d"]
+    RAW --> CLEAN["🧹 Tamil-aware lexical clean<br/>drop URLs · @ · # · digits · ZWJ/ZWNJ"]
+    CLEAN --> TFIDF["TF-IDF 5,000 → PCA → 521-d"]
+    DENSE --> D1["768 → 256"]
+    TFIDF --> S1["521 → 128 → 5"]
     D1 --> CAT["concat → 261-d"]
     S1 --> CAT
-    CAT --> HEAD["Linear 261→64 → ReLU<br/>Linear 64→7"]
-    HEAD --> OUT["7 sentiment classes"]
+    CAT --> HEAD["261 → 64 → 7"]
+    HEAD --> OUT["🏷️ 7 sentiment classes"]
+    style HASH fill:#7A4A10,stroke:#E9B23C,color:#FFF7E6
+    style CAT fill:#7A4A10,stroke:#E9B23C,color:#FFF7E6
+    style OUT fill:#E9B23C,stroke:#1C1206,color:#1C1206
 ```
 
----
+<details>
+<summary><b>🖼️ Original workflow and model diagrams</b></summary>
 
-## Novelty
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/6e04ef85-2bc4-49be-a9e2-44ead374a544" alt="Workflow diagram" width="85%"/>
+  <br/><br/>
+  <img src="https://github.com/user-attachments/assets/dee737ab-4956-4de0-8ae7-6468fc2ed21a" alt="Model architecture" width="85%"/>
+</p>
 
-### 1. Retrieval-augmented hashtag expansion — an agent, not a lookup table
+</details>
 
-This is the headline idea, and it is more than "call an LLM". `Agent.py` runs a two-stage pipeline
-per hashtag:
+## 🏆 Results
+
+**Official test leaderboard — 25 submitting teams, 139 registrants**
+
+| Rank | Team | Macro-F1 |
+|:---:|---|:---:|
+| 🥇 | **Synapse (ours)** | **0.3773** |
+| 🥈 | KCRL | 0.3710 |
+| 🥉 | byteSizedLLM | 0.3497 |
+| 4 | Eureka-CIOL | 0.3187 |
+| 5 | Wictory | 0.3115 |
+
+**Encoder ablation (dev set)**
+
+| Variant | Macro-F1 |
+|---|:---:|
+| ✅ **IndicBERTv2-MLM-Back-TLM** | **0.383** |
+| IndicBERTv2-MLM-Sam-TLM | 0.376 |
+| IndicBERTv2-SS | 0.338 |
+| IndicBERTv2-MLM-only | 0.290 |
+
+## 🔬 Under the hood
+
+<details>
+<summary><b>🔎 Retrieval-augmented hashtag expansion</b></summary>
 
 ```python
 search_query = f"{hashtag} Tamil politics meaning context"
 search_results = self.search_serper(search_query)      # live Google results, top 3
 context = " ".join(r.get('snippet', '') for r in search_results)
-# ...then hand the retrieved context to LLaMA 3.1 with a tightly-constrained prompt
+# ...then LLaMA 3.1 summarises the retrieved context under strict rules
 ```
 
-The LLM is **not** asked to recall Tamil politics from its weights — it is asked to *summarise
-retrieved evidence* into one line, under explicit rules:
-
-> 1. Must be ONE line only · 2. If it's a Tamil word, provide the expansion · 3. If it's a
-> person's name, add their role · 4. If it's a party name, add "(Political Party)" · 6. Maximum
-> 10–12 words
-
-That matters because Tamil regional politics is exactly the kind of thing a general model
-half-knows and will confidently fabricate. Grounding in live search results turns
-`#Mike_VoiceOfPeople` into *"Mic, the symbol representing the voice of the people"* — which is a
-fact about the 2024 Tamil Nadu election, not a guess.
-
-The output is a curated map baked into `pre_processing.ipynb`, so inference does not need network
-access:
+The prompt rules: *one line only · expand Tamil words · add a person's role · tag parties as
+"(Political Party)" · 10–12 words max.* The result is baked into `pre_processing.ipynb`, so
+inference needs no network:
 
 ```python
 hashtag_map = {
@@ -113,190 +179,119 @@ hashtag_map = {
     "#NTK":        "Naam Tamilar Katchi (Political Party)",
     "#MKStalin":   "MK Stalin, Chief Minister of Tamil Nadu",
     "#த":          "Tamil (Short form for Tamil-related content)",
-    ...
 }
 ```
 
-Note the last entry. Single-character Tamil hashtags — `#த`, `#மக`, `#ச`, `#ந`, `#வ` — are
-completely opaque to any tokenizer and to most humans outside Tamil Nadu. The agent recovers them.
+Single-character Tamil hashtags (`#த`, `#மக`, `#ச`) are opaque to every tokenizer — the agent
+recovers them.
 
-### 2. The two branches disagree about hashtags on purpose
+</details>
 
-This is the detail worth stealing. The **dense branch keeps the expanded hashtags** — they are now
-readable phrases and IndicBERTv2 can contextualise them. The **sparse branch throws them away
-entirely**:
-
-```python
-text = re.sub(r'@\w+', '', text)
-text = re.sub(r'#\w+', '', text)     # in the TF-IDF path only
-```
-
-A TF-IDF vector over hashtags would be dominated by a handful of campaign tags that correlate with
-*topic* rather than *sentiment*. Stripping them leaves the lexical channel to do the one thing it
-is uniquely good at: catching rare political vocabulary that the subword tokenizer fragments.
-Each branch is fed the representation it handles best, rather than both being fed the same soup.
-
-### 3. Fusion with a deliberately narrow lexical bottleneck
+<details>
+<summary><b>🗜️ The fusion head</b></summary>
 
 ```python
 self.tfidf_fc1 = nn.Linear(tfidf_dim, 128)   # 521 → 128
-self.tfidf_fc2 = nn.Linear(128, 5)           # 128 → 5      ← five dimensions
+self.tfidf_fc2 = nn.Linear(128, 5)           # 128 → 5   ← five dimensions
 self.bert_fc   = nn.Linear(768, 256)         # 768 → 256
 self.combined_fc = nn.Linear(256 + 5, 64)
 ```
 
-The lexical channel is squeezed to **five** dimensions before it meets 256 from BERT. That looks
-severe until you consider what happens otherwise: with 4,352 training rows and a 521-dimensional
-sparse vector, an unconstrained fusion head memorises the training set through the TF-IDF side and
-ignores the transformer. The bottleneck forces the lexical branch to contribute a *summary* — a
-handful of orthogonal lexical axes — rather than a lookup key.
+With 4,352 rows and a 521-d sparse vector, an unconstrained head memorises the training set
+through TF-IDF and ignores the transformer. Five dimensions force a summary.
 
-### 4. Unicode handling written for Tamil, not inherited from an English pipeline
+</details>
+
+<details>
+<summary><b>🔤 Unicode handling written for Tamil</b></summary>
 
 ```python
-text = re.sub(r'[௦-௯0-9]', '', text)   # Tamil AND English digits
-text = text.replace('‌', '').replace('‍', '')     # ZWNJ / ZWJ
-text = re.sub(f'[{"।॥॰"}]', ' ', text)                      # Indic punctuation
-text = unicodedata.normalize(...)
+text = re.sub(r'[௦-௯0-9]', '', text)               # Tamil AND English digits
+text = text.replace('‌', '').replace('‍', '')   # ZWNJ / ZWJ
+text = re.sub(f'[{"।॥॰"}]', ' ', text)              # Indic punctuation
 ```
 
-Zero-width joiners are the quiet killer in Indic NLP: the same visible word can have two byte
-sequences, which become two different TF-IDF features. Almost every English-derived pipeline
-misses this.
+Zero-width joiners give one visible word two byte sequences — two TF-IDF features. Most
+English-derived pipelines miss this.
 
-### 5. Incremental batch sizing with a reshuffle every epoch
+</details>
+
+<details>
+<summary><b>⚖️ Imbalance: stepped batches + class weights</b></summary>
 
 ```python
 for epoch in range(10):
     batch_size = 16 if epoch < 2 else 32 if epoch < 4 else 48 if epoch < 6 else 64
     train_dataloader = create_dataloaders(train_data, tokenizer, batch_size, seed=100 + epoch)
-```
 
-Small noisy batches early, when the model needs to escape the majority-class basin that a 3.9%
-class invites; large stable batches late, when it needs to converge. The dataloader is rebuilt
-each epoch with an **incrementing seed**, so the shuffle differs every pass rather than repeating
-one fixed permutation.
-
-### 6. Inverse-frequency class weighting
-
-```python
 weights = {label: total_entries / class_counts[label] for label in class_counts}
 loss_fn = nn.CrossEntropyLoss(weight=weights)
 ```
 
-*None of the above* gets ≈25× the loss weight of *Opinionated*. Chosen over resampling because
-duplicating 171 rows into 1,361 teaches the model those 171 sentences, not that class.
+Small noisy batches early to escape the majority-class basin, large stable ones late to converge,
+a fresh shuffle each epoch. *None of the above* gets ≈ 25× the loss weight of *Opinionated* —
+chosen over resampling, which would only teach the model those 171 sentences.
 
-### 7. The checkpoint was chosen by ablation, not by reputation
+</details>
 
-Four IndicBERTv2 pretraining variants were trained end-to-end and compared. The gap is enormous —
-larger than most architectural changes would buy:
+<details>
+<summary><b>⚙️ Training configuration</b></summary>
 
-| Variant | Macro-F1 (dev) |
-|---|---:|
-| **IndicBERTv2-MLM-Back-TLM** | **0.383** |
-| IndicBERTv2-MLM-Sam-TLM | 0.376 |
-| IndicBERTv2-SS | 0.338 |
-| IndicBERTv2-MLM-only | 0.290 |
-
-Back-translation pretraining wins by 9.3 points over plain MLM. Every variant's notebook is
-committed, so the ablation is reproducible rather than asserted.
-
----
-
-## Results
-
-**Rank 1 of 25 submitting teams** (139 registrants), official test leaderboard:
-
-| Rank | Team | Macro-F1 |
-|---:|---|---:|
-| **1** | **Synapse** | **0.3773** |
-| 2 | KCRL | 0.3710 |
-| 3 | byteSizedLLM | 0.3497 |
-| 4 | Eureka-CIOL | 0.3187 |
-| 5 | Wictory | 0.3115 |
-
----
-
-## Repository layout
-
-```
-Agent.py                                            hashtag expansion agent — Serper + LLaMA 3.1
-pre_processing.ipynb                                emoji → text, hashtag map, stopwords, EDA
-TF_IDF_vectorization_PCA.ipynb                      Tamil-aware clean → TF-IDF(5000) → PCA(0.50)
-
-Synapse_model_training_using_IndicBERTv2_Back_TLM.ipynb    ← the submitted model
-Synapse_model_training_using_IndicBERTv2_MLM_Sam_TLM.ipynb
-Synapse_model_training_using_IndicBERTv2_SS.ipynb          ← the four-way ablation
-Synapse_model_training_using_IndicBERTv2_MLM_only.ipynb
-
-data/
-  PS_train.csv                  4,352 rows · content, labels
-  PS_dev.csv                      544 rows
-  PS_test.csv                     544 rows · Id, content, labels
-  PS_*_tfidf_reduced.csv        the same splits with the 521-d PCA vector attached
-  *_preprocessed.csv            post-emoji, post-hashtag-expansion text
-
-Synapse_Tamil_run1.csv                              the submitted predictions
-```
-
-## Training configuration
-
-| | |
+| Setting | Value |
 |---|---|
 | Encoder | `ai4bharat/IndicBERTv2-MLM-Back-TLM` |
 | Max sequence length | 256 |
 | Optimiser | AdamW, lr 2e-5 |
-| Loss | Cross-entropy, inverse-frequency class weights |
+| Loss | Cross-entropy, inverse-frequency weights |
 | Dropout | 0.1 on both branches |
 | Epochs | 10 |
-| Batch size | 16 → 32 → 48 → 64, stepped |
-| Eval batch | 128 |
-| Seed | 164 (`set_seed`, `torch.manual_seed`, `torch.cuda.manual_seed`) |
+| Batch size | 16 → 32 → 48 → 64 |
+| Seed | 164 |
 
----
+</details>
 
-## Running it
+## 🛠️ Tech stack
+
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,pytorch,sklearn&theme=dark" alt="Python, PyTorch, scikit-learn"/>
+  <img src="https://img.shields.io/badge/🤗_Transformers-IndicBERTv2-FFD21E?style=for-the-badge" alt="Transformers"/>
+  <img src="https://img.shields.io/badge/LLaMA-3.1-0467DF?style=for-the-badge&logo=meta&logoColor=white" alt="LLaMA"/>
+  <img src="https://img.shields.io/badge/Serper-search-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Serper"/>
+</p>
+
+## 🚀 Getting started
 
 ```bash
 git clone https://github.com/Vishal-AS-0407/NAACL_DravidianLangTech_2025.git
 cd NAACL_DravidianLangTech_2025
-pip install -r requirements.txt      # transformers, torch, scikit-learn, pandas, emoji
+pip install -r requirements.txt
 ```
 
-**1 — Expand the hashtags** (optional; the resulting map is already committed). Put your keys in
-`Agent.py` — they ship as placeholder strings — and give it an `hash.xlsx` with a `hashtag` column:
+| Step | What | Output |
+|:---:|---|---|
+| 1️⃣ | `python Agent.py` *(optional — the map is committed)* | `hash_analyzed.xlsx` |
+| 2️⃣ | Run `pre_processing.ipynb` → `TF_IDF_vectorization_PCA.ipynb` | `*_tfidf_reduced.csv` |
+| 3️⃣ | Run `Synapse_model_training_using_IndicBERTv2_Back_TLM.ipynb` | predictions |
 
-```bash
-python Agent.py                      # → hash_analyzed.xlsx
+> 💡 **Tip:** `Agent.py` needs your own HuggingFace and Serper keys (placeholders ship in the
+> file). The notebooks are Colab-shaped — change `/content/` paths to `data/` to run locally.
+
+## 📂 Project structure
+
+```
+📦 NAACL_DravidianLangTech_2025
+ ┣ 🐍 Agent.py                          hashtag expansion agent — Serper + LLaMA 3.1
+ ┣ 📓 pre_processing.ipynb              emoji → text, hashtag map, stopwords, EDA
+ ┣ 📓 TF_IDF_vectorization_PCA.ipynb    Tamil-aware clean → TF-IDF(5000) → PCA
+ ┣ 📓 Synapse_..._Back_TLM.ipynb        ⭐ the submitted model
+ ┣ 📓 Synapse_..._MLM_Sam_TLM.ipynb  ┓
+ ┣ 📓 Synapse_..._SS.ipynb           ┣  the four-way ablation
+ ┣ 📓 Synapse_..._MLM_only.ipynb     ┛
+ ┣ 📂 data                              train 4,352 · dev 544 · test 544 (+ TF-IDF versions)
+ ┗ 📄 Synapse_Tamil_run1.csv            the submitted predictions
 ```
 
-**2 — Preprocess.** Run `pre_processing.ipynb`, then `TF_IDF_vectorization_PCA.ipynb`. The second
-writes the `*_tfidf_reduced.csv` files the model reads.
-
-**3 — Train.** Open `Synapse_model_training_using_IndicBERTv2_Back_TLM.ipynb`. It is written for
-Colab and reads from `/content/`; change those paths to `data/` to run locally.
-
----
-
-## Honest notes
-
-- **This repo is a team artefact.** Submitted as team **Synapse** for
-  DravidianLangTech@NAACL 2025. This copy is a fork of the team repository.
-- **Macro-F1 0.3773 is the official test-set score** from the shared-task leaderboard. The 0.383
-  in the ablation table is a *dev* score, which is why the two differ — don't read the gap as a
-  discrepancy.
-- **The training loop evaluates on the test set each epoch.** That is normal practice for a shared
-  task where the leaderboard is the evaluation, but it means the per-epoch numbers printed in the
-  notebooks are not a clean held-out estimate. The submitted run is the one that counts.
-- **The notebooks are Colab-shaped** — absolute `/content/` paths, `!pip install` cells. They are
-  the artefacts as submitted, not repackaged into a CLI.
-- **`Agent.py` needs two API keys** (HuggingFace Inference, Serper) and sleeps 5 s between
-  hashtags, so a full pass over a few hundred tags takes a while.
-
----
-
-## Citation
+## 📄 Citation
 
 ```bibtex
 @inproceedings{synapse2025dravidianlangtech,
@@ -313,11 +308,34 @@ Colab and reads from `/content/`; change those paths to `data/` to run locally.
 }
 ```
 
-[Paper on OpenReview](https://openreview.net/forum?id=3emk1VVVKQ)
+📎 [Paper on OpenReview](https://openreview.net/forum?id=3emk1VVVKQ)
 
----
+## 🧭 Honest notes
 
-<p align="center">
-  <sub>Full case study, with the design decisions written out:
-  <a href="https://portfolio-sigma-blond-57.vercel.app/work/dravidian-sentiment">portfolio → Tamil political sentiment</a></sub>
-</p>
+<details>
+<summary><b>Read before comparing numbers</b></summary>
+
+- 👥 **Team work.** Submitted as team **Synapse**; this repo is a fork of the team repository.
+- 📏 **0.3773 is the official test score**; 0.383 in the ablation is a *dev* score — the gap is
+  not a discrepancy.
+- 🔁 The training loop evaluates on the test set each epoch (normal for a leaderboard task), so
+  per-epoch notebook numbers aren't a clean held-out estimate. The submitted run is what counts.
+- 🐢 `Agent.py` sleeps 5 s between hashtags — a few hundred tags take a while.
+
+</details>
+
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
+
+<div align="center">
+
+**📖 Read the full design story →** [portfolio · Muzhakkam](https://portfolio-sigma-blond-57.vercel.app/work/dravidian-sentiment)
+
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://scholar.google.com/citations?user=fPK6EDAAAAAJ&hl=en"><img src="https://img.shields.io/badge/Google_Scholar-4285F4?style=for-the-badge&logo=googlescholar&logoColor=white" alt="Google Scholar"/></a>
+<a href="mailto:vishalpersonal04@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/></a>
+
+⭐ **If this helped you, star the repo!**
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:E9B23C,45:7A4A10,100:1C1206&height=120&section=footer" width="100%" alt="footer"/>
+
+</div>

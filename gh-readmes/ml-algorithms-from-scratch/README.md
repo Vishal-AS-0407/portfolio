@@ -1,39 +1,57 @@
-<h1 align="center">ML Algorithms from Scratch</h1>
+<div align="center">
 
-<p align="center">
-  <b>Six classifiers, written in NumPy, with nothing borrowed from scikit-learn —<br>
-  then benchmarked against each other on accuracy, wall time and memory.</b>
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:111827,55:6B4A10,100:F59E0B&height=220&section=header&text=ML%20Algorithms%20from%20Scratch&fontSize=48&fontColor=FFFBEB&fontAlignY=34&desc=Six%20classifiers%20in%20pure%20NumPy%2C%20benchmarked%20head%20to%20head&descSize=18&descAlignY=57&animation=fadeIn" width="100%" alt="ML Algorithms from Scratch"/>
 
-<p align="center">
-  <img alt="NumPy" src="https://img.shields.io/badge/NumPy-only-013243?style=flat-square&logo=numpy&logoColor=white">
-  <img alt="algorithms" src="https://img.shields.io/badge/algorithms-6-blue?style=flat-square">
-  <img alt="lines" src="https://img.shields.io/badge/~290_lines_of_algorithm-2ea44f?style=flat-square">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=F59E0B&center=true&vCenter=true&width=720&lines=%F0%9F%A7%AE+No+sklearn+%E2%80%94+just+NumPy;%F0%9F%8C%B3+Trees+%C2%B7+forests+%C2%B7+KNN+%C2%B7+LogReg+%C2%B7+SVM+%C2%B7+NB;%E2%8F%B1%EF%B8%8F+Accuracy+vs+time+vs+memory" alt="typing summary"/>
 
----
+<br/>
 
-## Why
+<img src="https://img.shields.io/badge/NumPy-only-013243?style=for-the-badge&logo=numpy&logoColor=white" alt="NumPy"/>
+<img src="https://img.shields.io/badge/Algorithms-6-F59E0B?style=for-the-badge&labelColor=111827" alt="6 algorithms"/>
+<img src="https://img.shields.io/badge/~290_lines-of_algorithm-2EA44F?style=for-the-badge" alt="lines"/>
 
-`clf.fit(X, y)` is three tokens and hides everything that matters. You can use scikit-learn for
-years without knowing why KNN falls apart on unscaled features, why a decision tree stops splitting,
-or what the hinge loss's two branches actually do to the weight vector.
+</div>
 
-The way to find out is to write them. Every algorithm here is implemented from first principles in
-NumPy — no `sklearn.linear_model`, no `sklearn.tree` — and then all six are run against the same
-dataset and measured on three axes, so the trade-offs between them are visible rather than
-asserted.
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-**The six:** Decision Tree · Random Forest · K-Nearest Neighbours · Logistic Regression · Support
-Vector Machine · Naive Bayes.
+## 📌 Why
 
----
+`clf.fit(X, y)` is three tokens and hides everything that matters — why KNN collapses on unscaled
+features, when a tree stops splitting, what the hinge loss's two branches do to the weights.
+**The way to find out is to write them.**
 
-## What is actually implemented
+| | Algorithm | Lines | Core idea |
+|:---:|---|:---:|---|
+| 🌳 | **Decision Tree** | 116 | entropy, size-weighted information gain, recursive growth |
+| 🌲 | **Random Forest** | — | bagging **and** per-split feature subsampling, majority vote |
+| 📍 | **KNN** | 29 | Euclidean distance, `argsort`, vote |
+| 📈 | **Logistic Regression** | 33 | sigmoid + gradient descent |
+| ➖ | **SVM** | — | sub-gradient descent on the hinge loss |
+| 🎲 | **Naive Bayes** | 46 | Gaussian likelihoods, summed log-probabilities |
 
-### Decision Tree — recursive splitting on information gain
+## 🧠 The benchmark
 
-The largest of the six at 116 lines, and the one the Random Forest is built on.
+```mermaid
+flowchart TD
+    D["❤️ heart.csv<br/>303 × 13 · UCI Cleveland"] --> SPLIT["80 / 20 · seed 1234"]
+    SPLIT --> A1["🌳 Tree"]
+    SPLIT --> A2["🌲 Forest"]
+    SPLIT --> A3["📍 KNN"]
+    SPLIT --> A4["📈 LogReg"]
+    SPLIT --> A5["➖ SVM"]
+    SPLIT --> A6["🎲 NB"]
+    A1 & A2 & A3 & A4 & A5 & A6 --> M["📊 Accuracy · ⏱️ time · 💾 memory"]
+    style M fill:#F59E0B,stroke:#111827,color:#111827
+```
+
+> ⏱️ A single accuracy number says who won on this dataset. Accuracy **against** time and memory
+> says which one you'd deploy — KNN "trains" instantly and pays at prediction time, the opposite of
+> everything else.
+
+## 🔬 Inside the implementations
+
+<details open>
+<summary><b>🌳 Information gain — weighted by subset size</b></summary>
 
 ```python
 def _information_gain(self, y, X_column, threshold):
@@ -45,57 +63,29 @@ def _information_gain(self, y, X_column, threshold):
     return parent_entropy - child_entropy
 ```
 
-Shannon entropy, **child entropy weighted by subset size** (the weighting is the part people get
-wrong — an unweighted average lets a two-sample pure split look better than a two-hundred-sample
-mostly-pure one), and the gain is the reduction. `_best_split` searches every feature × every
-observed threshold and keeps the maximum.
+Unweighted, a 2-sample pure split beats a 200-sample mostly-pure one. Stops on `max_depth`, purity,
+or `min_samples_split`; the node's `value` is keyword-only so a leaf can't be built by accident.
 
-Three stopping conditions in `_grow_tree`: `max_depth` reached, node is pure, or fewer than
-`min_samples_split` samples remain. The node class uses a keyword-only `value` argument
-(`*, value=None`) so a leaf can never be constructed by accident with positional arguments — a
-small, deliberate piece of API hygiene.
+</details>
 
-**Feature subsampling is built into the tree, not bolted onto the forest:**
+<details>
+<summary><b>🌲 Both sources of decorrelation</b></summary>
 
 ```python
-feat_idxs = np.random.choice(n_feats, self.n_features, replace=False)
+idxs = np.random.choice(n_samples, n_samples, replace=True)        # bagging: rows
+feat_idxs = np.random.choice(n_feats, self.n_features, replace=False)  # per split: columns
 ```
 
-Which is exactly right, and sets up the next one.
+Bagging alone gives near-identical trees when one feature dominates. Votes are tallied over
+`np.swapaxes(predictions, 0, 1)` — vectorised, not looped.
 
-### Random Forest — the two sources of decorrelation, both present
+</details>
 
-```python
-def _bootstrap_samples(self, X, y):
-    idxs = np.random.choice(n_samples, n_samples, replace=True)   # bagging: rows
-    return X[idxs], y[idxs]
-```
-
-A forest is only better than a tree if the trees **disagree**, and there are two independent
-mechanisms for that:
-
-1. **Bagging** — each tree sees a bootstrap resample of the rows (sampled *with* replacement, so
-   ~63% of unique rows per tree).
-2. **Feature subsampling** — each *split* considers a random subset of the columns, inherited from
-   the tree above.
-
-Implementing only bagging is the common half-measure, and it produces a forest of near-identical
-trees whenever one feature dominates. Both are here.
-
-Prediction transposes the `(n_trees, n_samples)` prediction matrix and takes a majority vote:
+<details>
+<summary><b>➖ Soft-margin SVM in eight lines</b></summary>
 
 ```python
-tree_preds = np.swapaxes(predictions, 0, 1)
-predictions = np.array([self._most_common_label(pred) for pred in tree_preds])
-```
-
-`np.swapaxes` rather than a Python loop — the vectorised instinct is right.
-
-### SVM — sub-gradient descent on the hinge loss, both branches
-
-```python
-y_ = np.where(y <= 0, -1, 1)               # 0/1 labels → -1/+1, which the hinge needs
-
+y_ = np.where(y <= 0, -1, 1)
 condition = y_[idx] * (np.dot(x_i, self.w) - self.b) >= 1
 if condition:
     self.w -= self.lr * (2 * self.lambda_param * self.w)
@@ -104,65 +94,21 @@ else:
     self.b -= self.lr * y_[idx]
 ```
 
-This is the whole of soft-margin SVM in eight lines, and both branches are meaningful:
+Outside the margin: only regularisation. Inside or wrong: the hinge pushes the hyperplane. That
+asymmetry **is** the support-vector idea.
 
-- **Correctly classified outside the margin** (`y·f(x) ≥ 1`) — only the L2 regularisation term
-  applies. The point contributes nothing to the decision boundary; it is not a support vector.
-- **Inside the margin or misclassified** — the hinge is active, so the data term
-  `−y·x` pushes the hyperplane, and the bias moves too.
+</details>
 
-That asymmetry *is* the support-vector idea: most points do nothing, and only the ones near the
-boundary shape it. Written out, it is obvious; hidden behind `SVC()`, it is invisible.
+## 🛠️ Tech stack
 
-### The others
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python&theme=dark" alt="Python"/>
+  <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white" alt="NumPy"/>
+  <img src="https://img.shields.io/badge/pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" alt="pandas"/>
+  <img src="https://img.shields.io/badge/Matplotlib-11557C?style=for-the-badge" alt="Matplotlib"/>
+</p>
 
-**KNN** (29 lines) — Euclidean distance to every training point, `np.argsort`, take `k`, majority
-vote. Deliberately naive, and its cost shows up in the timing comparison.
-
-**Logistic Regression** (33 lines) — sigmoid, gradient descent on the log-likelihood, weights and
-bias updated by the mean gradient.
-
-**Naive Bayes** (46 lines) — Gaussian likelihood per class per feature, class priors from
-frequencies, prediction by argmax of the summed log-probabilities. Summing logs rather than
-multiplying probabilities is the numerical-stability point that matters on 13 features.
-
----
-
-## The benchmark
-
-`main.py` runs all six on the same 80/20 split (`random_state=1234`) and records three things each:
-
-| Axis | How |
-|---|---|
-| **Accuracy** | `np.sum(predictions == y_test) / len(y_test) * 100` |
-| **Time** | `time.time()` around fit + predict |
-| **Space** | `sys.getsizeof` over the arrays |
-
-Then three bar charts. The comparison is the point of the project — a single accuracy number tells
-you which model won on this dataset, whereas accuracy *against* time and memory tells you which one
-you would actually deploy. KNN's shape in particular is instructive: it "trains" instantly and pays
-at prediction time, which is the opposite of everything else in the table.
-
-**Dataset:** `heart.csv` — the UCI Cleveland heart disease set, 303 rows × 13 features, target
-0/1 and near-balanced.
-
----
-
-## Repository layout
-
-```
-DecisionTree.py         Node + DecisionTree — entropy, information gain, recursive growth
-RandomForest.py         bagging + feature subsampling + majority vote
-KNN.py                  Euclidean distance, k nearest, vote
-LogisticRegression.py   sigmoid + gradient descent
-SVM.py                  hinge loss sub-gradient descent
-NaiveBayes.py           Gaussian likelihood + class priors
-main.py                 runs all six, times them, plots the comparison
-heart.csv               303 × 14
-requirements.txt
-```
-
-## Running it
+## 🚀 Getting started
 
 ```bash
 git clone https://github.com/Vishal-AS-0407/ml-algorithms-from-scratch.git
@@ -171,58 +117,47 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Fix the dataset path first — see below.
+> 💡 **Tip:** point `pd.read_csv(...)` in `main.py` at the committed `heart.csv`.
 
----
+```
+📦 ml-algorithms-from-scratch
+ ┣ 🌳 DecisionTree.py        ┣ 📈 LogisticRegression.py
+ ┣ 🌲 RandomForest.py        ┣ ➖ SVM.py
+ ┣ 📍 KNN.py                 ┣ 🎲 NaiveBayes.py
+ ┣ 🐍 main.py                runs all six, times them, plots
+ ┗ ❤️ heart.csv
+```
 
-## Honest notes
+## 🧭 Notes & roadmap
 
-- **`main.py` has a hard-coded absolute path:**
+<details>
+<summary><b>Harness fixes (the algorithms themselves are correct)</b></summary>
 
+- ➖ `SVM.predict` returns `{-1, +1}` against `{0, 1}` labels — map back:
   ```python
-  dataset = pd.read_csv("C:\\Users\\visha\\OneDrive\\Desktop\\heart.csv")
+  return np.where(np.sign(np.dot(X, self.w) - self.b) <= 0, 0, 1)
   ```
+- 📏 No scaling — fine for trees, harmful for KNN / LogReg / SVM (`chol` vs `oldpeak`).
+- 💾 `sys.getsizeof` measures the data, not the fitted model — compare model sizes instead.
+- 🎲 Seed the forest; time multiple runs.
 
-  `heart.csv` is committed at the repo root, so this should be `pd.read_csv("heart.csv")`. As
-  written the script does not run on any other machine.
+**Roadmap**
+- [ ] Scaled vs unscaled comparison (the best lesson this repo could teach)
+- [ ] Model-size chart
+- [ ] Cross-validated accuracy
 
-- **The SVM's accuracy is wrong, and by a knowable amount.** `SVM.predict` returns
-  `np.sign(approx)` — values in `{-1, 0, +1}` — while `y_test` is in `{0, 1}`. The comparison
-  `predictions_svm == y_test` therefore only ever counts the true-positive class, and every
-  correctly-classified negative (predicted `-1`, actual `0`) is scored as wrong. The reported SVM
-  accuracy is roughly its recall on the positive class, not its accuracy.
+</details>
 
-  One line fixes it:
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-  ```python
-  def predict(self, X):
-      return np.where(np.sign(np.dot(X, self.w) - self.b) <= 0, 0, 1)
-  ```
+<div align="center">
 
-  The `fit` method already does the reverse mapping (`np.where(y <= 0, -1, 1)`); `predict` just
-  never maps back.
+<a href="https://portfolio-sigma-blond-57.vercel.app"><img src="https://img.shields.io/badge/Portfolio-111827?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"/></a>
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://github.com/Vishal-AS-0407"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
 
-- **No feature scaling.** This is fine for the tree-based models and actively harmful for KNN,
-  Logistic Regression and SVM. `chol` runs to 400 and `oldpeak` to 6, so Euclidean distance is
-  effectively "difference in cholesterol", and gradient descent on unscaled features converges
-  badly. Standardising would change the ranking in that comparison table substantially — and
-  demonstrating that would be a genuinely good addition to the project, since *why scaling matters*
-  is exactly the kind of thing writing algorithms from scratch is supposed to teach.
+⭐ **If this helped you, star the repo!**
 
-- **`sys.getsizeof` measures the wrong thing.** It returns the size of the data arrays, which are
-  identical for every algorithm — so the "space complexity" chart compares six equal numbers. What
-  would be interesting is the size of the *fitted model*: a Random Forest of 20 trees against an
-  SVM's 13 weights and a bias is a genuine three-orders-of-magnitude difference, and it is the
-  comparison the chart is trying to make.
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:F59E0B,45:6B4A10,100:111827&height=110&section=footer" width="100%" alt="footer"/>
 
-- **Timing is single-run.** Wall clock on one execution, no repeats, no warm-up. Fine for
-  order-of-magnitude comparison, not for anything finer.
-
-- **No random seed for the forest.** `np.random.choice` is unseeded in both `_bootstrap_samples`
-  and `_grow_tree`, so Random Forest and Decision Tree results vary between runs.
-
-- **The train/test split happens inside the Random Forest timing block**, so its measured time
-  includes the split. A few milliseconds; worth moving out.
-
-- **The implementations are correct.** The bugs above are in the *harness* — paths, label mapping,
-  measurement — not in the algorithms, which are the part the project is about.
+</div>

@@ -1,92 +1,175 @@
-<h1 align="center">Vatsal AI</h1>
+<div align="center">
 
-<p align="center">
-  <b>A parenting companion for Indian families — from the first prenatal scan to the toddler years.</b><br>
-  Cry classification, a hierarchical medical knowledge graph over the child's own records,
-  and retrieval that shows its working.
-</p>
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:1E1B4B,55:3B4BA8,100:60A5FA&height=230&section=header&text=Vatsal%20AI&fontSize=68&fontColor=EFF6FF&fontAlignY=34&desc=A%20parenting%20companion%20%E2%80%94%20from%20the%20first%20scan%20to%20the%20toddler%20years&descSize=18&descAlignY=58&animation=fadeIn" width="100%" alt="Vatsal AI"/>
 
-<p align="center">
-  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white">
-  <img alt="React" src="https://img.shields.io/badge/React_+_Vite-61DAFB?style=flat-square&logo=react&logoColor=black">
-  <img alt="KG" src="https://img.shields.io/badge/Knowledge_Graph-3_levels-8A2BE2?style=flat-square">
-  <img alt="Retrieval" src="https://img.shields.io/badge/U--Retrieval-fully_traced-2ea44f?style=flat-square">
-</p>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=60A5FA&center=true&vCenter=true&width=740&lines=%F0%9F%93%81+A+folder+of+reports+%E2%86%92+one+connected+graph;%F0%9F%94%BD+U-Retrieval%3A+down+the+hierarchy%2C+across+the+graph;%F0%9F%A7%BE+Every+answer+shows+its+working;%F0%9F%91%B6+Cry+analysis+%C2%B7+schemes+%C2%B7+community" alt="typing summary"/>
 
----
+<br/>
 
-## The problem
+<img src="https://img.shields.io/badge/Knowledge_Graph-3_levels-8A2BE2?style=for-the-badge" alt="KG"/>
+<img src="https://img.shields.io/badge/U--Retrieval-fully_traced-60A5FA?style=for-the-badge&labelColor=1E1B4B" alt="U-Retrieval"/>
+<img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"/>
+<img src="https://img.shields.io/badge/React_+_Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React"/>
 
-New parents are handed a folder of paper and a decade of decisions. The folder contains prenatal
-consultations, blood panels, an NT scan, a glucose tolerance test, a delivery summary, a newborn
-examination, a vaccination record. It is chronological, it is in clinical language, and it answers
-none of the questions a parent actually has at 2 a.m.
+</div>
 
-Three specific failures:
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
 
-**1 — The records do not connect.** A glucose tolerance result in month six, a note in the delivery
-summary, and a paediatric consultation at eight months might be one clinical thread. In a folder
-they are three unrelated pieces of paper. A parent has no way to see the thread, and neither does
-a paediatrician meeting the family for the first time.
+<details>
+<summary><b>📑 Table of contents</b></summary>
 
-**2 — Generic health chatbots have no idea who this child is.** "Is this rash normal?" has a
-different answer for a baby who was 34 weeks, whose mother had gestational diabetes, and who is
-mid-course on an antibiotic. Answering it without those facts is answering a different question.
+- [📌 Overview](#-overview)
+- [✨ Features](#-features)
+- [🧠 Architecture](#-architecture)
+- [🖼️ Screens](#️-screens)
+- [🕸️ The knowledge graph](#️-the-knowledge-graph)
+- [🔬 Under the hood](#-under-the-hood)
+- [🔌 API](#-api)
+- [🚀 Getting started](#-getting-started)
+- [📂 Project structure](#-project-structure)
+- [🧭 Notes & roadmap](#-notes--roadmap)
 
-**3 — Nobody should trust a black-box answer about their child.** An LLM that says "this is
-probably teething" is worthless unless you can see *what it read* to conclude that.
+</details>
 
-## What it does
+## 📌 Overview
+
+New parents get a folder of paper and a decade of decisions — prenatal consults, blood panels, an
+NT scan, a glucose tolerance test, a delivery summary, vaccinations. Chronological, clinical, and
+no help at 2 a.m.
+
+| Failure | Vatsal AI's answer |
+|---|---|
+| 🧩 **Records don't connect** — a month-6 glucose test and an 8-month consult may be one thread | A **medical knowledge graph** over the child's own reports |
+| 🤷 **Generic chatbots don't know this child** | Answers retrieved from **this family's** records |
+| 🕳️ **Black-box answers about a child are worthless** | Every answer ships with a **full retrieval trace** |
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="33%" valign="top">
+
+### 🩺 Medical Q&A
+U-Retrieval over the child's records, with clusters visited, graph hops and source reports shown.
+
+</td>
+<td width="33%" valign="top">
+
+### 👶 Cry analyzer
+The [Why-is-my-Baby-Crying](https://github.com/Vishal-AS-0407/Why-is-my-Baby-Crying) model —
+cause, confidence, soothing tips.
+
+</td>
+<td width="33%" valign="top">
+
+### 💊 Reports & medicines
+Report analysis, diet plans, medicine checks and scans, growth milestones.
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🏛️ Government schemes
+Indian maternal & child health entitlements families usually don't know they qualify for.
+
+</td>
+<td valign="top">
+
+### 🪔 Traditional practices
+Presented alongside clinical information — engaged with, not dismissed.
+
+</td>
+<td valign="top">
+
+### 🗣️ Assistant & community
+Chat by voice, photo or text, in more than one language — plus channels and a feed.
+
+</td>
+</tr>
+</table>
+
+## 🧠 Architecture
 
 ```mermaid
-flowchart TB
-    subgraph ING["Ingest — the child's own records"]
-        R["Medical reports<br/>prenatal → delivery → paediatric"]
-        R --> CH["Chunking"]
-        CH --> EX["LLM entity + relation extraction<br/>8 entity types · 7 relation types"]
-        EX --> KG["Medical knowledge graph"]
-    end
-
-    KG --> H
-
-    subgraph H["Hierarchical KG — three levels"]
-        L0["Level 0 · entities"]
-        L1["Level 1 · ~15 sub-clusters<br/>Louvain + embeddings"]
-        L2["Level 2 · 5 super-clusters<br/>+ LLM summaries"]
-        L0 --> L1 --> L2
-    end
-
-    Q["Parent's question"] --> UR
-
-    subgraph UR["U-Retrieval — top-down, then bottom-up"]
-        S1["match super-clusters"]
-        S2["descend to sub-clusters"]
-        S3["retrieve entities by embedding"]
-        S4["expand along relations, depth 2<br/>tracking every hop"]
-        S1 --> S2 --> S3 --> S4
-    end
-
-    S4 --> ANS["Answer + full trace<br/>clusters visited · hops followed ·<br/>cross-cluster hops · source reports"]
-
-    AUD["🎤 Cry recording"] --> CRY["baby_cry_model2.pkl<br/>1,229 audio features"]
-    CRY --> TIP["Cause + confidence + soothing tips"]
-
-    ANS & TIP --> UI["React · mobile-first"]
+flowchart TD
+    R["📁 Child's medical reports<br/>prenatal → delivery → paediatric"] --> EX["🔎 LLM extraction<br/>8 entity · 7 relation types"]
+    EX --> KG["🕸️ Medical knowledge graph"]
+    KG --> L1["Level 1 · ~15 sub-clusters<br/>Louvain"]
+    L1 --> L2["Level 2 · 5 super-clusters<br/>+ LLM summaries"]
+    Q["❓ Parent's question"] --> S1["1 · match super-clusters"]
+    L2 -.-> S1
+    S1 --> S2["2 · descend to sub-clusters"]
+    S2 --> S3["3 · entities by embedding"]
+    S3 --> S4["4 · walk relations, depth 2"]
+    S4 --> ANS["🧾 Answer + full trace"]
+    AUD["🎤 Cry recording"] --> CRY["1,229-feature classifier"] --> TIP["Cause + tips"]
+    ANS --> UI["📱 React, mobile-first"]
+    TIP --> UI
+    style S4 fill:#3B4BA8,stroke:#60A5FA,color:#EFF6FF
+    style ANS fill:#60A5FA,stroke:#1E1B4B,color:#1E1B4B
 ```
 
----
+## 🖼️ Screens
 
-## Novelty
+<div align="center">
+<table>
+<tr>
+<td width="50%"><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20195206.png" alt="Medical Q&A with trace"/></td>
+<td width="50%"><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20211957.png" alt="Dashboard"/></td>
+</tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20210844.png" alt="Knowledge and traditional practices"/></td>
+<td><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20210849.png" alt="Government schemes"/></td>
+</tr>
+</table>
 
-### 1. U-Retrieval — descend the hierarchy, then walk the graph
+<details>
+<summary><b>📸 More screens</b></summary>
+<table>
+<tr>
+<td width="50%"><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20210653.png" alt="Screen"/></td>
+<td width="50%"><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20210818.png" alt="Screen"/></td>
+</tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20210838.png" alt="Screen"/></td>
+<td><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20211532.png" alt="Screen"/></td>
+</tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20211537.png" alt="Screen"/></td>
+<td><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20211816.png" alt="Screen"/></td>
+</tr>
+<tr>
+<td><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20211917.png" alt="Screen"/></td>
+<td><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/docs/output/Screenshot%202025-12-11%20211946.png" alt="Screen"/></td>
+</tr>
+</table>
+</details>
+</div>
 
-This is the centre of the project and it is a genuinely good retrieval design.
+## 🕸️ The knowledge graph
 
-Flat vector RAG over medical records fails in a specific way: the top-5 most similar chunks to
-"why does my baby have a fever" are five chunks that all say "fever", from five different visits,
-with no sense of which episode they belong to. You get redundancy where you wanted context.
+<div align="center">
+<table>
+<tr>
+<td align="center" width="50%"><b>🌳 Cluster hierarchy</b><br/><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/medical_kg_retrieval/outputs/graphs/dendrogram.png" alt="Dendrogram"/></td>
+<td align="center" width="50%"><b>🏷️ Entity types</b><br/><img src="https://raw.githubusercontent.com/Vishal-AS-0407/Vatsal-AI/main/medical_kg_retrieval/outputs/graphs/entity_distribution.png" alt="Entity distribution"/></td>
+</tr>
+</table>
+</div>
 
-U-Retrieval goes down and then across:
+| Entity types | Relation types |
+|---|---|
+| 💊 `MEDICATION` · 🤒 `CONDITION` · 🧪 `LAB_RESULT` · 🩻 `PROCEDURE` | `PRESCRIBED_FOR` · `INDICATES` · `PERFORMED_ON` · `TREATS` |
+| ❤️ `VITAL_SIGN` · 📅 `DATE` · 👩‍⚕️ `DOCTOR` · 👶 `PATIENT_INFO` | `DIAGNOSED_WITH` · `MEASURED_ON` · `RECOMMENDED_BY` |
+
+> 🧩 A **closed** vocabulary: let an LLM invent labels and you get `treats`, `is_treatment_for`,
+> `used_to_treat` — four edge types for one relation, and a graph nothing can traverse.
+
+## 🔬 Under the hood
+
+<details>
+<summary><b>🔽 U-Retrieval — down the hierarchy, then across the graph</b></summary>
 
 ```python
 1. embed the query
@@ -96,16 +179,15 @@ U-Retrieval goes down and then across:
 5. _expand_with_relations_tracked(..., expand_depth=2)   # follow the edges
 ```
 
-The hierarchy is a **scope filter**, exactly as a clinician's reasoning is: work out whether this
-is respiratory, nutritional or developmental *first*, then look inside. Step 4 then does what
-vector search cannot — follows `PRESCRIBED_FOR`, `INDICATES`, `TREATS` edges two hops out, so an
-answer about a fever can reach the antibiotic prescribed for it and the lab result that indicated
-it, neither of which is textually similar to the question.
+Flat RAG returns five chunks that all say "fever", from five visits. U-Retrieval scopes first —
+respiratory? nutritional? developmental? — then follows `PRESCRIBED_FOR` / `INDICATES` edges two
+hops out, reaching the antibiotic and the lab result that aren't textually similar to the
+question. Step 3 also adds embedding-similar clusters the top-down match missed, as a safety valve.
 
-Step 3 also deliberately adds **embedding-similar clusters that the top-down match missed**
-(`exclude=set(relevant_clusters)`), which is the safety valve against a bad first hop.
+</details>
 
-### 2. The retrieval trace is a first-class object
+<details>
+<summary><b>🧾 The retrieval trace</b></summary>
 
 ```python
 class RetrievalTrace:
@@ -115,213 +197,116 @@ class RetrievalTrace:
     def add_report(self, report_id)
 ```
 
-Every retrieval returns, alongside the answer: which clusters were visited **and why**, every graph
-hop as a `(from, relation, to)` triple, the count of **cross-cluster hops**, and the source report
-IDs.
+**Auditable** (which reports it came from), **debuggable** (why did it enter that cluster?), and
+`cross_cluster_hops` flags questions that span domains — exactly where flat retrieval fails.
 
-Three reasons this is more than logging. It is **auditable** — a parent or a doctor can see that
-the answer came from the June blood panel and the delivery summary, and check them. It is
-**debuggable** — a bad answer becomes a specific question ("why did it enter the nutrition
-cluster?"). And `cross_cluster_hops` is a real quality signal: a high count means the query
-genuinely spanned domains, which is precisely when a flat retriever would have failed, and
-precisely when the answer deserves more scrutiny.
+</details>
 
-The frontend surfaces this as the assistant's "thought process" rather than hiding it.
+<details>
+<summary><b>📁 Ten linked synthetic reports</b></summary>
 
-### 3. A closed medical ontology, not free-form extraction
+| | | | |
+|---|---|---|---|
+| RPT-001 Prenatal consult | RPT-002 Blood tests | RPT-003 NT scan | RPT-004 Follow-up |
+| RPT-005 Glucose tolerance | RPT-006 Third trimester | RPT-007 Delivery | RPT-008 Newborn exam |
+| RPT-009 Vaccinations | RPT-010 Paediatric illness | | |
 
-```python
-ENTITY_TYPES   = ["MEDICATION", "CONDITION", "LAB_RESULT", "PROCEDURE",
-                  "VITAL_SIGN", "DATE", "DOCTOR", "PATIENT_INFO"]
+Longitudinal and causally linked (RPT-005 → RPT-007), so they exercise multi-hop retrieval. Built
+artefacts (`chunks`, `entities`, `relations`, `knowledge_graph.pkl`) are committed.
 
-RELATION_TYPES = ["PRESCRIBED_FOR", "INDICATES", "PERFORMED_ON", "TREATS",
-                  "DIAGNOSED_WITH", "MEASURED_ON", "RECOMMENDED_BY"]
-```
+</details>
 
-Fifteen fixed types. Let an LLM invent relation labels and you get `treats`, `is_treatment_for`,
-`used_to_treat` and `helps_with` as four distinct edge types describing one relationship — and a
-graph that cannot be traversed because no two edges match. Constraining the vocabulary is what
-makes `expand_depth=2` mean something.
-
-The chosen set is also **medically shaped**: `INDICATES` (lab result → condition) and `MEASURED_ON`
-(vital sign → date) are the two that make a longitudinal record queryable, and neither appears in a
-generic ontology. Extracted relations carry a **confidence score**, so weak edges can be filtered
-before traversal.
-
-### 4. Level 2 clusters get LLM-written summaries
-
-```python
-def generate_cluster_summary(kg, cluster_nodes) -> str
-```
-
-Each of the five super-clusters is described in natural language by an LLM reading its members.
-That summary is what the query is matched against at step 2 — so the top-level routing decision is
-made against *"complications and monitoring during the third trimester"* rather than against a
-centroid of embeddings. Human-readable, matchable, and inspectable when the routing goes wrong.
-
-### 5. Louvain for sub-clusters, targets for super-clusters
-
-```python
-build_hierarchy(n_super_clusters=5, n_sub_clusters=15)
-```
-
-Level 1 uses **Louvain community detection over the graph structure** — because clinical episodes
-are genuinely communities of densely-connected entities, and their number is a property of the
-records, not something to be guessed. Level 2 is targeted at 5–6, because the top of a hierarchy is
-a **navigation** structure and humans do not navigate fifty options. Different objectives, different
-methods.
-
-### 6. Synthetic records, so the KG can be developed without patient data
-
-Ten reports ship with the repo, spanning the whole arc:
-
-```
-RPT-001  Prenatal Consultation          RPT-006  Prenatal Follow-up, Third Trimester
-RPT-002  Laboratory Report, Blood Tests RPT-007  Delivery Summary
-RPT-003  Ultrasound, NT Scan            RPT-008  Newborn Examination
-RPT-004  Prenatal Follow-up             RPT-009  Pediatric Vaccination Record
-RPT-005  Glucose Tolerance Test         RPT-010  Pediatric Consultation, Illness
-```
-
-This is the right way to build health software. Real records cannot be committed; a KG cannot be
-developed without records. The synthetic set is deliberately **longitudinal and causally linked** —
-the glucose tolerance test in RPT-005 is meant to connect to the delivery summary in RPT-007 — so
-it exercises exactly the multi-hop retrieval the system exists for, which a bag of unrelated
-documents would not.
-
-The built artefacts are committed too (`chunks.json`, `entities.json`, `relations.json`,
-`knowledge_graph.pkl`), so the retrieval layer runs without re-extracting.
-
-### 7. The cry classifier carried over, and given a job
-
-`baby_cry_model2.pkl` is the trained forest from
-[Why-is-my-Baby-Crying](https://github.com/Vishal-AS-0407/Why-is-my-Baby-Crying) — 1,229 audio
-features, infant-band bandpass, 97.9% test accuracy. Here it stops being a demo and becomes a
-feature: record → classify → confidence → soothing tips for that specific cause.
-
-### 8. Genuinely localised content
-
-`routes/knowledge.py` serves `/articles`, `/categories`, `/search` — and two endpoints that would
-not appear in a Western parenting app:
-
-- **`/schemes`** — Indian government maternal and child health schemes. Entitlements a family
-  qualifies for and usually does not know exist. Arguably the highest-value feature in the app in
-  pure rupee terms.
-- **`/traditional`** — traditional practices, presented alongside clinical information rather than
-  dismissed. Indian families follow these regardless; engaging with them is what keeps the app
-  trusted rather than ignored.
-
-`routes/assistant.py` carries `/voice`, `/image` and `/translate` alongside `/chat`, so the whole
-assistant works by speech, by photograph, and in more than one language.
-
----
-
-## API
+## 🔌 API
 
 | Router | Endpoints |
 |---|---|
-| `user` | `/onboard` · `/profile/{id}` (GET, PUT) |
-| `cry_analyzer` | `/analyze` · `/types` |
-| `medical` | `/query` (U-Retrieval + trace) · `/stats` |
-| `reports` | `/analyze` · `/analyze-medical-report` · `/diet-plan` · `/medicine-check` · `/medicine-check-advanced` · `/medicine-scan` · `/history/{user_id}` · `/growth-milestones/{stage}` |
-| `assistant` | `/chat` · `/voice` · `/image` · `/translate` |
-| `knowledge` | `/articles` · `/categories` · `/search` · `/schemes` · `/traditional` |
-| `community` | `/channels` · `/feed` · `/post` · `/post/{id}/like` · `/post/{id}/comments` · `/post/{id}/comment` |
+| 👤 `user` | `/onboard` · `/profile/{id}` |
+| 👶 `cry_analyzer` | `/analyze` · `/types` |
+| 🩺 `medical` | `/query` (U-Retrieval + trace) · `/stats` |
+| 📄 `reports` | `/analyze` · `/diet-plan` · `/medicine-check` · `/medicine-scan` · `/history/{id}` · `/growth-milestones/{stage}` |
+| 🗣️ `assistant` | `/chat` · `/voice` · `/image` · `/translate` |
+| 📚 `knowledge` | `/articles` · `/categories` · `/search` · `/schemes` · `/traditional` |
+| 🤝 `community` | `/channels` · `/feed` · `/post` · likes · comments |
 
-## Repository layout
+## 🛠️ Tech stack
 
-```
-backend/
-  main.py · config.py · database.py · models.py · schemas.py
-  routes/          user · cry_analyzer · medical · reports · assistant · knowledge · community
-  services/        ai_service · cry_service · content_service · community_service
-    medical_kg/    chunking · entity_extraction · config      (the in-app KG)
-  data/synthetic/  10 linked medical reports
-  data/processed/  chunks · entities · relations · knowledge_graph.pkl
-  seed_community.py
+<p align="center">
+  <img src="https://skillicons.dev/icons?i=python,fastapi,react,vite,tailwind,sklearn&theme=dark" alt="Stack"/>
+  <br/>
+  <img src="https://img.shields.io/badge/NetworkX-Louvain-2C5BB4?style=for-the-badge" alt="NetworkX"/>
+  <img src="https://img.shields.io/badge/OpenAI-extraction-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI"/>
+  <img src="https://img.shields.io/badge/librosa-audio-4B8BBE?style=for-the-badge" alt="librosa"/>
+</p>
 
-medical_kg_retrieval/           the standalone KG research project
-  src/synthetic_data.py         report generation
-  src/chunking.py
-  src/entity_extraction.py      8 entity types, 7 relation types, confidence scores
-  src/knowledge_graph.py
-  src/hierarchical.py           Louvain sub-clusters + 5 super-clusters + LLM summaries
-  src/retrieval.py              U-Retrieval with RetrievalTrace
-  src/visualization.py
-  outputs/graphs/               interactive knowledge_graph.html, hierarchy.html
-  final_verification.py
-
-frontend/src/
-  pages/     Welcome · Onboarding · Dashboard · CryAnalyzer · Knowledge ·
-             MedicalHistory · Reports · Assistant · Community
-  components/BottomNav · MarkdownRenderer
-  context/UserContext · services/api
-
-docs/      features.md · tech_stack.md · user_flow.md ·
-           backend_architecture.md · frontend_architecture.md
-baby_cry_model2.pkl
-```
-
-## Running it
-
-**Backend**
+## 🚀 Getting started
 
 ```bash
+# ⚙️ Backend
 cd backend
 pip install -r requirements.txt
-# create .env with your OPENAI_API_KEY (see medical_kg_retrieval/.env.example)
+echo "OPENAI_API_KEY=..." > .env
 uvicorn main:app --reload --port 8000
-python seed_community.py        # optional: populate the community feed
-```
+python seed_community.py               # optional
 
-**Frontend**
+# 📱 Frontend
+cd frontend && npm install && npm run dev
 
-```bash
-cd frontend
-npm install && npm run dev
-```
-
-**Rebuild the knowledge graph from scratch**
-
-```bash
+# 🕸️ Rebuild the knowledge graph
 cd medical_kg_retrieval
-python main.py                  # synthetic data → chunks → entities → KG → hierarchy
+python main.py                          # synthetic data → chunks → entities → KG → hierarchy
 python final_verification.py
 ```
 
-Then open `outputs/graphs/knowledge_graph.html` and `hierarchy.html`.
+> 💡 **Tip:** open `medical_kg_retrieval/outputs/graphs/knowledge_graph.html` and
+> `hierarchy.html` to explore the graph interactively.
 
----
+## 📂 Project structure
 
-## ⚠️ Security
+```
+📦 Vatsal-AI
+ ┣ 📂 backend
+ ┃ ┣ 📂 routes            user · cry_analyzer · medical · reports · assistant · knowledge · community
+ ┃ ┣ 📂 services          ai · cry · content · community · medical_kg/
+ ┃ ┗ 📂 data              synthetic reports + processed KG
+ ┣ 📂 medical_kg_retrieval
+ ┃ ┣ 📂 src               chunking · extraction · knowledge_graph · hierarchical · retrieval · viz
+ ┃ ┗ 📂 outputs/graphs    interactive HTML + charts
+ ┣ 📂 frontend/src        9 pages · BottomNav · MarkdownRenderer
+ ┣ 📂 docs                features · tech stack · user flow · architecture
+ ┗ 🧠 baby_cry_model2.pkl
+```
 
-**`sample2.py` line 187 has a live Google Gemini API key hardcoded** — and it is the **same key
-that also appears in the `Why-is-my-Baby-Crying` repository**. Revoke it once at
-<https://aistudio.google.com/app/apikey> and it is handled in both places.
+## 🧭 Notes & roadmap
 
-Everything else in this repo is clean: `medical_kg_retrieval/.env.example` is the right pattern
-and no real `.env` is committed.
+<details>
+<summary><b>What to know</b></summary>
 
----
+- 🕸️ The full KG lives in `medical_kg_retrieval/`; the backend serves the **pre-built** graph.
+- 🧪 All records are synthetic — real notes (abbreviations, handwriting, mixed units) are untested.
+- 🤝 The community feed is seeded; it needs moderation before real users.
+- 📏 The trace shows *what* was retrieved, not *whether it was right* — a labelled question set
+  would turn it into precision/recall.
+- 🩺 Not a medical device — answers are traceable so a clinician stays the one who decides.
 
-## Honest notes
+**Roadmap**
+- [ ] Labelled retrieval evaluation
+- [ ] Real-record robustness (OCR noise, units)
+- [ ] Moderation for community
+- [ ] In-app KG rebuild on new uploads
 
-- **The KG exists in two places.** `medical_kg_retrieval/` is the full research implementation —
-  hierarchical clustering, U-Retrieval, tracing, visualisation. `backend/services/medical_kg/`
-  holds only chunking, entity extraction and config; the backend consumes the **pre-built**
-  `data/processed/knowledge_graph.pkl`. Read `medical_kg_retrieval/src/` to understand the system;
-  the backend serves it.
-- **All medical records are synthetic.** No real patient data, by design. It also means the
-  extraction quality has been validated against generated text, which is cleaner and more
-  consistent than real clinical notes — real records have handwriting artefacts, abbreviations and
-  inconsistent units, and the extractor has not met them.
-- **The community feed is seeded, not live.** `seed_community.py` populates it; there is no
-  moderation layer, which a parenting community would need before real users.
-- **No evaluation of retrieval quality.** The trace tells you *what* was retrieved and never
-  *whether it was right*. A labelled question set over the ten synthetic reports — with the correct
-  source reports marked — would turn the trace from a debugging aid into a measurable
-  precision/recall number. That is the most valuable thing missing.
-- **`sample2.py` at the repo root is a scratch script**, not part of the app.
-- **This is not a medical device.** It organises and retrieves a family's own records and provides
-  information. Every answer is traceable to a source report precisely so that a clinician remains
-  the one who decides.
+</details>
+
+<img src="https://user-images.githubusercontent.com/74038190/212284100-561aa473-3905-4a80-b561-0d28506553ee.gif" width="100%" alt="divider"/>
+
+<div align="center">
+
+<a href="https://portfolio-sigma-blond-57.vercel.app"><img src="https://img.shields.io/badge/Portfolio-1E1B4B?style=for-the-badge&logo=vercel&logoColor=white" alt="Portfolio"/></a>
+<a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
+<a href="https://github.com/Vishal-AS-0407"><img src="https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/></a>
+<a href="mailto:vishalpersonal04@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/></a>
+
+⭐ **If this helped you, star the repo!**
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:60A5FA,45:3B4BA8,100:1E1B4B&height=120&section=footer" width="100%" alt="footer"/>
+
+</div>
