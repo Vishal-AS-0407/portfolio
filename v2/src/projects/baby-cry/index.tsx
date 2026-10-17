@@ -16,6 +16,8 @@ import { projects } from '@/data/content';
 import { caseStudies } from '@/data/casestudies';
 import Spectro, { type SpectroState } from './Spectro';
 import { FeatureField, SmoteField, FAMILIES, TOTAL } from './Panels';
+import Mechanism from '@/projects/_shared/Mechanism';
+import { babyScene, TYPES } from './mechanism';
 import './night.css';
 
 const P = projects.find((x) => x.slug === 'baby-cry')!;
@@ -293,6 +295,30 @@ export default function NightShift() {
           <SmoteField pRef={smoteP} />
         </div>
       </section>
+
+      {/* ── 03:40 — the whole pipeline, in 3D, and then yours ── */}
+      <Mechanism
+        prefix="nw"
+        id="nw-mech"
+        eyebrow="03:40 · the machine listens"
+        title="How it hears a cry"
+        beats={[
+          { tag: '01 · intake', h: 'A cry, as the microphone hears it', body: CS.pipeline[0].body },
+          { tag: '02 · stft', h: 'Unfurled into time and pitch', body: 'Each 400-sample window becomes a column of energy across frequency. Height is energy; the depth axis is mel, the way the ear spaces pitch.' },
+          { tag: '03 · the gate', h: '142.91 – 6620.12 Hz', body: CS.pipeline[1].body },
+          { tag: '04 · 461', h: 'Collapsed into 461 numbers', body: '40 MFCCs with their deltas, zero-crossing rate, RMS, chroma, mel, spectral contrast, tonnetz, centroid, bandwidth, rolloff and a tempogram — each one aggregated by mean, std, skew, kurtosis, max and min.' },
+          { tag: '05 · the forest', h: 'A Random Forest votes', body: 'SMOTE first rebalances the training matrix to 1,525 × 461. Then every tree casts a vote across five causes, and LIME explains which features carried the decision.' },
+        ]}
+        free={{
+          tag: 'your turn',
+          h: 'Make it cry',
+          body: 'Pick a cause and the terrain re-forms to that cry’s signature. Drag to turn it; hover to read time and frequency.',
+          hint: 'drag to orbit · hover the terrain',
+        }}
+        controls={[{ kind: 'choice', key: 'type', label: 'Cause', initial: 'hungry', options: TYPES.map((t) => ({ v: t, label: t.replace('_', ' ') })) }]}
+        note="The cries in this scene are synthesised in your browser from a harmonic model — illustrative signatures, not recordings and not the model's training data."
+        build={babyScene}
+      />
 
       {/* ── 03:47 ── */}
       <section className="nw-verdict" aria-labelledby="nw-verdict-h">

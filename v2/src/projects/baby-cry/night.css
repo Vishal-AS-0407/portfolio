@@ -496,3 +496,83 @@ body.pj-night {
   .nw .pj-back { top: auto; bottom: clamp(14px, 4vw, 22px); right: clamp(14px, 4vw, 22px); }
   .nw-scrim { background: linear-gradient(180deg, rgba(14, 21, 36, 0.62), rgba(14, 21, 36, 0.86) 40%, rgba(14, 21, 36, 0.62)); }
 }
+
+/* ── 03:40 · the mechanism (docs/design/subpages-mechanism.md) ───────────── */
+.nw-mx { z-index: 2; }
+.nw-mx-pin {
+  overflow: hidden;
+  background:
+    radial-gradient(90% 60% at 60% 70%, rgba(69, 208, 200, 0.07), transparent 70%),
+    linear-gradient(180deg, var(--deep) 0%, #0b1220 60%, var(--deep) 100%);
+}
+.nw-mx-pin::after {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background: linear-gradient(90deg, rgba(8, 13, 24, 0.9) 0%, rgba(8, 13, 24, 0.55) 28%, transparent 52%),
+              linear-gradient(0deg, rgba(8, 13, 24, 0.85) 0%, transparent 30%);
+}
+.nw-mx-head { position: absolute; left: clamp(22px, 6vw, 96px); top: clamp(70px, 11vh, 110px); z-index: 2; pointer-events: none; }
+.nw-mx-eyebrow {
+  font-family: 'Fraunces', Georgia, serif; font-size: 18px; color: var(--cool);
+  font-variation-settings: 'opsz' 48, 'SOFT' 100, 'WONK' 1;
+}
+.nw-mx-title {
+  margin-top: 0.3em; font-family: 'Fraunces', Georgia, serif; font-weight: 340;
+  font-size: clamp(30px, 3.6vw, 52px); line-height: 1.04; letter-spacing: -0.01em;
+  font-variation-settings: 'opsz' 96, 'SOFT' 100;
+}
+.nw-mx-beats { list-style: none; margin: 0; padding: 0; }
+.nw-mx-beat, .nw-mx-free {
+  position: absolute; z-index: 2; left: clamp(22px, 6vw, 96px); bottom: clamp(70px, 12vh, 120px);
+  width: min(400px, calc(100vw - 44px));
+  opacity: 0; transform: translateY(14px); filter: blur(6px);
+  transition: opacity 0.7s var(--breathe), transform 0.7s var(--breathe), filter 0.7s var(--breathe);
+  pointer-events: none;
+}
+.nw-mx-beat[data-on], .nw-mx-free[data-on] { opacity: 1; transform: none; filter: none; pointer-events: auto; }
+.nw-mx-tag { font-family: 'Fraunces', Georgia, serif; font-size: 15px; color: var(--amber); font-style: italic; }
+.nw-mx-h {
+  font-family: 'Fraunces', Georgia, serif; font-weight: 380; font-size: clamp(22px, 2vw, 28px);
+  line-height: 1.15; margin: 0.25em 0 0.45em;
+}
+.nw-mx-body { font-size: 15px; line-height: 1.65; color: var(--dim); }
+.nw-mx-ctl { margin-top: 1.1rem; }
+.nw-mx-ctl-label { display: block; font-size: 13px; color: var(--faint); margin-bottom: 0.45rem; }
+.nw-mx-opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.nw-mx-opt {
+  font: inherit; font-size: 14px; color: var(--dim); background: rgba(22, 31, 51, 0.7);
+  border: 1px solid rgba(140, 160, 196, 0.22); border-radius: 999px; padding: 6px 14px; cursor: pointer;
+  transition: color 0.3s, border-color 0.3s, background 0.3s;
+}
+.nw-mx-opt:hover { color: var(--ink); border-color: rgba(69, 208, 200, 0.6); }
+.nw-mx-opt[aria-pressed='true'] { color: var(--deep); background: var(--amber); border-color: var(--amber); }
+.nw-mx-hint { margin-top: 0.9rem; font-size: 13px; color: var(--faint); font-style: italic; font-family: 'Fraunces', Georgia, serif; }
+.nw-mx-ticks {
+  position: absolute; z-index: 2; right: clamp(22px, 4vw, 64px); top: 50%; transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.nw-mx-ticks i { width: 6px; height: 6px; border-radius: 50%; background: rgba(140, 160, 196, 0.25); transition: background 0.4s, transform 0.4s; }
+.nw-mx-ticks i[data-on] { background: var(--cool); }
+.nw-mx-ticks i[data-now] { background: var(--amber); transform: scale(1.5); }
+.nw-mx-read {
+  position: absolute; z-index: 2; right: clamp(22px, 4vw, 64px); bottom: clamp(70px, 12vh, 120px);
+  font-family: 'Fraunces', Georgia, serif; font-size: 15px; color: var(--amber); font-variant-numeric: tabular-nums;
+}
+.nw-mx-note {
+  position: absolute; z-index: 2; left: clamp(22px, 6vw, 96px); bottom: 22px; max-width: 560px;
+  font-size: 12px; line-height: 1.5; color: var(--faint);
+}
+.nw-mx--still .nw-mx-pin { height: auto; padding: 90px 0 40px; }
+.nw-mx--still .nw-mx-cv { position: relative !important; height: 70vh !important; }
+.nw-mx--still .nw-mx-head, .nw-mx--still .nw-mx-beat, .nw-mx--still .nw-mx-free, .nw-mx--still .nw-mx-note, .nw-mx--still .nw-mx-read {
+  position: relative; left: auto; right: auto; top: auto; bottom: auto; margin: 0 auto 1.4rem; width: min(560px, calc(100vw - 44px));
+  opacity: 1; transform: none; filter: none;
+}
+.nw-mx--still .nw-mx-ticks, .nw-mx--still .nw-mx-pin::after { display: none; }
+@media (max-width: 759px) {
+  .nw-mx-head { top: 64px; }
+  .nw-mx-beat, .nw-mx-free { bottom: 56px; padding: 14px 16px; border-radius: 14px; background: rgba(8, 13, 24, 0.78); backdrop-filter: blur(8px); }
+  .nw-mx-body { font-size: 14px; }
+  .nw-mx-read { top: 150px; bottom: auto; left: 22px; right: auto; font-size: 13px; }
+  .nw-mx-ticks { top: 76px; transform: none; flex-direction: row; right: 22px; }
+  .nw-mx-note { bottom: 12px; font-size: 11px; right: 130px; }
+}
