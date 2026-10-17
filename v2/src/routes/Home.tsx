@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { lazy, Suspense, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Section from '@/components/Section';
 import { onFrame, clamp } from '@/lib/scroll';
@@ -8,7 +8,10 @@ import {
 } from '@/data/content';
 import { caseStudies } from '@/data/casestudies';
 
-/* ── 01 · HERO — the name is type, never particles ── */
+/* the heart is its own chunk — fetched after the shell, never by /work/* */
+const Biomech = lazy(() => import('@/hero/Biomech'));
+
+/* ── 01 · HERO — the name is type, never particles; the heart sits behind it ── */
 function Hero() {
   const name = useRef<HTMLHeadingElement>(null);
   useEffect(() =>
@@ -23,14 +26,15 @@ function Hero() {
 
   return (
     <section className="relative w-full gutter h-screen flex flex-col justify-end pb-[clamp(44px,7vh,88px)] in">
-      <div className="tag fade">initialisation — epoch 0</div>
+      <Suspense fallback={null}><Biomech /></Suspense>
+      <div className="tag fade relative z-[2] pointer-events-none">initialisation — epoch 0</div>
       <h1
         ref={name}
-        className="font-bold uppercase leading-[.82] tracking-[-.05em] text-[clamp(52px,14.5vw,244px)] will-change-transform"
+        className="relative z-[2] pointer-events-none font-bold uppercase leading-[.82] tracking-[-.05em] text-[clamp(52px,14.5vw,244px)] will-change-transform"
       >
         Vishal<br />A S
       </h1>
-      <div className="rule mt-[clamp(18px,2.6vh,34px)] pt-4 flex flex-wrap items-end justify-between gap-9">
+      <div className="rule relative z-[2] pointer-events-none mt-[clamp(18px,2.6vh,34px)] pt-4 flex flex-wrap items-end justify-between gap-9">
         <div className="fade d1 text-[clamp(14px,1.4vw,20px)]">{profile.role}</div>
         <div className="fade d2 mono uppercase flex items-center gap-2">
           <i className="w-[5px] h-[5px] rounded-full bg-[#DE4968] animate-pulse" />

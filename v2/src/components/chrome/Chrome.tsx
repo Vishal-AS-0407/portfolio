@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { onFrame, lerp, deviceTier } from '@/lib/scroll';
+import { onFrame, lerp, deviceTier, state } from '@/lib/scroll';
 import { profile } from '@/data/content';
 
 /* ── HUD: the training readout. Bottom band + left rail only —
@@ -27,7 +27,7 @@ export function Hud() {
       if (fill.current) fill.current.style.height = (p * 100).toFixed(1) + '%';
       let s = 'initialising';
       for (const [k, v] of STATES) if (p >= k) s = v;
-      if (st.current) st.current.textContent = 'state: ' + s;
+      if (st.current) st.current.textContent = state.hud || 'state: ' + s;
 
       const c = curve.current;
       if (c && c.offsetParent !== null) {
@@ -80,29 +80,44 @@ export function Hud() {
   );
 }
 
-/* ── custom cursor with inertia ── */
+/* ── custom cursor with inertia ──
+   Delegated, so elements mounted later (the hero heart) still grow it, and an
+   element can put a word inside the ring with data-cur-label. */
 export function Cursor() {
   const ref = useRef<HTMLDivElement>(null);
+  const txt = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (deviceTier() < 2) return;
     let mx = innerWidth / 2, my = innerHeight / 2, cx = mx, cy = my;
+    let over: Element | null = null;
     const move = (e: PointerEvent) => { mx = e.clientX; my = e.clientY; };
+    const enter = (e: PointerEvent) => {
+      over = (e.target as Element | null)?.closest?.('a,button,[data-cur]') ?? null;
+    };
     addEventListener('pointermove', move, { passive: true });
-    const big = () => ref.current?.classList.add('big');
-    const small = () => ref.current?.classList.remove('big');
-    const bind = () => document.querySelectorAll('a,button,[data-cur]').forEach((el) => {
-      el.addEventListener('pointerenter', big); el.addEventListener('pointerleave', small);
-    });
-    bind();
-    const t = setTimeout(bind, 800);
+    document.addEventListener('pointerover', enter, { passive: true });
+    let lastLabel = '';
     const off = onFrame(({ dt }) => {
       cx = lerp(cx, mx, Math.min(1, 0.16 * dt));
       cy = lerp(cy, my, Math.min(1, 0.16 * dt));
-      if (ref.current) ref.current.style.transform = `translate(${cx}px,${cy}px)`;
+      const el = ref.current;
+      if (!el) return;
+      el.style.transform = `translate(${cx}px,${cy}px)`;
+      const label = (over && over.isConnected && over.getAttribute('data-cur-label')) || '';
+      el.classList.toggle('big', !!over && over.isConnected);
+      if (label !== lastLabel && txt.current) {
+        lastLabel = label;
+        txt.current.textContent = label;
+        el.classList.toggle('lab', !!label);
+      }
     });
-    return () => { removeEventListener('pointermove', move); off(); clearTimeout(t); };
+    return () => {
+      removeEventListener('pointermove', move);
+      document.removeEventListener('pointerover', enter);
+      off();
+    };
   }, []);
-  return <div ref={ref} className="cursor" aria-hidden />;
+  return <div ref={ref} className="cursor" aria-hidden><span ref={txt} /></div>;
 }
 
 /* ── the escape hatch to the plain site ── */
@@ -140,7 +155,15 @@ export function Preloader() {
     const id = setInterval(() => {
       v = Math.min(100, v + Math.random() * 7 + 2.2);
       setPct(Math.floor(v));
-      if (v >= 100) { clearInterval(id); setTimeout(() => setDone(true), 260); }
+      if (v >= 100) {
+        clearInterval(id);
+        setTimeout(() => {
+          setDone(true);
+          state.ready = true;
+          document.documentElement.dataset.ready = '';
+          window.dispatchEvent(new Event('preloader:done'));
+        }, 260);
+      }
     }, 90);
     return () => clearInterval(id);
   }, []);
@@ -161,7 +184,7 @@ export function Preloader() {
           {pct}
         </div>
         <div className="mono text-right leading-[2.1] uppercase">
-          building point cloud<br />
+          assembling heart<br />
           loss {(4.8271 * Math.pow(1 - pct / 100, 2.4) + 0.0041).toFixed(4)}<br />
           compiling shaders
         </div>

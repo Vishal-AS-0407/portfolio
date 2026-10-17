@@ -23,7 +23,18 @@ export const onFrame = (fn: (f: Frame) => void): (() => void) => {
   return () => { subs.delete(fn); };
 };
 
-export const state = { p: 0, vel: 0, lenis: null as Lenis | null };
+export const state = {
+  p: 0,
+  vel: 0,
+  lenis: null as Lenis | null,
+  /** a shared kick: the hero heart adds to it on every beat / blast, the field
+     ripples with it and lets it decay */
+  pulse: 0,
+  /** when set, the HUD shows this instead of its own state line */
+  hud: '' as string,
+  /** the preloader has lifted */
+  ready: false,
+};
 
 let started = false;
 export function initScroll() {

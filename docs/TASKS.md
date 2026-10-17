@@ -49,10 +49,10 @@ content but present it that way, using open-source components that were each che
 
 Approved plan: `C:\Users\visha\.claude\plans\compressed-tinkering-map.md`.
 
-- [ ] Design doc `docs/design/biomech-and-inheritance.md`
-- [ ] Heart: flesh + cardiac clock + lighting → mechanical grafts → grease/steam
-- [ ] Interactions → GPGPU swarm + debris → field kick → hold/blast → hero exit
-- [ ] Teardown egg → sound → preloader tie-in → tiers / fallbacks / adaptive quality
+- [x] Design doc `docs/design/biomech-and-inheritance.md`
+- [x] Heart: flesh + cardiac clock + lighting → mechanical grafts → grease/steam
+- [x] Interactions → GPGPU swarm + debris → field kick → hold/blast → hero exit
+- [x] Teardown egg → sound → preloader tie-in → tiers / fallbacks / adaptive quality
 - [ ] Story rig + poses → parallax scenery → scenes 1–9 → polish
 - [ ] Verify (desktop, phone, reduced motion, perf) → push
 

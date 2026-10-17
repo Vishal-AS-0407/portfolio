@@ -3,7 +3,7 @@
    Mounted once in App, above the router outlet. */
 import { useEffect, useRef } from 'react';
 import { createField, type FieldHandle } from '@/lib/field';
-import { onFrame, deviceTier, lerp, clamp, ss } from '@/lib/scroll';
+import { onFrame, deviceTier, lerp, clamp, ss, state } from '@/lib/scroll';
 
 /* [id, fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd, parallaxRate, scale, maxOpacity] */
 const SCHEDULE: [string, number, number, number, number, number, number, number][] = [
@@ -87,7 +87,9 @@ export default function Stage() {
         rotX: -0.14 + Math.sin(performance.now() * 0.00017) * 0.045 + p * 0.09,
         dist: lerp(3.6, 2.7, ss(0, 0.55, p)),
         alpha: fieldAlpha,
+        kick: Math.min(1.6, state.pulse),
       });
+      state.pulse *= Math.pow(0.9, dt);
     });
 
     return () => {
