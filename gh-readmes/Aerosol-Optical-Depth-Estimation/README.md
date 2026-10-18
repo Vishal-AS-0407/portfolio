@@ -130,8 +130,8 @@ pip install -r requirements.txt
 python main.py         # reads config.json → checkpoint/ and prediction/
 ```
 
-> 💡 **Tip:** download the [competition data](https://solafune.com/competitions/ca6ee401-eba9-4f7d-95e6-d1b378a17200)
-> into `Data/train_images/`, `Data/test_images/` and `Data/train_answer.csv`.
+> 💡 **Tip:** download the competition data from [Solafune](https://solafune.com/) (the original
+> competition page has since been taken down) into `Data/train_images/`, `Data/test_images/` and `Data/train_answer.csv`.
 
 ```
 📦 Aerosol-Optical-Depth-Estimation

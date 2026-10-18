@@ -29,7 +29,7 @@ content but present it that way, using open-source components that were each che
 | Tech icons | tandpfun/skill-icons | ✅ 200 |
 | Badges | shields.io (`for-the-badge`) | ✅ 200 |
 | Stats / top-langs / pin cards | anuraghazra/github-readme-stats | ✅ real data |
-| Streak card | DenverCoder1/github-readme-streak-stats | ✅ real data |
+| Streak card | DenverCoder1/github-readme-streak-stats | ✅ real data — dropped from the profile (current streak 0 reads badly) |
 | Animated GIFs, dividers, emojis | Anmol-Baranwal/Cool-GIFs-For-GitHub | ✅ |
 | Structure (ToC, Built With, Usage, Roadmap…) | othneildrew/Best-README-Template | ✅ |
 | Activity graph · trophies | Ashutosh00710 · ryo-ma | ❌ 402 — **not used** |
@@ -37,7 +37,7 @@ content but present it that way, using open-source components that were each che
 
 - [x] Shared kit: one set of header/footer/divider/badge conventions, a colour per project
 - [x] Profile README (Vishal-AS-0407) — your animated style, upgraded: results with evidence,
-      case-study links, stats + streak, fixed Google Scholar link (was a placeholder)
+      case-study links, stats + top languages, fixed Google Scholar link (was a placeholder)
 - [x] 27 repo READMEs — keep your originals' screenshots, demo links and good parts; add
       architecture Mermaid, results tables, quick-start; known issues go in a collapsed
       `<details>` at the bottom instead of dominating

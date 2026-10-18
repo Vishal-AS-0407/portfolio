@@ -2,7 +2,7 @@
 
 `README.md` here goes to the special repo `Vishal-AS-0407/Vishal-AS-0407`. It is
 self-contained: no `assets/` folder — every image is a hosted, open-source component
-(typing SVG, GIFs, skill icons, stats/top-langs/streak cards, pin cards, badges, view counter).
+(typing SVG, GIFs, skill icons, stats/top-langs cards, pin cards, badges, view counter via hits.sh — komarev 404s through GitHub's image proxy).
 
 ```bash
 python gh-readmes/publish.py --only Vishal-AS-0407

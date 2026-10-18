@@ -11,7 +11,7 @@
 <a href="https://portfolio-sigma-blond-57.vercel.app/"><img src="https://img.shields.io/badge/🌐_Portfolio-visit-DE4968?style=for-the-badge&labelColor=0C0D0B" alt="Portfolio"/></a>
 <a href="https://scholar.google.com/citations?user=fPK6EDAAAAAJ&hl=en"><img src="https://img.shields.io/badge/Google_Scholar-publications-4285F4?style=for-the-badge&logo=googlescholar&logoColor=white" alt="Google Scholar"/></a>
 <a href="https://www.linkedin.com/in/vishal-a-s04/"><img src="https://img.shields.io/badge/LinkedIn-connect-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/></a>
-<img src="https://komarev.com/ghpvc/?username=Vishal-AS-0407&style=for-the-badge&color=00D4FF&label=profile+views" alt="Profile views"/>
+<img src="https://hits.sh/github.com/Vishal-AS-0407.svg?style=for-the-badge&label=profile%20views&color=00d4ff&labelColor=070a12" alt="Profile views"/>
 
 </div>
 
@@ -146,8 +146,6 @@ print("Let's build something amazing!")
 <div align="center">
   <img height="170em" src="https://github-readme-stats.vercel.app/api?username=Vishal-AS-0407&show_icons=true&theme=tokyonight&hide_border=true&count_private=true&include_all_commits=true" alt="GitHub stats"/>
   <img height="170em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Vishal-AS-0407&layout=compact&theme=tokyonight&hide_border=true&langs_count=8" alt="Top languages"/>
-  <br/>
-  <img src="https://streak-stats.demolab.com?user=Vishal-AS-0407&theme=tokyonight&hide_border=true" alt="GitHub streak"/>
 </div>
 
 ## <img src="https://user-images.githubusercontent.com/74038190/212284087-bbe7e430-757e-4901-90bf-4cd2ce3e1852.gif" width="50px" alt=""/> What I'm Working On
@@ -160,7 +158,7 @@ print("Let's build something amazing!")
 memory for long-running sessions · an autonomous ML toolkit (prep → train → infer → deploy) · an
 RL-fine-tuned cybersecurity model  
 📝 **Under review:** bilingual VLM fine-tuning for mathematical reasoning (ICICC)  
-🎨 **Side quest:** a 3D interactive hero for my [portfolio](https://portfolio-sigma-blond-57.vercel.app/)  
+🎨 **Just shipped:** my [portfolio](https://portfolio-sigma-blond-57.vercel.app/) — a 3D biomechanical-heart hero and an interactive 3D walkthrough on every case study  
 💬 **Ask me about:** signal processing, LLM systems, agents, computer vision, AI in healthcare  
 ♟️ **Fun fact:** FIDE-rated chess player — 100+ tournaments, 50+ wins, State Selection bronze
 

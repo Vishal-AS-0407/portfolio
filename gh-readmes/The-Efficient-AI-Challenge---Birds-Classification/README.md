@@ -137,7 +137,8 @@ python test.py       # 3️⃣ predictions + submission
 
 > 💡 **Tip:** put the [CUB-200-2011](http://www.vision.caltech.edu/datasets/cub_200_2011/) images
 > in `images/` with `annotation2.csv` at the root. Remove the hard-coded `E:/...` save line in
-> `distill.py` first. · [Competition](https://www.kaggle.com/competitions/bird-classification-anokha/data)
+> `distill.py` first. · The Kaggle competition
+> page (`bird-classification-anokha`) is no longer public.
 
 ```
 📦 The-Efficient-AI-Challenge---Birds-Classification
