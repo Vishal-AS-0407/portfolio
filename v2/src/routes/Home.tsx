@@ -25,7 +25,7 @@ function Hero() {
     }), []);
 
   return (
-    <section className="relative w-full gutter h-screen flex flex-col justify-end pb-[clamp(44px,7vh,88px)] in">
+    <section className="relative w-full gutter h-screen flex flex-col justify-end pb-[176px] in">
       <Suspense fallback={null}><Biomech /></Suspense>
       <div className="tag fade relative z-[2] pointer-events-none">initialisation — epoch 0</div>
       <h1
