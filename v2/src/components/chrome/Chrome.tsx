@@ -81,7 +81,7 @@ export function Hud() {
 }
 
 /* ── custom cursor with inertia ──
-   Delegated, so elements mounted later (the hero heart) still grow it, and an
+   Delegated, so elements mounted later still grow it, and an
    element can put a word inside the ring with data-cur-label. */
 export function Cursor() {
   const ref = useRef<HTMLDivElement>(null);
@@ -184,7 +184,7 @@ export function Preloader() {
           {pct}
         </div>
         <div className="mono text-right leading-[2.1] uppercase">
-          assembling heart<br />
+          building point cloud<br />
           loss {(4.8271 * Math.pow(1 - pct / 100, 2.4) + 0.0041).toFixed(4)}<br />
           compiling shaders
         </div>

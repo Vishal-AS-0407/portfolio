@@ -1,3 +1,5 @@
+> **Superseded (2026-10-24).** The heart hero was removed and the bottom-edge story band was replaced by a full-screen pinned film. See `inheritance-film.md`.
+
 # Biomech + Inheritance
 
 Two additions to the landing route `/` only, built on the existing scroll spine

@@ -291,3 +291,14 @@ Bugs found by rendering, all of which had passed `tsc` and a blocklist sweep:
 - The **`/work/:slug` entry transitions** are per-page; there is no shared route
   transition, by design. Arriving from the index is a hard cut into each page's
   own opening gesture.
+
+## 2026-10-24 — Inheritance, the film
+
+- Removed the Biomech heart hero (it read as synthetic) and the bottom-edge story band (too small to
+  carry a story). `field.ts` is back to its `pre-3d` state.
+- New `v2/src/film/`: a 760vh pinned, letterboxed Canvas 2D film straight after the hero. Nine shots,
+  a nine-grade colour script, four parallax planes, a rim-lit ink cast, an 11-angle FK rig with smears,
+  and impacts that fire only when scrolling forward. Plan: `inheritance-film.md`.
+- `scroll.ts` gains `state.gap` (the film's pin is cut out of page progress, so field, HUD and inversion
+  timing are unchanged) and `state.cover` (the field skips rendering while the film fills the screen).
+- Reduced motion renders the nine shots as stills. A skip button jumps past the film. Dev: `?film=0.42`, `&bones=1`.

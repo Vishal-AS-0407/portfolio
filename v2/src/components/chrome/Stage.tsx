@@ -77,7 +77,8 @@ export default function Stage() {
         }
       }
 
-      field?.update({
+      /* the film fills the viewport opaquely while it plays — nothing to draw */
+      if (!state.cover) field?.update({
         morph: morphS,
         turb,
         inv: invS,
@@ -87,9 +88,7 @@ export default function Stage() {
         rotX: -0.14 + Math.sin(performance.now() * 0.00017) * 0.045 + p * 0.09,
         dist: lerp(3.6, 2.7, ss(0, 0.55, p)),
         alpha: fieldAlpha,
-        kick: Math.min(1.6, state.pulse),
       });
-      state.pulse *= Math.pow(0.9, dt);
     });
 
     return () => {

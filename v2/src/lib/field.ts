@@ -12,7 +12,7 @@ const VERT = /* glsl */ `
 attribute vec3 aP0, aP1, aP2, aP3, aP4, aP5;
 attribute vec3 aCol;
 attribute vec2 aRnd;
-uniform float uMorph, uTime, uTurb, uVel, uReveal, uPS, uDpr, uKick;
+uniform float uMorph, uTime, uTurb, uVel, uReveal, uPS, uDpr;
 varying float vT, vA, vImg;
 varying vec3 vC;
 
@@ -39,9 +39,6 @@ void main() {
 
   p += turb(p * 1.5 + aRnd.x * 6.28, uTime) * uTurb * (.35 + aRnd.y * .65);
   p.z += (1. - uReveal) * (2.2 + aRnd.y * 6.5);
-  /* the hero heart's beat travels through the whole cloud as a ring */
-  float kr = length(p);
-  p += p / max(kr, .1) * uKick * (.05 + aRnd.y * .09) * (.6 + .4 * sin(kr * 5. - uTime * 9.));
 
   vec4 mv = modelViewMatrix * vec4(p, 1.);
   mv.y += uVel * .15 * (.4 + aRnd.x);
@@ -152,7 +149,7 @@ const loadImg = (src: string) =>
   });
 
 export type FieldHandle = {
-  update: (o: { morph: number; turb: number; inv: number; vel: number; reveal: number; rotY: number; rotX: number; dist: number; alpha: number; kick?: number }) => void;
+  update: (o: { morph: number; turb: number; inv: number; vel: number; reveal: number; rotY: number; rotX: number; dist: number; alpha: number }) => void;
   resize: () => void;
   dispose: () => void;
   count: number;
@@ -195,7 +192,7 @@ export async function createField(canvas: HTMLCanvasElement, tier: FieldTier): P
 
   const uniforms = {
     uMorph: { value: 0 }, uTime: { value: 0 }, uTurb: { value: .1 }, uVel: { value: 0 },
-    uReveal: { value: 0 }, uInv: { value: 0 }, uAlpha: { value: 1 }, uKick: { value: 0 },
+    uReveal: { value: 0 }, uInv: { value: 0 }, uAlpha: { value: 1 },
     uPS: { value: tier === 1 ? 4.6 : 6.4 },
     uDpr: { value: renderer.getPixelRatio() },
   };
@@ -210,7 +207,7 @@ export async function createField(canvas: HTMLCanvasElement, tier: FieldTier): P
   let lastInv = 0;
   return {
     count: N,
-    update({ morph, turb, inv, vel, reveal, rotY, rotX, dist, alpha, kick = 0 }) {
+    update({ morph, turb, inv, vel, reveal, rotY, rotX, dist, alpha }) {
       uniforms.uMorph.value = morph;
       uniforms.uTime.value = performance.now() * 0.001;
       uniforms.uTurb.value = turb;
@@ -218,7 +215,6 @@ export async function createField(canvas: HTMLCanvasElement, tier: FieldTier): P
       uniforms.uVel.value = vel;
       uniforms.uReveal.value = reveal;
       uniforms.uAlpha.value = alpha;
-      uniforms.uKick.value = kick;
       pts.rotation.y = rotY; pts.rotation.x = rotX;
       cam.position.z = dist;
       /* additive glows on the void; standard alpha reads as ink on the plate */

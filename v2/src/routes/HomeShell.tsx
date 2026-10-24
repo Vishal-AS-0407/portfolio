@@ -10,7 +10,6 @@ import { useEffect } from 'react';
 import Stage from '@/components/chrome/Stage';
 import { Hud, Cursor, EscapeHatch, Preloader } from '@/components/chrome/Chrome';
 import Home from '@/routes/Home';
-import StoryBand from '@/story/StoryBand';
 import { initScroll } from '@/lib/scroll';
 import { registerEggs } from '@/lib/eggs';
 
@@ -25,7 +24,6 @@ export default function HomeShell() {
       <Preloader />
       <Stage />
       <Hud />
-      <StoryBand />
       <Cursor />
       <EscapeHatch />
       <main className="relative z-[5]">

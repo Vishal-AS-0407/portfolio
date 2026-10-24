@@ -158,7 +158,7 @@ print("Let's build something amazing!")
 memory for long-running sessions · an autonomous ML toolkit (prep → train → infer → deploy) · an
 RL-fine-tuned cybersecurity model  
 📝 **Under review:** bilingual VLM fine-tuning for mathematical reasoning (ICICC)  
-🎨 **Just shipped:** my [portfolio](https://portfolio-sigma-blond-57.vercel.app/) — a 3D biomechanical-heart hero and an interactive 3D walkthrough on every case study  
+🎨 **Just shipped:** my [portfolio](https://portfolio-sigma-blond-57.vercel.app/) — a nine-shot silhouette film you scroll through and an interactive 3D walkthrough on every case study  
 💬 **Ask me about:** signal processing, LLM systems, agents, computer vision, AI in healthcare  
 ♟️ **Fun fact:** FIDE-rated chess player — 100+ tournaments, 50+ wins, State Selection bronze
 

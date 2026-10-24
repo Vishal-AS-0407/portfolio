@@ -27,13 +27,16 @@ export const state = {
   p: 0,
   vel: 0,
   lenis: null as Lenis | null,
-  /** a shared kick: the hero heart adds to it on every beat / blast, the field
-     ripples with it and lets it decay */
-  pulse: 0,
   /** when set, the HUD shows this instead of its own state line */
   hud: '' as string,
   /** the preloader has lifted */
   ready: false,
+  /** a pinned range the page's p should not count (the film): while it plays
+     the field, plates, HUD and inversion hold still, and after it they run on
+     exactly the timing they had before it existed */
+  gap: null as null | { top: number; len: number },
+  /** something opaque fills the viewport — the field may skip its render */
+  cover: false,
 };
 
 let started = false;
@@ -67,8 +70,11 @@ export function initScroll() {
     const now = performance.now();
     const dt = Math.min(2.5, (now - last) / 16.667);
     last = now;
-    const max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
-    const raw = (lenis ? lenis.scroll : window.scrollY) / max;
+    let max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    let y = lenis ? lenis.scroll : window.scrollY;
+    const g = state.gap;
+    if (g) { y -= clamp(y - g.top, 0, g.len); max = Math.max(1, max - g.len); }
+    const raw = y / max;
     const p = Math.min(1, Math.max(0, raw));
     const vel = lenis ? (lenis as unknown as { velocity: number }).velocity ?? 0 : 0;
     smoothed += (p - smoothed) * Math.min(1, 0.22 * dt);

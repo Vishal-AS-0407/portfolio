@@ -2,7 +2,7 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:0C0D0B,30:3B0F70,60:8C2981,85:DE4968,100:FE9F6D&height=240&section=header&text=VISHAL%20A%20S&fontSize=64&fontColor=FCFDBF&fontAlignY=36&desc=Portfolio%20%C2%B7%20one%20repo%2C%20one%20deploy%2C%20ten%20worlds&descSize=19&descAlignY=58&animation=fadeIn" width="100%" alt="Vishal A S — portfolio"/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=FE9F6D&center=true&vCenter=true&width=740&lines=%F0%9F%AB%80+A+half-flesh%2C+half-machine+3D+heart;%E2%9C%A8+100k-point+WebGL+field%2C+driven+by+scroll;%F0%9F%93%96+8+case+studies%2C+8+visual+languages;%F0%9F%A7%B1+An+interactive+3D+mechanism+on+every+one;%F0%9F%93%84+A+plain+version+at+%2Fplain%2F;%F0%9F%9A%80+One+push+deploys+both" alt="typing summary"/>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=21&duration=2800&pause=900&color=FE9F6D&center=true&vCenter=true&width=740&lines=%F0%9F%8E%9E%EF%B8%8F+A+nine-shot+film+you+scroll;%E2%9C%A8+100k-point+WebGL+field%2C+driven+by+scroll;%F0%9F%93%96+8+case+studies%2C+8+visual+languages;%F0%9F%A7%B1+An+interactive+3D+mechanism+on+every+one;%F0%9F%93%84+A+plain+version+at+%2Fplain%2F;%F0%9F%9A%80+One+push+deploys+both" alt="typing summary"/>
 
 <br/>
 
@@ -40,7 +40,7 @@ One repo, one build, **two sites on one origin**:
 
 | Path | Site | Built with |
 |---|---|---|
-| `/` | 🌌 **The main site** — a half-flesh, half-machine **3D heart** you can drag, click and overclock, a scroll-driven 100k-point particle field, a silhouette **story told along the bottom edge**, a HUD that reads like a training run, and **eight standalone case-study pages** under `/work/:slug` | `v2/` · React, three.js, GSAP, Lenis |
+| `/` | 🌌 **The main site** — a scroll-driven 100k-point particle field, **Inheritance** — a nine-shot silhouette film you scroll through, pinned and letterboxed right after the hero — a HUD that reads like a training run, and **eight standalone case-study pages** under `/work/:slug` | `v2/` · React, three.js, GSAP, Lenis |
 | `/plain/` | 📄 **The plain version** — one calm, readable page for anyone who'd rather skip the motion | repo root · React, shadcn/ui, Framer Motion |
 
 > 🚀 `npm run build:site` builds the main site into `v2/dist`, then the plain site into
@@ -70,6 +70,9 @@ drawn in the page's own style, ending in a panel where you take control.
 ## 🖼️ Gallery
 
 <div align="center">
+<b>🎞️ Inheritance — four of the film's nine shots</b><br/>
+<a href="https://portfolio-sigma-blond-57.vercel.app/#film"><img src="https://raw.githubusercontent.com/Vishal-AS-0407/portfolio/main/docs/readme/film.jpg" alt="Inheritance, four shots" width="100%"/></a>
+<br/><br/>
 <table>
 <tr>
 <td align="center" width="50%"><b>👶 Night Shift</b><br/><a href="https://portfolio-sigma-blond-57.vercel.app/work/baby-cry"><img src="https://raw.githubusercontent.com/Vishal-AS-0407/portfolio/main/docs/readme/baby-cry.jpg" alt="Night Shift"/></a></td>
@@ -93,8 +96,7 @@ flowchart TD
     SCROLL["🖱️ Lenis smooth scroll"] --> TICK["⏱️ gsap.ticker — one frame loop"]
     TICK --> SPINE["📐 lib/scroll.ts<br/>onFrame(p, vel, dt) · deviceTier()"]
     SPINE --> FIELD["🌌 lib/field.ts<br/>100k points · pure function of scroll"]
-    SPINE --> HEART["🫀 Biomech hero<br/>procedural heart · GPGPU swarm"]
-    SPINE --> STORY["🎞️ Inheritance<br/>2D skeletal rig · 9 scenes"]
+    SPINE --> STORY["🎞️ Inheritance<br/>pinned Canvas 2D film · 9 shots · own scroll gap"]
     SPINE --> HUD["📟 HUD<br/>loss curve · epoch · state"]
     SPINE --> SECTIONS["📚 Sections<br/>work · research · awards · contact"]
     ROUTER["🧭 React Router"] --> HOME["/ — HomeShell (lazy)"]
@@ -107,7 +109,8 @@ flowchart TD
 | Decision | Why |
 |---|---|
 | 🔁 **One frame loop** | on the landing page everything subscribes to `onFrame` — no competing `requestAnimationFrame`s |
-| 🫀 **No model files** | the heart, its grafts, the swarm and the story's characters are all procedural — zero downloaded assets, zero new dependencies |
+| 🎞️ **No model files** | the film's cast, sets, sky and colour script are all procedural Canvas 2D — zero downloaded assets, zero new dependencies |
+| ⏸️ **The film doesn't steal time** | its 760vh pin is cut out of the page's scroll progress, so the field, HUD and inversion keep their timing; a skip button jumps past it, and reduced motion gets nine stills |
 | 🧱 **Shared plumbing, no shared look** | `_shared/stage3d` + `_shared/Mechanism` give every case study a renderer, orbit, picking and a pinned storyboard; each page brings its own scene, colours and type, and the loop only runs while the section is on screen |
 | 📱 **Device tiers** | reduced-motion / mobile / desktop decide point counts and effects |
 | 🧩 **Lazy everything** | the entry chunk is React + router; each route fetches its own world |
@@ -142,8 +145,7 @@ decides how hard particles are pushed.
 <details>
 <summary><b>🥚 Easter eggs</b></summary>
 
-Open the console on the main site. Try typing on the page, too. And the heart has a loose
-bolt — interact with it enough and you'll see which one.
+Open the console on the main site. Try typing on the page, too.
 
 </details>
 
@@ -185,8 +187,7 @@ link to. With a custom domain, search the repo for `portfolio-sigma-blond-57` an
 📦 portfolio
  ┣ 📂 v2                     🌌 main site
  ┃ ┣ 📂 src/routes           Home · HomeShell · NotFound
- ┃ ┣ 📂 src/hero/biomech     the 3D heart · grafts · swarm · teardown egg · synth
- ┃ ┣ 📂 src/story            Inheritance · skeletal rig · 9-scene script
+ ┃ ┣ 📂 src/film             Inheritance · cast + rig · sets · colour script · 9-shot script
  ┃ ┣ 📂 src/projects         8 case studies, one folder each (+ mechanism.ts)
  ┃ ┣ 📂 src/projects/_shared stage3d · Mechanism · BackLink · page shell
  ┃ ┣ 📂 src/components       Section · chrome (Stage, HUD, Cursor, Preloader)
@@ -204,8 +205,8 @@ link to. With a custom domain, search the repo for `portfolio-sigma-blond-57` an
 
 - 🔒 Both `bun.lockb` and `package-lock.json` exist at the root; deploys use npm.
 - 🧱 `src/components/ui/` is the full shadcn/ui set — unused parts are tree-shaken away.
-- ✅ Shipped: the 3D hero, the scroll-told story and a 3D mechanism on every case study —
-  plans in `docs/design/biomech-and-inheritance.md` and `docs/design/subpages-mechanism.md`.
+- ✅ Shipped: the Inheritance film and a 3D mechanism on every case study —
+  plans in `docs/design/inheritance-film.md` and `docs/design/subpages-mechanism.md`.
 
 </details>
 
