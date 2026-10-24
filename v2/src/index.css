@@ -158,40 +158,42 @@
   .work-wash, .work-name { transition: none }
 }
 
-/* ── Inheritance: the story strip on the bottom edge (docs/design/inheritance-film.md) ──
-   a panoramic window above the HUD row; its sky dissolves upward into the page, and the
-   shot's line sits on the dark ground under the figures' feet, like a subtitle */
-:root { --story-h: clamp(112px, 16vh, 158px); --story-b: 56px; }
-.story { position: fixed; left: 0; right: 0; bottom: var(--story-b); height: var(--story-h); z-index: 19; pointer-events: none; }
-.story-cv {
-  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 28%, #000 92%, transparent 100%);
-  mask-image: linear-gradient(to bottom, transparent 0, #000 28%, #000 92%, transparent 100%);
-  animation: story-in 1.4s cubic-bezier(.2, .7, .2, 1) both .2s;
+/* ── Descent: the story strip on the bottom edge (docs/design/descent.md) ──
+   no box and no sky: points of the page's own ink, printed over the page itself.
+   The HUD scrim deepens behind it so content fades out underneath. */
+:root { --story-h: clamp(132px, 19vh, 196px); --story-b: 56px; --story-head: 72px; }
+.descent {
+  position: fixed; left: 0; right: 0; bottom: var(--story-b); height: calc(var(--story-h) + var(--story-head));
+  z-index: 19; pointer-events: none;
 }
-@keyframes story-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-.story-sub {
-  position: absolute; left: clamp(20px, 5vw, 92px); right: 140px; bottom: 7%;
-  display: flex; gap: 16px; align-items: baseline; color: #EFEFE7; white-space: nowrap; overflow: hidden;
+.descent-cv {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 34%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 34%, #000 94%, transparent 100%);
+}
+.descent-sub {
+  position: absolute; left: clamp(20px, 5vw, 92px); right: 140px; bottom: 6px;
+  display: flex; gap: 16px; align-items: baseline; color: rgb(var(--fg)); white-space: nowrap; overflow: hidden;
   will-change: opacity, transform;
 }
-.story-sub .mono { text-transform: uppercase; color: #FE9F6D; }
-.story-line {
-  font-weight: 600; font-size: clamp(14px, 1.15vw, 18px); letter-spacing: -.01em; font-variation-settings: 'wdth' 86;
+.descent-sub .mono { text-transform: uppercase; color: #FE9F6D; flex: none; }
+body.inv .descent-sub .mono { color: #B2364F; }
+.descent-line {
+  font-weight: 600; font-size: clamp(14px, 1.2vw, 19px); letter-spacing: -.012em; font-variation-settings: 'wdth' 86;
   text-overflow: ellipsis; overflow: hidden;
 }
-.story-toggle {
-  position: absolute; right: clamp(20px, 5vw, 92px); bottom: 7%; pointer-events: auto;
+.descent-toggle {
+  position: absolute; right: clamp(20px, 5vw, 92px); bottom: 2px; pointer-events: auto;
   background: none; border: 0; padding: 6px 0; cursor: pointer; text-transform: uppercase;
   color: rgb(var(--dim)); transition: color .3s ease;
 }
-.story-toggle:hover, .story-toggle:focus-visible { color: rgb(var(--fg)); }
-.story[data-collapsed] { height: 34px; }
-.story[data-collapsed] .story-cv, .story[data-collapsed] .story-sub { display: none; }
+.descent-toggle:hover, .descent-toggle:focus-visible { color: rgb(var(--fg)); }
+.descent[data-collapsed] { height: 34px; }
+.descent[data-collapsed] .descent-cv, .descent[data-collapsed] .descent-sub { display: none; }
+body:has(.descent:not([data-collapsed])) .hud-scrim { height: calc(var(--story-b) + var(--story-h) + 40px); }
 @media (max-width: 759px) {
-  :root { --story-h: 92px; --story-b: 60px; }
-  .story-sub { right: 92px; gap: 10px; }
-  .story-sub .mono { display: none; }
-  .story-line { font-size: 13px; }
+  :root { --story-h: 104px; --story-b: 60px; --story-head: 52px; }
+  .descent-sub { right: 84px; gap: 10px; white-space: normal; bottom: 4px; }
+  .descent-sub .mono { display: none; }
+  .descent-line { font-size: 13px; line-height: 1.2; text-wrap: balance; }
 }
-@media (prefers-reduced-motion: reduce) { .story-cv { animation: none; } }

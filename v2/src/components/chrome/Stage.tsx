@@ -2,7 +2,7 @@
    the plate parallax stack, the particle field, the veil and the grain.
    Mounted once in App, above the router outlet. */
 import { useEffect, useRef } from 'react';
-import { createField, type FieldHandle } from '@/lib/field';
+import { createField, type FieldHandle, type Pointer } from '@/lib/field';
 import { onFrame, deviceTier, lerp, clamp, ss, state } from '@/lib/scroll';
 
 /* [id, fadeInStart, fadeInEnd, fadeOutStart, fadeOutEnd, parallaxRate, scale, maxOpacity] */
@@ -36,6 +36,36 @@ export default function Stage() {
 
     const onResize = () => field?.resize();
     window.addEventListener('resize', onResize);
+
+    /* ── the pointer layer: hover lens, wake, hold-to-collapse, release burst.
+       Transient uniforms only — the field itself stays a pure function of scroll. */
+    const ptr: Pointer = { mx: 9, my: 9, hover: 0, well: 0, trail: new Float32Array(24), burst: [9, 9, 9], str: 0 };
+    let mx = 9, my = 9, inside = false, holding = false, holdT = 0, lastMove = 0, prevX = 9, prevY = 9, trailT = 0, ti = 0;
+    const toNdc = (e: PointerEvent): [number, number] => [(e.clientX / window.innerWidth) * 2 - 1, -((e.clientY / window.innerHeight) * 2 - 1)];
+    const busy = (t: EventTarget | null) => t instanceof Element && !!t.closest('a,button,input,textarea,select,label,[data-cur],[contenteditable]');
+    const onMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') return;
+      [mx, my] = toNdc(e); inside = true; lastMove = performance.now();
+    };
+    const onDown = (e: PointerEvent) => {
+      if (busy(e.target) || e.button !== 0) return;
+      const [x, y] = toNdc(e);
+      if (e.pointerType === 'touch') { ptr.burst = [x, y, 0]; return; }
+      holding = true; holdT = 0;
+    };
+    const onUp = () => {
+      if (!holding) return;
+      holding = false;
+      if (ptr.well > 0.25) ptr.burst = [mx, my, 0];
+      if (state.hud.startsWith('state: overfitting')) state.hud = '';
+    };
+    const onLeave = () => { inside = false; onUp(); };
+    addEventListener('pointermove', onMove, { passive: true });
+    addEventListener('pointerdown', onDown, { passive: true });
+    addEventListener('pointerup', onUp, { passive: true });
+    addEventListener('pointercancel', onUp, { passive: true });
+    document.documentElement.addEventListener('pointerleave', onLeave);
+    addEventListener('blur', onLeave);
 
     const off = onFrame(({ p, vel, dt }) => {
       /* six formations mapped across the whole document */
@@ -77,7 +107,35 @@ export default function Stage() {
         }
       }
 
+      /* pointer: ease everything so nothing pops */
+      const k = Math.min(1, 0.18 * dt), sec = dt / 60;
+      const idle = performance.now() - lastMove > 4000;
+      ptr.hover = lerp(ptr.hover, inside && !idle ? 1 : 0, Math.min(1, 0.08 * dt));
+      ptr.mx = lerp(ptr.mx, mx, k); ptr.my = lerp(ptr.my, my, k);
+      if (holding) {
+        holdT += sec;
+        if (holdT > 0.18) {
+          ptr.well = lerp(ptr.well, 1, Math.min(1, 0.05 * dt));
+          if (!state.hud) state.hud = 'state: overfitting… (release)';
+        }
+      } else ptr.well = lerp(ptr.well, 0, Math.min(1, 0.12 * dt));
+      if (ptr.burst[2] < 9) ptr.burst[2] += sec;
+      /* the wake: a sample of the path every 40 ms, weighted by speed, fading */
+      trailT += sec;
+      for (let i = 0; i < 8; i++) ptr.trail[i * 3 + 2] *= Math.pow(0.08, sec);
+      if (trailT > 0.04) {
+        const sp = Math.hypot(ptr.mx - prevX, ptr.my - prevY) / trailT;
+        if (prevX < 8) {
+          const o = (ti++ % 8) * 3;
+          ptr.trail[o] = ptr.mx; ptr.trail[o + 1] = ptr.my; ptr.trail[o + 2] = clamp((sp - 0.2) * 0.14, 0, 0.3);
+        }
+        prevX = ptr.mx; prevY = ptr.my; trailT = 0;
+      }
+      /* full in the hero, gentler as you read; off on a case study */
+      ptr.str = lerp(ptr.str, onProject ? 0 : lerp(1, 0.35, ss(0.04, 0.2, p)), Math.min(1, 0.06 * dt));
+
       field?.update({
+        ptr,
         morph: morphS,
         turb,
         inv: invS,
@@ -94,6 +152,12 @@ export default function Stage() {
       disposed = true;
       off();
       window.removeEventListener('resize', onResize);
+      removeEventListener('pointermove', onMove);
+      removeEventListener('pointerdown', onDown);
+      removeEventListener('pointerup', onUp);
+      removeEventListener('pointercancel', onUp);
+      document.documentElement.removeEventListener('pointerleave', onLeave);
+      removeEventListener('blur', onLeave);
       field?.dispose();
     };
   }, []);

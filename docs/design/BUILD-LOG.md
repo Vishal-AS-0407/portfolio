@@ -311,3 +311,18 @@ Bugs found by rendering, all of which had passed `tsc` and a blocklist sweep:
   became `src/story`; `state.gap` and `state.cover` are gone.
 - The 0→100 preloader is removed. Nothing waited on it; the page paints straight away and the strip
   rises in.
+
+## 2026-10-24 — Descent, from a blank page
+
+- Inheritance (`src/story`) is deleted outright. New `v2/src/descent/`: gradient descent told as a
+  journey. The terrain is a loss surface; the traveller's lantern is lit by |slope|, so it dims on the
+  plateau and in the local minimum. Ten beats tied to the HUD states — init, overshoot, the local
+  minimum (the Settled, whose child follows), momentum, plateau, the storm, overfitting (echoes that
+  shatter), validation across the lake, convergence (the cairn of lanterns), and epoch 0: a new light
+  wakes on the far peak. Plan: `descent.md`.
+- Rendering: a hidden 2D scene buffer (density / light / material) printed by a WebGL2 stipple shader
+  in the page's own ink, with mip-blur bloom and a GL points pass for embers, rain, sparks and shards.
+  Ink follows `--bg`, so the strip turns pencil-on-plate when the page inverts.
+- The hero field answers the pointer: a warm hover lens, a wake behind fast moves, hold to collapse
+  (HUD: `state: overfitting… (release)`), release to burst. Uniform-only in `field.ts`, eased off by
+  scroll and off entirely on `/work/*`; links and buttons keep their clicks.

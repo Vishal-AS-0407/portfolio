@@ -13,7 +13,10 @@ attribute vec3 aP0, aP1, aP2, aP3, aP4, aP5;
 attribute vec3 aCol;
 attribute vec2 aRnd;
 uniform float uMorph, uTime, uTurb, uVel, uReveal, uPS, uDpr;
-varying float vT, vA, vImg;
+/* the pointer layer — transient, from uniforms only, so scroll stays a pure function */
+uniform vec2 uMouse; uniform float uHover, uWell, uAspect, uIStr;
+uniform vec3 uTrail[8]; uniform vec3 uBurst;
+varying float vT, vA, vImg, vHot;
 varying vec3 vC;
 
 vec3 turb(vec3 p, float t) {
@@ -44,6 +47,40 @@ void main() {
   mv.y += uVel * .15 * (.4 + aRnd.x);
   gl_Position = projectionMatrix * mv;
 
+  /* screen-space forces around the pointer */
+  vHot = 0.;
+  if (uIStr > .001) {
+    vec2 ndc = gl_Position.xy / gl_Position.w;
+    vec2 asp = vec2(uAspect, 1.);
+    vec2 d = (ndc - uMouse) * asp;
+    float r2 = dot(d, d), r = sqrt(r2) + 1e-4;
+    vec2 n = d / r;
+    /* hover: a soft lens that parts the points and warms them */
+    float lens = exp(-r2 / .045) * uHover * (1. - uWell);
+    vec2 off = n * lens * .05 * (.6 + aRnd.x * .8);
+    /* wake: the recent path of a fast pointer bends nearby points into a swirl */
+    for (int i = 0; i < 8; i++) {
+      vec2 dt = (ndc - uTrail[i].xy) * asp;
+      float w = uTrail[i].z * exp(-dot(dt, dt) / .012);
+      off += vec2(-dt.y, dt.x) * w * 1.6 + dt * w * .8;
+    }
+    /* hold: a gravity well — everything in reach collapses toward the pointer */
+    float well = exp(-r2 / .16) * uWell;
+    off += -d * well * (.86 + aRnd.y * .12) + vec2(-n.y, n.x) * well * .05 * sin(uTime * 3. + aRnd.x * 6.28);
+    /* release: a ring that runs outward and fades */
+    float age = uBurst.z;
+    if (age < 1.2) {
+      vec2 db = (ndc - uBurst.xy) * asp;
+      float rb = length(db), R = age * 1.5;
+      float ring = exp(-pow(rb - R, 2.) / .006) * (1. - age / 1.2);
+      off += db / (rb + 1e-4) * ring * .11;
+      vHot += ring * .9;
+    }
+    off *= uIStr;
+    gl_Position.xy += off / asp * gl_Position.w;
+    vHot = clamp(vHot + lens * .9 + well * 1.1, 0., 1.) * uIStr;
+  }
+
   float dist = max(.05, -mv.z);
   gl_PointSize = clamp(uPS * uDpr / dist, .55, 7.);
   vT = clamp(aRnd.y * .5 + length(p) * .4 + m * .06, 0., 1.);
@@ -53,7 +90,7 @@ void main() {
 
 const FRAG = /* glsl */ `
 precision highp float;
-varying float vT, vA, vImg;
+varying float vT, vA, vImg, vHot;
 varying vec3 vC;
 uniform float uInv, uAlpha;
 
@@ -78,7 +115,9 @@ void main() {
   base = mix(base, vC, vImg * .9);
   /* on the plate, read the dark end of the ramp so points stay rich as ink */
   vec3 col = mix(base, magma(vT * .34 + .06) * .92, uInv);
-  float a = mix(.40, .55, uInv) * soft * vA * uAlpha;
+  /* what the pointer touches runs hot */
+  col = mix(col, mix(magma(.78 + vT * .2), magma(.3), uInv), vHot * .7);
+  float a = mix(.40, .55, uInv) * soft * vA * uAlpha * (1. + vHot * .9);
   gl_FragColor = vec4(col, a);
 }`;
 
@@ -148,8 +187,9 @@ const loadImg = (src: string) =>
     i.onload = () => r(i); i.onerror = () => r(null); i.src = src;
   });
 
+export type Pointer = { mx: number; my: number; hover: number; well: number; trail: Float32Array; burst: [number, number, number]; str: number };
 export type FieldHandle = {
-  update: (o: { morph: number; turb: number; inv: number; vel: number; reveal: number; rotY: number; rotX: number; dist: number; alpha: number }) => void;
+  update: (o: { morph: number; turb: number; inv: number; vel: number; reveal: number; rotY: number; rotX: number; dist: number; alpha: number; ptr?: Pointer }) => void;
   resize: () => void;
   dispose: () => void;
   count: number;
@@ -195,6 +235,10 @@ export async function createField(canvas: HTMLCanvasElement, tier: FieldTier): P
     uReveal: { value: 0 }, uInv: { value: 0 }, uAlpha: { value: 1 },
     uPS: { value: tier === 1 ? 4.6 : 6.4 },
     uDpr: { value: renderer.getPixelRatio() },
+    uMouse: { value: new THREE.Vector2(9, 9) }, uHover: { value: 0 }, uWell: { value: 0 },
+    uAspect: { value: window.innerWidth / window.innerHeight }, uIStr: { value: 0 },
+    uTrail: { value: Array.from({ length: 8 }, () => new THREE.Vector3(9, 9, 0)) },
+    uBurst: { value: new THREE.Vector3(9, 9, 9) },
   };
   const mat = new THREE.ShaderMaterial({
     uniforms, vertexShader: VERT, fragmentShader: FRAG,
@@ -207,7 +251,7 @@ export async function createField(canvas: HTMLCanvasElement, tier: FieldTier): P
   let lastInv = 0;
   return {
     count: N,
-    update({ morph, turb, inv, vel, reveal, rotY, rotX, dist, alpha }) {
+    update({ morph, turb, inv, vel, reveal, rotY, rotX, dist, alpha, ptr }) {
       uniforms.uMorph.value = morph;
       uniforms.uTime.value = performance.now() * 0.001;
       uniforms.uTurb.value = turb;
@@ -215,6 +259,12 @@ export async function createField(canvas: HTMLCanvasElement, tier: FieldTier): P
       uniforms.uVel.value = vel;
       uniforms.uReveal.value = reveal;
       uniforms.uAlpha.value = alpha;
+      if (ptr) {
+        uniforms.uMouse.value.set(ptr.mx, ptr.my);
+        uniforms.uHover.value = ptr.hover; uniforms.uWell.value = ptr.well; uniforms.uIStr.value = ptr.str;
+        for (let i = 0; i < 8; i++) uniforms.uTrail.value[i].set(ptr.trail[i * 3], ptr.trail[i * 3 + 1], ptr.trail[i * 3 + 2]);
+        uniforms.uBurst.value.set(ptr.burst[0], ptr.burst[1], ptr.burst[2]);
+      }
       pts.rotation.y = rotY; pts.rotation.x = rotX;
       cam.position.z = dist;
       /* additive glows on the void; standard alpha reads as ink on the plate */
@@ -231,6 +281,7 @@ export async function createField(canvas: HTMLCanvasElement, tier: FieldTier): P
       renderer.setSize(w, h, false);
       uniforms.uDpr.value = renderer.getPixelRatio();
       cam.aspect = w / h; cam.updateProjectionMatrix();
+      uniforms.uAspect.value = w / h;
     },
     dispose() { geo.dispose(); mat.dispose(); renderer.dispose(); },
   };
