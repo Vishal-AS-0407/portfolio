@@ -7,7 +7,6 @@ import {
   patents, achievements, certifications, leadership, chess, hobbies, skills,
 } from '@/data/content';
 import { caseStudies } from '@/data/casestudies';
-import Film from '@/film/Film';
 
 /* ── 01 · HERO — the name is type, never particles ── */
 function Hero() {
@@ -23,7 +22,7 @@ function Hero() {
     }), []);
 
   return (
-    <section className="relative w-full gutter h-screen flex flex-col justify-end pb-[clamp(44px,7vh,88px)] in">
+    <section className="relative w-full gutter h-screen flex flex-col justify-end pb-[calc(var(--story-h)+var(--story-b)+18px)] in">
       <div className="tag fade">initialisation — epoch 0</div>
       <h1
         ref={name}
@@ -393,7 +392,6 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Film />
       <About />
       <Work />
       <Research />

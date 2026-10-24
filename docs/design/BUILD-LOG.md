@@ -302,3 +302,12 @@ Bugs found by rendering, all of which had passed `tsc` and a blocklist sweep:
 - `scroll.ts` gains `state.gap` (the film's pin is cut out of page progress, so field, HUD and inversion
   timing are unchanged) and `state.cover` (the field skips rendering while the film fills the screen).
 - Reduced motion renders the nine shots as stills. A skip button jumps past the film. Dev: `?film=0.42`, `&bones=1`.
+
+## 2026-10-24 — the story goes back to the bottom edge
+
+- The pinned film read as a video; the story is a strip along the bottom edge again, played by the
+  whole page's scroll. Same art, shots and colour script, framed for a short, wide band: the sky
+  dissolves upward into the page and the shot's line sits on the ground like a subtitle. `src/film`
+  became `src/story`; `state.gap` and `state.cover` are gone.
+- The 0→100 preloader is removed. Nothing waited on it; the page paints straight away and the strip
+  rises in.

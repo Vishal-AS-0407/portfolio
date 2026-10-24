@@ -77,8 +77,7 @@ export default function Stage() {
         }
       }
 
-      /* the film fills the viewport opaquely while it plays — nothing to draw */
-      if (!state.cover) field?.update({
+      field?.update({
         morph: morphS,
         turb,
         inv: invS,

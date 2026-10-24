@@ -24,7 +24,7 @@ export const SHOTS: Shot[] = [
   { id: 'gift', title: 'The gift', cap: 'He gave it the only thing he had left.', f0: 0.59, f1: 0.7, key: 0.5 },
   { id: 'inherit', title: 'Inheritance', cap: 'It remembered what it was made of.', f0: 0.7, f1: 0.79, key: 0.6 },
   { id: 'again', title: 'Again', cap: 'And it began again.', f0: 0.79, f1: 0.91, key: 0.3 },
-  { id: 'coda', title: 'Coda', cap: '', f0: 0.91, f1: 1, key: 0.62 },
+  { id: 'coda', title: 'Coda', cap: 'What we build inherits what we are.', f0: 0.91, f1: 1, key: 0.62 },
 ];
 /** shot i, local u → film f */
 export const F = (i: number, u: number) => SHOTS[i].f0 + (SHOTS[i].f1 - SHOTS[i].f0) * u;
@@ -38,7 +38,7 @@ export const WAR_SPLIT = F(2, 0.375), AGAIN_SPLIT = F(7, 0.42);
 
 /* ── the grade, keyed over f; two keys at one f are a cut ── */
 export const GRADE_KEYS: [number, GradeName][] = [
-  [0, 'black'], [0.022, 'dawn'], [0.11, 'morning'],
+  [0, 'dawn'], [0.11, 'morning'],
   [0.11, 'morning'], [0.21, 'want'],
   [0.21, 'war'], [0.37, 'war'],
   [0.37, 'ash'], [0.47, 'ash'],

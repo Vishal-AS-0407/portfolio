@@ -82,11 +82,14 @@ export function createFilm() {
     return { hand, tip: [hand[0] + d[0] * L * p.U, hand[1] + d[1] * L * p.U] };
   };
 
-  function draw(x: Ctx, W: number, H: number, f: number, t: number, dt: number, still = false, bones = false) {
+  /* bandMode: a short, very wide strip — the camera frames by height only, close shots stay
+     close and wide shots open up, and the ground sits higher to leave a subtitle row */
+  function draw(x: Ctx, W: number, H: number, f: number, t: number, dt: number, still = false, bones = false, bandMode = false) {
     const g = sampleGrade(f);
-    const cam = sampleCamera(f);
-    const k = Math.min((cam.g * H) / cam.h, W / cam.w);
-    const kRef = Math.min((H * 0.8) / 3.2, W / 3.8);
+    const cam = { ...sampleCamera(f) };
+    if (bandMode) { cam.h = 1.55 + cam.h * 0.12; cam.g = 0.79; cam.eh = Math.min(cam.eh, 1.1); }
+    const k = bandMode ? (cam.g * H) / cam.h : Math.min((cam.g * H) / cam.h, W / cam.w);
+    const kRef = bandMode ? (H * 0.79) / 1.95 : Math.min((H * 0.8) / 3.2, W / 3.8);
     const gy = cam.g * H;
     const hy = Math.max(H * 0.1, Math.min(gy - 4, gy - cam.eh * k));
     const v: View = { W, H, k, kRef, cx: cam.x, gy, hy, t, f, reduced: still, g };
@@ -102,7 +105,8 @@ export function createFilm() {
     }
 
     x.save();
-    if (shake > 0.01 && !still) x.translate((Math.random() - 0.5) * 10 * shake, (Math.random() - 0.5) * 6 * shake);
+    const sa = bandMode ? Math.min(1, H / 360) : 1;
+    if (shake > 0.01 && !still) x.translate((Math.random() - 0.5) * 10 * shake * sa, (Math.random() - 0.5) * 6 * shake * sa);
     x.fillStyle = css(g.ink); x.fillRect(-20, -20, W + 40, H + 40);
 
     drawSky(x, v);
@@ -344,7 +348,8 @@ export function createFilm() {
     /* dips at the cuts, the opening fade-up and the closing fade-out */
     let dip = 0;
     for (let i = 1; i < SHOTS.length; i++) dip = Math.max(dip, 1 - Math.abs(f - SHOTS[i].f0) / 0.0035);
-    dip = Math.max(dip, 1 - sat(f / 0.022), band(0.955, 0.995, f));
+    if (bandMode) dip *= 0.55;
+    else dip = Math.max(dip, 1 - sat(f / 0.022), band(0.955, 0.995, f));
     if (dip > 0.002) { x.fillStyle = `rgba(5,4,5,${sat(dip).toFixed(3)})`; x.fillRect(0, 0, W, H); }
     if (flash > 0.02 && !still) { x.fillStyle = css(flashCol, Math.min(0.85, flash * 0.6)); x.fillRect(0, 0, W, H); }
     return { si, u, tone: g.tone };

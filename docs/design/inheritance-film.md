@@ -1,3 +1,5 @@
+> **Format change (2026-10-24).** The art, shots and colour script below ship, but not as a pinned film: the user wanted the story back as a strip along the bottom edge, played by the whole page's scroll. Code is in `v2/src/story/` (`Band.tsx` mounts it; `engine.draw(…, bandMode)` frames for a short, wide strip). The preloader counter was removed in the same change.
+
 # Inheritance — a short film you scroll
 
 Supersedes the Biomech hero and the bottom-edge story band in
